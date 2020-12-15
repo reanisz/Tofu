@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\src\github.com\reanisz\Tofu\libs-build\box2d-win\CMakeFiles\712f4ad9dd6a3c00d776fc5045f8ba53\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{3B5B4CBE-638E-375A-A32D-257C4A8E3A96}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
