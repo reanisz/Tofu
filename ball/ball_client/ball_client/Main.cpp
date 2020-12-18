@@ -95,9 +95,8 @@ namespace tofu {
 		static_vector& operator=(std::initializer_list<T> init_list)
 		{
 			assert(init_list.size() <= max);
-			_size = std::min(max, init_list.size());
+			clear();
 
-			// 最適化の余地あり
 			for (auto& value : init_list) 
 			{
 				push_back(value);
@@ -320,7 +319,15 @@ namespace tofu {
 				auto& pos = transform._pos;
 				auto& angle = transform._angle;
 
-				body->SetTransform({ pos.x, pos.y }, angle);
+				auto body_pos = body->GetPosition();
+				auto body_angle = body->GetAngle();
+
+				auto new_pos = b2Vec2{ pos.x, pos.y };
+				if (body_pos == new_pos && body_angle == angle)
+					continue;
+
+				body->SetTransform(new_pos, angle);
+				body->SetAwake(true);
 			}
 		}
 
@@ -370,8 +377,9 @@ namespace tofu {
 	class Box2DPrimitiveRenderSystem
 	{
 	public:
-		Box2DPrimitiveRenderSystem(observer_ptr<entt::registry> registry) 
+		Box2DPrimitiveRenderSystem(observer_ptr<entt::registry> registry, float scale) 
 			: _registry(registry)
+			, _factor(scale)
 		{
 		}
 
@@ -405,9 +413,12 @@ namespace tofu {
 	private:
 		void RenderShape(const Transform& transform, const Box2DPrimitiveRenderer& config, b2CircleShape* shape) 
 		{
-			Circle{ transform._pos + trans(Float2{shape->m_p.x, shape->m_p.y}, transform._angle), shape->m_radius }
+			auto center = _factor * (transform._pos + rotate(Float2{ shape->m_p.x, shape->m_p.y }, transform._angle));
+			Circle{ center, _factor * shape->m_radius }
 				.draw(config._fillColor)
 				.drawFrame(1, config._frameColor);
+			auto p2 = center + rotate(Float2{ _factor * shape->m_radius, 0 }, transform._angle);
+			Line{ center, p2 }.draw(config._frameColor);
 		}
 		void RenderShape(const Transform& transform, const Box2DPrimitiveRenderer& config, b2PolygonShape* shape) 
 		{
@@ -417,7 +428,7 @@ namespace tofu {
 			auto p_shape = dynamic_cast<b2PolygonShape*>(shape);
 			for (int i = 0; i < p_shape->m_count; i++) {
 				auto pos = p_shape->m_vertices[i];
-				v.push_back(transform._pos + trans(Vec2{ pos.x, pos.y }, angle));
+				v.push_back(_factor * (transform._pos + rotate(Vec2{ pos.x, pos.y }, angle)));
 			}
 
 			Polygon polygon{ v.data(), v.size() };
@@ -425,8 +436,8 @@ namespace tofu {
 		}
 		void RenderShape(const Transform& transform, const Box2DPrimitiveRenderer& config, b2EdgeShape* shape) 
 		{
-			auto p1 = transform._pos + trans(Float2{ shape->m_vertex1.x, shape->m_vertex1.y }, transform._angle);
-			auto p2 = transform._pos + trans(Float2{ shape->m_vertex2.x, shape->m_vertex2.y }, transform._angle);
+			auto p1 = _factor * (transform._pos + rotate(Float2{ shape->m_vertex1.x, shape->m_vertex1.y }, transform._angle));
+			auto p2 = _factor * (transform._pos + rotate(Float2{ shape->m_vertex2.x, shape->m_vertex2.y }, transform._angle));
 
 			Line{ p1, p2 }.draw(config._frameColor);
 		}
@@ -441,27 +452,32 @@ namespace tofu {
 		}
 
 		template<class TVec>
-		TVec trans(const TVec& pos, float angle)
+		TVec rotate(const TVec& pos, float angle)
 		{
 			return Mat3x2::Rotate(angle).transform(pos);
 		}
 
 	private:
 		observer_ptr<entt::registry> _registry;
+		float _factor;
 	};
 
 
-	struct Ball 
+	struct Ball
 	{
 		float _radius;
 	};
 
-	struct Box 
+	struct Box
 	{
-		b2Fixture* _fixture;
 	};
 
-	struct Controllable {
+	struct Floor
+	{
+	};
+
+	struct Player
+	{
 	};
 
 	class Game {
@@ -486,34 +502,70 @@ namespace tofu {
 			_end = false;
 
 			auto physics = _serviceLocator.Register(std::make_unique<Physics>(&_registry));
-			_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_registry));
+			_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_registry, 100));
 
 			{
 				// floor
 				auto entity = _registry.create();
-				_registry.emplace<Transform>(entity, Point{ 300, 500 }, 0.0f);
+				_registry.emplace<Transform>(entity, Float2{ 4.f, 6.f }, 0.0f);
 
-				b2BodyDef body_def;
-				body_def.type = b2BodyType::b2_kinematicBody;
-				auto body = physics->GenerateBody(entity, body_def)._body;
+				auto body = physics->GenerateBody(entity)._body;
 				b2PolygonShape shape;
-				shape.SetAsBox(300, 10);
+				shape.SetAsBox(4.0f, 0.1f);
 				b2FixtureDef fixture_def;
 				fixture_def.shape = &shape;
 				fixture_def.density = 1.0f;
 				fixture_def.friction = 0.9f;
 				fixture_def.restitution = 0.1f;
 
-				auto fixture = body->CreateFixture(&fixture_def);
-				_registry.emplace<Box>(entity, fixture);
+				body->CreateFixture(&fixture_def);
+				_registry.emplace<Floor>(entity);
+
+				_registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			}
+			{
+				// Wall
+				auto entity = _registry.create();
+				_registry.emplace<Transform>(entity, Float2{ 0.f, 3.f }, 0.0f);
+
+				auto body = physics->GenerateBody(entity)._body;
+				b2PolygonShape shape;
+				shape.SetAsBox(0.1f, 3.0f);
+				b2FixtureDef fixture_def;
+				fixture_def.shape = &shape;
+				fixture_def.density = 1.0f;
+				fixture_def.friction = 0.9f;
+				fixture_def.restitution = 0.1f;
+
+				body->CreateFixture(&fixture_def);
+				_registry.emplace<Floor>(entity);
+
+				_registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			}
+			{
+				// Wall
+				auto entity = _registry.create();
+				_registry.emplace<Transform>(entity, Float2{ 8.f, 3.f }, 0.0f);
+
+				auto body = physics->GenerateBody(entity)._body;
+				b2PolygonShape shape;
+				shape.SetAsBox(0.1f, 3.0f);
+				b2FixtureDef fixture_def;
+				fixture_def.shape = &shape;
+				fixture_def.density = 1.0f;
+				fixture_def.friction = 0.9f;
+				fixture_def.restitution = 0.1f;
+
+				body->CreateFixture(&fixture_def);
+				_registry.emplace<Floor>(entity);
 
 				_registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
 			}
 				
-			for (int i = 0; i < 10; i++) {
+			{
 				auto entity = _registry.create();
-				_registry.emplace<Transform>(entity, Point{ i * 50, i * 50 }, 0.0f);
-				auto ball = _registry.emplace<Ball>(entity, 8.0f);
+				_registry.emplace<Transform>(entity, Float2{ 3.f, 0.5f }, 0.0f);
+				auto ball = _registry.emplace<Ball>(entity, 0.08f);
 
 				b2BodyDef body_def;
 				body_def.type = b2BodyType::b2_dynamicBody;
@@ -535,14 +587,14 @@ namespace tofu {
 			{
 				// box
 				auto entity = _registry.create();
-				_registry.emplace<Transform>(entity, Point{ 250, 50 }, 1.0f);
+				_registry.emplace<Transform>(entity, Float2{ 2.5f, 0.5f }, 1.0f);
 
 				b2BodyDef body_def;
 				body_def.type = b2BodyType::b2_dynamicBody;
 
 				auto body = physics->GenerateBody(entity, body_def)._body;
 				b2PolygonShape shape;
-				shape.SetAsBox(6, 6);
+				shape.SetAsBox(0.06f, 0.06f);
 				b2FixtureDef fixture_def;
 				fixture_def.shape = &shape;
 				fixture_def.density = 1.0f;
@@ -565,11 +617,11 @@ namespace tofu {
 			{
 				auto view = _registry.view<Transform, Ball>();
 				for (auto&& [entity, transform, ball] : view.proxy()) {
-					transform._pos.y = 100;
+					transform._pos.y = 1;
 				}
 			}
 			_serviceLocator.Get<Physics>()->FollowTransform();
-			_serviceLocator.Get<Physics>()->Step(1 / 60.0f);
+			_serviceLocator.Get<Physics>()->Step(Scene::DeltaTime());
 			_serviceLocator.Get<Physics>()->WriteBackToTransform();
 			_serviceLocator.Get<Box2DPrimitiveRenderSystem>()->Render();
 		}
