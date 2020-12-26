@@ -8,6 +8,12 @@
 #include <stdexcept>
 
 namespace tofu {
+	// Tに依存させたいときのやつ
+	template<class T>
+	constexpr bool true_v = true;
+	template<class T>
+	constexpr bool false_v = false;
+
 	// https://en.cppreference.com/w/cpp/experimental/observer_ptr の簡易的な実装
 	// TODO: テストを書く
 	template<class T>
@@ -270,6 +276,110 @@ namespace tofu {
 		std::array<T, max> _data;
 		size_type _size;
 	};
+
+	// 数値型の別名
+	template<class TTag, class TNumeric = int>
+	struct StrongNumeric {
+		using value_type = TNumeric;
+
+		constexpr StrongNumeric()
+			: _value(0)
+		{
+		}
+
+		constexpr StrongNumeric(value_type value)
+			: _value(value)
+		{
+		}
+
+		constexpr operator value_type() const 
+		{
+			return _value;
+		}
+
+#define tofu_def_assign_op(op) \
+		StrongNumeric& operator op(const StrongNumeric& other) \
+		{ \
+			_value op other._value; \
+			return *this; \
+		} \
+
+		tofu_def_assign_op(+=)
+		tofu_def_assign_op(-=)
+		tofu_def_assign_op(*=)
+		tofu_def_assign_op(/=)
+
+#undef tofu_def_assign_op
+
+#define tofu_def_increment_op(op) \
+		StrongNumeric& operator op() { \
+			_value op; \
+			return *this; \
+		} \
+		StrongNumeric operator op(int) { \
+			auto res = *this; \
+			_value op; \
+			return res; \
+		} \
+
+		tofu_def_increment_op(++)
+		tofu_def_increment_op(--)
+
+#undef tofu_def_increment_op
+
+		StrongNumeric operator-() const
+		{
+			if constexpr (std::is_signed_v<value_type>)
+			{
+				return -_value;
+			}
+			else {
+				static_assert(false_v<value_type>, "value_type is not signed");
+			}
+		}
+
+	private:
+		value_type _value;
+	};
+
+#define tofu_def_binary_op(op) \
+	template<class TTag, class TNumeric> \
+	StrongNumeric<TTag, TNumeric> operator op(const StrongNumeric<TTag, TNumeric>& lhs, const StrongNumeric<TTag, TNumeric>& rhs) \
+	{ \
+		StrongNumeric<TTag, TNumeric> res = lhs; \
+		res op ## = rhs; \
+		return res; \
+	}
+
+	tofu_def_binary_op(+)
+	tofu_def_binary_op(-)
+	tofu_def_binary_op(*)
+	tofu_def_binary_op(/)
+	tofu_def_binary_op(%)
+	// tofu_def_binary_op(<<)
+	// tofu_def_binary_op(>>)
+	// tofu_def_binary_op(^)
+	// tofu_def_binary_op(&)
+	// tofu_def_binary_op(|)
+
+#undef tofu_def_binary_op
+
+#define tofu_def_compare_op(op) \
+	template<class TTag, class TNumeric> \
+	bool operator op(const StrongNumeric<TTag, TNumeric>& lhs, const StrongNumeric<TTag, TNumeric>& rhs) \
+	{ \
+		return lhs._value op rhs._value; \
+	} \
+
+	tofu_def_compare_op(<)
+	tofu_def_compare_op(<=)
+	tofu_def_compare_op(>)
+	tofu_def_compare_op(>=)
+	tofu_def_compare_op(!=)
+	tofu_def_compare_op(==)
+
+#undef tofu_def_compare_op
+
 
 	// シンプルなサービスロケータ
 	// TODO: テストを書く
