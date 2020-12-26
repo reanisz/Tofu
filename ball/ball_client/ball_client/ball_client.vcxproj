@@ -73,6 +73,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MinimalRebuild>false</MinimalRebuild>
       <ConformanceMode>true</ConformanceMode>
+      <GenerateModuleDependencies>false</GenerateModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -108,9 +109,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Tofu.Ball.Game.cpp" />
+    <ClCompile Include="Tofu.Ecs.Box2DPrimitiveRenderer.cpp" />
+    <None Include="Tofu.Ball.Game.h" />
+    <None Include="Tofu.Ecs.Core.h" />
     <ClCompile Include="Main.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</PreprocessToFile>
     </ClCompile>
+    <ClCompile Include="Tofu.Ecs.Physics.cpp" />
+    <None Include="Tofu.Ecs.Physics.h" />
+    <ClCompile Include="Tofu.Utils.cpp" />
+    <None Include="Tofu.Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="App\engine\texture\box-shadow\128.png" />
@@ -175,6 +184,7 @@
     <None Include="App\example\zip\zip_test.zip" />
     <None Include="App\nlp\japanese\jumanpp\LICENSE" />
     <None Include="App\nlp\japanese\jumanpp\README.md" />
+    <None Include="Tofu.Ecs.Box2DPrimitiveRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="App\engine\font\fontawesome\LICENSE.txt" />

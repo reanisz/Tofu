@@ -102,6 +102,18 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tofu.Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tofu.Ecs.Physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tofu.Ecs.Box2DPrimitiveRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tofu.Ball.Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="App\icon.ico">
@@ -314,6 +326,21 @@
     </None>
     <None Include="App\example\zip\zip_test.zip">
       <Filter>Resource Files\example\zip</Filter>
+    </None>
+    <None Include="Tofu.Ecs.Box2DPrimitiveRenderer.h">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Tofu.Ecs.Core.h">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Tofu.Utils.h">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Tofu.Ecs.Physics.h">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Tofu.Ball.Game.h">
+      <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
