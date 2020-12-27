@@ -7,12 +7,23 @@
 #include <unordered_map>
 #include <stdexcept>
 
+#ifdef TOFU_ENABLE_SIV3D
+#include <Siv3D.hpp>
+#endif
+
+#ifdef TOFU_ENABLE_BOX2D
+#include <box2d/box2d.h>
+#endif
+
 namespace tofu {
 	// Tに依存させたいときのやつ
 	template<class T>
 	constexpr bool true_v = true;
 	template<class T>
 	constexpr bool false_v = false;
+
+	template<class T>
+	concept scalar_type = std::is_scalar_v<T>;
 
 	// https://en.cppreference.com/w/cpp/experimental/observer_ptr の簡易的な実装
 	// TODO: テストを書く
@@ -327,6 +338,11 @@ namespace tofu {
 
 #undef tofu_def_increment_op
 
+		StrongNumeric operator+() const
+		{
+			return *this;
+		}
+
 		StrongNumeric operator-() const
 		{
 			if constexpr (std::is_signed_v<value_type>)
@@ -380,6 +396,134 @@ namespace tofu {
 
 #undef tofu_def_compare_op
 
+	struct tVec2 
+	{
+		using value_type = float;
+
+		constexpr tVec2()
+			: _x(0)
+			, _y(0)
+		{
+		}
+
+		constexpr tVec2(value_type x, value_type y)
+			: _x(x)
+			, _y(y)
+		{
+		}
+
+#ifdef TOFU_ENABLE_SIV3D
+		constexpr tVec2(const s3d::Float2& other)
+			: _x(other.x)
+			, _y(other.y)
+		{
+		}
+		constexpr operator s3d::Float2() const 
+		{
+			return s3d::Vec2{_x, _y};
+		}
+		constexpr tVec2(const s3d::Vec2& other)
+			: _x(other.x)
+			, _y(other.y)
+		{
+		}
+		constexpr operator s3d::Vec2() const 
+		{
+			return s3d::Vec2{_x, _y};
+		}
+#endif
+
+#ifdef TOFU_ENABLE_BOX2D
+		constexpr tVec2(const b2Vec2& other)
+			: _x(other.x)
+			, _y(other.y)
+		{
+		}
+		operator b2Vec2() const 
+		{
+			return b2Vec2{_x, _y};
+		}
+#endif
+
+		value_type _x;
+		value_type _y;
+
+		tVec2 operator+() const 
+		{
+			return *this;
+		}
+		tVec2 operator-() const 
+		{
+			return { -_x, -_y };
+		}
+
+		constexpr tVec2& operator+=(const tVec2& other) {
+			_x += other._x;
+			_y += other._y;
+			return *this;
+		}
+
+		constexpr tVec2& operator-=(const tVec2& other) {
+			_x -= other._x;
+			_y -= other._y;
+			return *this;
+		}
+
+		constexpr tVec2& operator*=(value_type factor) {
+			_x *= factor;
+			_y *= factor;
+			return *this;
+		}
+
+		constexpr tVec2& operator/=(value_type factor) {
+			_x /= factor;
+			_y /= factor;
+			return *this;
+		}
+	};
+
+	inline constexpr tVec2 operator+(const tVec2& lhs, const tVec2& rhs) 
+	{
+		auto ret = lhs;
+		ret += rhs;
+		return ret;
+	}
+
+	inline constexpr tVec2 operator-(const tVec2& lhs, const tVec2& rhs) 
+	{
+		auto ret = lhs;
+		ret -= rhs;
+		return ret;
+	}
+
+	template<scalar_type TScalar>
+	inline constexpr tVec2 operator*(const tVec2& lhs, TScalar rhs) 
+	{
+		auto ret = lhs;
+		ret *= rhs;
+		return ret;
+	}
+	template<scalar_type TScalar>
+	inline constexpr tVec2 operator*(TScalar lhs, const tVec2& rhs) 
+	{
+		auto ret = rhs;
+		ret *= lhs;
+		return ret;
+	}
+	template<scalar_type TScalar>
+	inline constexpr tVec2 operator/(const tVec2& lhs, TScalar rhs) 
+	{
+		auto ret = lhs;
+		ret /= rhs;
+		return ret;
+	}
+	template<scalar_type TScalar>
+	inline constexpr tVec2 operator/(TScalar lhs, const tVec2& rhs) 
+	{
+		auto ret = rhs;
+		ret /= lhs;
+		return ret;
+	}
 
 	// シンプルなサービスロケータ
 	// TODO: テストを書く

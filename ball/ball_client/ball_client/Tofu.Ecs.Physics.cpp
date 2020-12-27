@@ -19,7 +19,7 @@ namespace tofu
 			auto body_pos = body->GetPosition();
 			auto body_angle = body->GetAngle();
 
-			auto new_pos = b2Vec2{ pos.x, pos.y };
+			auto new_pos = b2Vec2{ pos._x, pos._y };
 			if (body_pos == new_pos && body_angle == angle)
 				continue;
 
@@ -38,8 +38,8 @@ namespace tofu
 			auto pos = body->GetPosition();
 			auto angle = body->GetAngle();
 
-			transform._pos.x = pos.x;
-			transform._pos.y = pos.y;
+			transform._pos._x = pos.x;
+			transform._pos._y = pos.y;
 			transform._angle = angle;
 		}
 	}

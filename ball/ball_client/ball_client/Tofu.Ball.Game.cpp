@@ -5,6 +5,41 @@
 #include "Tofu.Ecs.Box2DPrimitiveRenderer.h"
 
 namespace tofu::ball {
+	UpdateSystem::UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
+		: _serviceLocator(service_locator)
+		, _registry(registry)
+	{
+	}
+
+	void UpdateSystem::Step()
+	{
+		_serviceLocator->Get<TickCounter>()->Step();
+
+		_serviceLocator->Get<Physics>()->FollowTransform();
+		_serviceLocator->Get<Physics>()->Step(Scene::DeltaTime());
+		_serviceLocator->Get<Physics>()->WriteBackToTransform();
+	}
+
+	ActionSystem::ActionSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
+		: _serviceLocator(service_locator)
+		, _registry(registry)
+	{
+	}
+
+	void ActionSystem::Step()
+	{
+		auto actions = _serviceLocator->Get<ActionQueue>()->Retrieve();
+		for (auto& action : actions)
+		{
+			std::visit([this, entity = action._entity](const auto& v) { this->apply(entity, v); }, action._action);
+		}
+	}
+
+	void ActionSystem::apply(entt::entity entity, const actions::Dash& action)
+	{
+		auto body = _registry->get<RigidBody>(entity)._body;
+	}
+
 	Game::Game()
 		: _end(false)
 	{
@@ -18,9 +53,21 @@ namespace tofu::ball {
 	}
 	void Game::initialize()
 	{
+		Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
+
 		_end = false;
 
+		// === Core ===
+		_serviceLocator.Register(std::make_unique<TickCounter>());
+
+		// === Physics ===
 		auto physics = _serviceLocator.Register(std::make_unique<Physics>(&_registry));
+
+		// === Simulation ===
+		_serviceLocator.Register(std::make_unique<UpdateSystem>(&_serviceLocator, &_registry));
+		_serviceLocator.Register(std::make_unique<ActionQueue>());
+		
+		// === Renderer ===
 		_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_registry, 100));
 
 		{
@@ -136,12 +183,10 @@ namespace tofu::ball {
 		{
 			auto view = _registry.view<Transform, Ball>();
 			for (auto&& [entity, transform, ball] : view.proxy()) {
-				transform._pos.y = 1;
+				transform._pos._y = 1;
 			}
 		}
-		_serviceLocator.Get<Physics>()->FollowTransform();
-		_serviceLocator.Get<Physics>()->Step(Scene::DeltaTime());
-		_serviceLocator.Get<Physics>()->WriteBackToTransform();
+		_serviceLocator.Get<UpdateSystem>()->Step();
 		_serviceLocator.Get<Box2DPrimitiveRenderSystem>()->Render();
 	}
 }
