@@ -5,21 +5,6 @@
 #include "Tofu.Ecs.Box2DPrimitiveRenderer.h"
 
 namespace tofu::ball {
-	UpdateSystem::UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
-		: _serviceLocator(service_locator)
-		, _registry(registry)
-	{
-	}
-
-	void UpdateSystem::Step()
-	{
-		_serviceLocator->Get<TickCounter>()->Step();
-
-		_serviceLocator->Get<Physics>()->FollowTransform();
-		_serviceLocator->Get<Physics>()->Step(Scene::DeltaTime());
-		_serviceLocator->Get<Physics>()->WriteBackToTransform();
-	}
-
 	ActionSystem::ActionSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
 		: _serviceLocator(service_locator)
 		, _registry(registry)
@@ -38,6 +23,46 @@ namespace tofu::ball {
 	void ActionSystem::apply(entt::entity entity, const actions::Dash& action)
 	{
 		auto body = _registry->get<RigidBody>(entity)._body;
+		auto d = action._target - tVec2{ body->GetPosition() };
+		d.Normalize();
+		Print << U"Dash(" << d._x << U", " << d._y << U")";
+		body->ApplyForceToCenter(d * 20, true);
+	}
+
+	PlayerController::PlayerController(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
+		: _serviceLocator(service_locator)
+		, _registry(registry)
+	{
+	}
+
+	void PlayerController::Step()
+	{
+		for (auto&& [entity] : _registry->view<Player>().proxy()) 
+		{
+			if (MouseL.down()) {
+				auto queue = _serviceLocator->Get<ActionQueue>();
+				auto clock = _serviceLocator->Get<TickCounter>();
+				queue->Enqueue({ entity, actions::Dash{ {1, 1} }, clock->GetCurrent() });
+			}
+		}
+	}
+
+	UpdateSystem::UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
+		: _serviceLocator(service_locator)
+		, _registry(registry)
+	{
+	}
+
+	void UpdateSystem::Step()
+	{
+		_serviceLocator->Get<TickCounter>()->Step();
+
+		_serviceLocator->Get<PlayerController>()->Step();
+		_serviceLocator->Get<ActionSystem>()->Step();
+
+		_serviceLocator->Get<Physics>()->FollowTransform();
+		_serviceLocator->Get<Physics>()->Step(Scene::DeltaTime());
+		_serviceLocator->Get<Physics>()->WriteBackToTransform();
 	}
 
 	Game::Game()
@@ -66,6 +91,8 @@ namespace tofu::ball {
 		// === Simulation ===
 		_serviceLocator.Register(std::make_unique<UpdateSystem>(&_serviceLocator, &_registry));
 		_serviceLocator.Register(std::make_unique<ActionQueue>());
+		_serviceLocator.Register(std::make_unique<ActionSystem>(&_serviceLocator, &_registry));
+		_serviceLocator.Register(std::make_unique<PlayerController>(&_serviceLocator, &_registry));
 		
 		// === Renderer ===
 		_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_registry, 100));
@@ -129,6 +156,7 @@ namespace tofu::ball {
 		}
 
 		{
+			// ball
 			auto entity = _registry.create();
 			_registry.emplace<Transform>(entity, Float2{ 3.f, 0.5f }, 0.0f);
 			auto ball = _registry.emplace<Ball>(entity, 0.08f);
@@ -139,6 +167,29 @@ namespace tofu::ball {
 			auto body = physics->GenerateBody(entity, body_def)._body;
 			b2CircleShape shape;
 			shape.m_radius = ball._radius;
+			b2FixtureDef fixture_def;
+			fixture_def.shape = &shape;
+			fixture_def.density = 1.0f;
+			fixture_def.friction = 0.9f;
+			fixture_def.restitution = 0.4f;
+
+			body->CreateFixture(&fixture_def);
+
+			_registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+		}
+
+		{
+			// Player 
+			auto entity = _registry.create();
+			_registry.emplace<Transform>(entity, Float2{ 3.f, 0.5f }, 0.0f);
+			_registry.emplace<Player>(entity);
+
+			b2BodyDef body_def;
+			body_def.type = b2BodyType::b2_dynamicBody;
+
+			auto body = physics->GenerateBody(entity, body_def)._body;
+			b2CircleShape shape;
+			shape.m_radius = 0.08f;
 			b2FixtureDef fixture_def;
 			fixture_def.shape = &shape;
 			fixture_def.density = 1.0f;

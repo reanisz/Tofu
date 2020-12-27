@@ -423,8 +423,8 @@ namespace tofu {
 			return s3d::Vec2{_x, _y};
 		}
 		constexpr tVec2(const s3d::Vec2& other)
-			: _x(other.x)
-			, _y(other.y)
+			: _x(static_cast<float>(other.x))
+			, _y(static_cast<float>(other.y))
 		{
 		}
 		constexpr operator s3d::Vec2() const 
@@ -479,6 +479,26 @@ namespace tofu {
 			_x /= factor;
 			_y /= factor;
 			return *this;
+		}
+
+		value_type LengthSquared() const {
+			return _x * _x + _y * _y;
+		}
+
+		value_type Length() const {
+			return std::sqrt(LengthSquared());
+		}
+
+		void Normalize() {
+			auto length = Length();
+			_x /= length;
+			_y /= length;
+		}
+
+		tVec2 Normalized() const {
+			auto res = *this;
+			res.Normalize();
+			return res;
 		}
 	};
 
