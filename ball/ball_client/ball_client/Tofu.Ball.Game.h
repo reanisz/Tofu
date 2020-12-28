@@ -59,22 +59,54 @@ namespace tofu::ball {
 	class ActionQueue
 	{
 	public:
+		static constexpr int QueueCount = 4;
+
+		void SetCurrentTick(GameTick tick)
+		{
+			_current = tick;
+		}
+
 		void Enqueue(ActionCommand&& command) 
 		{
-			_queue.push_back(std::move(command));
+			auto tick = command._tick;
+			auto d = tick - _current;
+			if (d < _queues.size()) {
+				_queues[d].push_back(std::move(command));
+			}
+			else {
+				_futureActions.push_back(command);
+			}
 		}
 
 		std::vector<ActionCommand> Retrieve() 
 		{
 			std::vector<ActionCommand> ret;
-			std::swap(ret, _queue);
+			std::swap(ret, _queues[0]);
+
+			for (int i = 0; i < _queues.size() - 1; i++) {
+				std::swap(_queues[i], _queues[i + 1]);
+			}
+
+			auto& left = _queues[_queues.size() - 1];
+			auto t = _current + QueueCount - 1;
+			for (auto& act : _futureActions) {
+				if (act._tick == t)
+					left.push_back(act);
+			}
+			std::erase_if(_futureActions, [t](const ActionCommand& v) { return v._tick == t; });
 
 			// NRVO(Named Return Value Optimization)‚ğŠú‘Ò
 			return ret;
 		}
 
 	private:
-		std::vector<ActionCommand> _queue;
+		GameTick _current;
+
+		// _queues[x] : x Tickæ‚Éˆ—‚·‚éAction
+		std::array<std::vector<ActionCommand>, QueueCount> _queues;
+
+		// queues‚Éˆì‚ê‚é‚­‚ç‚¢–¢—ˆ‚Ìaction
+		std::vector<ActionCommand> _futureActions;
 	};
 
 

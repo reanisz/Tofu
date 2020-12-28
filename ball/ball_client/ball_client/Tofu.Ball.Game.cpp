@@ -159,13 +159,14 @@ namespace tofu::ball {
 		{
 			auto queue = _serviceLocator->Get<ActionQueue>();
 			auto clock = _serviceLocator->Get<TickCounter>();
+			auto tick = clock->GetCurrent() + 15;
 			auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
 			auto target = (1 / scale) * Cursor::PosF();
 			if (MouseL.down()) {
-				queue->Enqueue({ entity, actions::Dash{ target }, clock->GetCurrent() });
+				queue->Enqueue({ entity, actions::Dash{ target }, tick });
 			}
 			if (MouseR.pressed()) {
-				queue->Enqueue({ entity, actions::Move{ target }, clock->GetCurrent() });
+				queue->Enqueue({ entity, actions::Move{ target }, tick });
 			}
 		}
 	}
@@ -179,6 +180,8 @@ namespace tofu::ball {
 	void UpdateSystem::Step()
 	{
 		_serviceLocator->Get<TickCounter>()->Step();
+		auto tick = _serviceLocator->Get<TickCounter>()->GetCurrent();
+		_serviceLocator->Get<ActionQueue>()->SetCurrentTick(tick);
 
 		_serviceLocator->Get<PlayerController>()->Step();
 		_serviceLocator->Get<ActionSystem>()->Step();
