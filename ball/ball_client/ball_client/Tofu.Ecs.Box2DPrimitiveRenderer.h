@@ -20,6 +20,7 @@ namespace tofu {
 	public:
 		Box2DPrimitiveRenderSystem(observer_ptr<entt::registry> registry, float scale);
 
+		float GetScale() const;
 		void Render();
 
 	private:

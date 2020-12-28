@@ -107,6 +107,12 @@ namespace tofu {
 		{
 		}
 
+		static_vector(std::initializer_list<T> init_list)
+			: _size(0)
+		{
+			*this = init_list;
+		}
+
 		static_vector& operator=(const static_vector& x)
 		{
 			_size = x._size;
@@ -126,12 +132,12 @@ namespace tofu {
 			return *this;
 		}
 
-		iterator begin() { return _data.get(); }
-		iterator end() { return _data.get() + _size; }
-		iterator begin() const { return _data.get(); }
-		iterator end() const { return _data.get() + _size; }
-		const_iterator cbegin() const { return _data.get(); }
-		const_iterator cend() const { return _data.get() + _size; }
+		iterator begin() { return _data.data(); }
+		iterator end() { return _data.data() + _size; }
+		iterator begin() const { return _data.data(); }
+		iterator end() const { return _data.data() + _size; }
+		const_iterator cbegin() const { return _data.data(); }
+		const_iterator cend() const { return _data.data() + _size; }
 		reverse_iterator rbegin() { return reverse_iterator{ end() }; }
 		reverse_iterator rend() { return reverse_iterator{ begin() }; }
 		const_reverse_iterator rbegin() const { return reverse_iterator{ end() }; }

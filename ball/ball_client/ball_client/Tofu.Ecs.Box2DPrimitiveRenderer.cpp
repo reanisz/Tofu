@@ -6,6 +6,10 @@ namespace tofu {
 		, _factor(scale)
 	{
 	}
+	float Box2DPrimitiveRenderSystem::GetScale() const
+	{
+		return _factor;
+	}
 	void Box2DPrimitiveRenderSystem::Render()
 	{
 		auto view = _registry->view<Transform, RigidBody, Box2DPrimitiveRenderer>();

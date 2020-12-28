@@ -22,6 +22,18 @@ namespace tofu::ball {
 	{
 	};
 
+	struct GoalFrame
+	{
+		static std::tuple<entt::entity> Generate(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, tVec2 pos);
+	};
+
+	struct Goal
+	{
+		entt::entity _frame;
+
+		static std::tuple<entt::entity, Goal&> Generate(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, tVec2 pos);
+	};
+
 	using GameTick = StrongNumeric<class Tag_GameTick, std::uint32_t>;
 
 	namespace actions 
@@ -77,6 +89,9 @@ namespace tofu::ball {
 
 	struct Player
 	{
+		int _id;
+
+		static std::tuple<entt::entity, Player&> Generate(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, tVec2 pos);
 	};
 
 	class PlayerController
@@ -131,8 +146,13 @@ namespace tofu::ball {
 		void run();
 
 	private:
-
 		void initialize();
+
+		void initSystems();
+		void initStage();
+		void initPlayers();
+		void initBall();
+
 		void game_loop();
 
 	private:

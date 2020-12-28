@@ -7,7 +7,7 @@ namespace tofu
 	Physics::Physics(observer_ptr<entt::registry> registry)
 		: _registry(registry)
 	{
-		_world = std::make_unique<b2World>(b2Vec2{ 0, 9.8f });
+		_world = std::make_unique<b2World>(b2Vec2{ 0, 5.0f });
 	}
 	void Physics::FollowTransform()
 	{
