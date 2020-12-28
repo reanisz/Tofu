@@ -38,11 +38,15 @@ namespace tofu::ball {
 
 	namespace actions 
 	{
+		struct Move
+		{
+			tVec2 _target;
+		};
 		struct Dash 
 		{
 			tVec2 _target;
 		};
-		using Variant = std::variant<Dash>;
+		using Variant = std::variant<Move, Dash>;
 	}
 
 	struct ActionCommand 
@@ -81,6 +85,7 @@ namespace tofu::ball {
 		void Step();
 
 	private:
+		void apply(entt::entity entity, const actions::Move& action);
 		void apply(entt::entity entity, const actions::Dash& action);
 
 		observer_ptr<ServiceLocator> _serviceLocator;

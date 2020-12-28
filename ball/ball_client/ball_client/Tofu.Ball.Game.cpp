@@ -130,6 +130,14 @@ namespace tofu::ball {
 		}
 	}
 
+	void ActionSystem::apply(entt::entity entity, const actions::Move& action)
+	{
+		auto body = _registry->get<RigidBody>(entity)._body;
+		auto d = action._target - tVec2{ body->GetPosition() };
+		d.Normalize();
+		body->ApplyForceToCenter(d * 0.7f, true);
+	}
+
 	void ActionSystem::apply(entt::entity entity, const actions::Dash& action)
 	{
 		auto body = _registry->get<RigidBody>(entity)._body;
@@ -149,13 +157,15 @@ namespace tofu::ball {
 	{
 		for (auto&& [entity, player] : _registry->view<Player>().proxy()) 
 		{
+			auto queue = _serviceLocator->Get<ActionQueue>();
+			auto clock = _serviceLocator->Get<TickCounter>();
+			auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
+			auto target = (1 / scale) * Cursor::PosF();
 			if (MouseL.down()) {
-				auto queue = _serviceLocator->Get<ActionQueue>();
-				auto clock = _serviceLocator->Get<TickCounter>();
-				auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
-				auto target =  (1 / scale) * Cursor::PosF();
 				queue->Enqueue({ entity, actions::Dash{ target }, clock->GetCurrent() });
-
+			}
+			if (MouseR.pressed()) {
+				queue->Enqueue({ entity, actions::Move{ target }, clock->GetCurrent() });
 			}
 		}
 	}
