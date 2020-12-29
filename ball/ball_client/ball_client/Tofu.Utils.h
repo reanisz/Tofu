@@ -32,51 +32,51 @@ namespace tofu {
 		using pointer = T*;
 		using element_type = T;
 
-		observer_ptr() noexcept
+		constexpr observer_ptr() noexcept
 			: _ptr(nullptr)
 		{
 		}
-		observer_ptr(T* ptr) noexcept
+		constexpr observer_ptr(T* ptr) noexcept
 			: _ptr(ptr)
 		{
 		}
-		observer_ptr(std::nullptr_t) noexcept
+		constexpr observer_ptr(std::nullptr_t) noexcept
 			: _ptr(nullptr)
 		{
 		}
 
-		observer_ptr<T>& operator=(T* ptr) noexcept
+		constexpr observer_ptr<T>& operator=(T* ptr) noexcept
 		{
 			_ptr = ptr;
 			return *this;
 		}
 
-		observer_ptr<T>& operator=(std::nullptr_t) noexcept
+		constexpr observer_ptr<T>& operator=(std::nullptr_t) noexcept
 		{
 			_ptr = nullptr;
 			return *this;
 		}
 
-		void reset(T* ptr) noexcept
+		constexpr void reset(T* ptr) noexcept
 		{
 			_ptr = ptr;
 		}
 
-		void reset(std::nullptr_t = nullptr) noexcept 
+		constexpr void reset(std::nullptr_t = nullptr) noexcept 
 		{
 			_ptr = nullptr;
 		}
 
-		typename pointer get() const noexcept {
+		constexpr typename pointer get() const noexcept {
 			return _ptr;
 		}
 
-		typename element_type& operator*() const {
+		constexpr typename element_type& operator*() const {
 			assert(_ptr != nullptr);
 			return *_ptr;
 		}
 
-		typename pointer operator->() const noexcept {
+		constexpr typename pointer operator->() const noexcept {
 			assert(_ptr != nullptr);
 			return _ptr;
 		}
@@ -102,24 +102,24 @@ namespace tofu {
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		static_vector()
+		constexpr static_vector() noexcept
 			: _size(0)
 		{
 		}
 
-		static_vector(std::initializer_list<T> init_list)
+		constexpr static_vector(std::initializer_list<T> init_list)
 			: _size(0)
 		{
 			*this = init_list;
 		}
 
-		static_vector& operator=(const static_vector& x)
+		constexpr static_vector& operator=(const static_vector& x)
 		{
 			_size = x._size;
 			_data = x._data;
 			return *this;
 		}
-		static_vector& operator=(std::initializer_list<T> init_list)
+		constexpr static_vector& operator=(std::initializer_list<T> init_list)
 		{
 			assert(init_list.size() <= max);
 			clear();
@@ -132,37 +132,37 @@ namespace tofu {
 			return *this;
 		}
 
-		iterator begin() { return _data.data(); }
-		iterator end() { return _data.data() + _size; }
-		iterator begin() const { return _data.data(); }
-		iterator end() const { return _data.data() + _size; }
-		const_iterator cbegin() const { return _data.data(); }
-		const_iterator cend() const { return _data.data() + _size; }
-		reverse_iterator rbegin() { return reverse_iterator{ end() }; }
-		reverse_iterator rend() { return reverse_iterator{ begin() }; }
-		const_reverse_iterator rbegin() const { return reverse_iterator{ end() }; }
-		const_reverse_iterator rend() const { return reverse_iterator{ begin() }; }
-		const_reverse_iterator crbegin() const { return reverse_iterator{ cend() }; }
-		const_reverse_iterator crend() const { return reverse_iterator{ cbegin() }; }
+		constexpr iterator begin() noexcept { return _data.data(); }
+		constexpr iterator end() noexcept { return _data.data() + _size; }
+		constexpr iterator begin() const noexcept { return _data.data(); }
+		constexpr iterator end() const noexcept { return _data.data() + _size; }
+		constexpr const_iterator cbegin() const noexcept { return _data.data(); }
+		constexpr const_iterator cend() const noexcept { return _data.data() + _size; }
+		constexpr reverse_iterator rbegin() noexcept { return reverse_iterator{ end() }; }
+		constexpr reverse_iterator rend() noexcept { return reverse_iterator{ begin() }; }
+		constexpr const_reverse_iterator rbegin() const noexcept { return reverse_iterator{ end() }; }
+		constexpr const_reverse_iterator rend() const noexcept { return reverse_iterator{ begin() }; }
+		constexpr const_reverse_iterator crbegin() const noexcept { return reverse_iterator{ cend() }; }
+		constexpr const_reverse_iterator crend() const noexcept { return reverse_iterator{ cbegin() }; }
 
-		size_type size() const { return _size; }
-		size_type capacity() const { return max; }
-		bool empty() const { return _size == 0; }
-		bool full() const { return _size == max; }
+		constexpr size_type size() const noexcept { return _size; }
+		constexpr size_type capacity() const noexcept { return max; }
+		constexpr bool empty() const noexcept { return _size == 0; }
+		constexpr bool full() const noexcept { return _size == max; }
 
-		reference& operator[](size_type n)
+		constexpr reference& operator[](size_type n)
 		{
 			assert(n < size());
 			return _data[n];
 		}
 
-		const_reference& operator[](size_type n) const
+		constexpr const_reference& operator[](size_type n) const
 		{
 			assert(n < size());
 			return _data[n];
 		}
 
-		reference at(size_type n) 
+		constexpr reference at(size_type n) 
 		{
 			if (size() <= n) {
 				throw std::out_of_range("static_vector: out of range");
@@ -171,7 +171,7 @@ namespace tofu {
 			return _data[n];
 		}
 
-		reference at(size_type n) const
+		constexpr reference at(size_type n) const
 		{
 			if (size() <= n) {
 				throw std::out_of_range("static_vector: out of range");
@@ -179,36 +179,36 @@ namespace tofu {
 			return _data[n];
 		}
 
-		T* data() 
+		constexpr T* data() noexcept
 		{
 			return _data.data();
 		}
 
-		const T* data() const
+		constexpr const T* data() const noexcept
 		{
 			return _data.data();
 		}
 
-		void push_back(const T& x)
+		constexpr void push_back(const T& x)
 		{
 			assert(!full());
 			_data[_size++] = x;
 		}
 
 		template<class... Args>
-		void emplace_back(Args&&... args)
+		constexpr void emplace_back(Args&&... args)
 		{
 			assert(!full());
 			push_back(T{ std::forward(args)... });
 		}
 
-		void pop_back()
+		constexpr void pop_back() noexcept
 		{
 			assert(!empty());
 			_size--;
 		}
 
-		void clear()
+		constexpr void clear() noexcept
 		{
 			_size = 0;
 		}
@@ -227,15 +227,15 @@ namespace tofu {
 			return position;
 		}
 	public:
-		iterator insert(iterator position, const T& x)
+		constexpr iterator insert(iterator position, const T& x)
 		{
 			return insert_impl(position, x);
 		}
-		iterator insert(const_iterator position, const T& x)
+		constexpr iterator insert(const_iterator position, const T& x)
 		{
 			return insert_impl(const_cast<iterator>(position), x);
 		}
-		iterator insert(iterator position, T&& x)
+		constexpr iterator insert(iterator position, T&& x)
 		{
 			return insert_impl(position, std::move(x));
 		}
@@ -249,7 +249,7 @@ namespace tofu {
 		// void insert(const_iterator position, InputIterator first, InputIterator last);
 		// iterator insert(const_iterator position, std::initializer_list<T> il);
 
-		iterator erase(iterator position)
+		constexpr iterator erase(iterator position)
 		{
 			assert(!empty());
 			for (iterator it = position; it != end() - 1; it++) 
@@ -260,12 +260,12 @@ namespace tofu {
 			return position;
 		}
 
-		iterator erase(const_iterator position) 
+		constexpr iterator erase(const_iterator position) 
 		{
 			return erase(const_cast<iterator>(position));
 		}
 
-		iterator erase(iterator first, iterator last)
+		constexpr iterator erase(iterator first, iterator last)
 		{
 			assert(!empty());
 			if (last == end()) {
@@ -284,7 +284,7 @@ namespace tofu {
 			return first;
 		}
 
-		iterator erase(const_iterator first, const_iterator last) 
+		constexpr iterator erase(const_iterator first, const_iterator last) 
 		{
 			return erase(const_cast<iterator>(first), const_cast<iterator>(last));
 		}
@@ -296,26 +296,37 @@ namespace tofu {
 
 	// êîílå^ÇÃï ñº
 	template<class TTag, class TNumeric = int>
+	requires std::is_integral_v<TNumeric> || std::is_floating_point_v<TNumeric>
 	struct StrongNumeric {
 		using value_type = TNumeric;
 
-		constexpr StrongNumeric()
+		constexpr StrongNumeric() noexcept
 			: _value(0)
 		{
 		}
 
-		constexpr StrongNumeric(value_type value)
+		constexpr StrongNumeric(value_type value) noexcept
 			: _value(value)
 		{
 		}
 
-		constexpr operator value_type() const 
+		constexpr explicit operator value_type() const noexcept
+		{
+			return _value;
+		}
+
+		constexpr value_type data() const noexcept
+		{
+			return _value;
+		}
+
+		constexpr value_type operator*() const noexcept
 		{
 			return _value;
 		}
 
 #define tofu_def_assign_op(op) \
-		StrongNumeric& operator op(const StrongNumeric& other) \
+		constexpr StrongNumeric& operator op(const StrongNumeric& other) noexcept \
 		{ \
 			_value op other._value; \
 			return *this; \
@@ -329,11 +340,11 @@ namespace tofu {
 #undef tofu_def_assign_op
 
 #define tofu_def_increment_op(op) \
-		StrongNumeric& operator op() { \
+		constexpr StrongNumeric& operator op() noexcept { \
 			_value op; \
 			return *this; \
 		} \
-		StrongNumeric operator op(int) { \
+		constexpr StrongNumeric operator op(int) noexcept { \
 			auto res = *this; \
 			_value op; \
 			return res; \
@@ -344,21 +355,18 @@ namespace tofu {
 
 #undef tofu_def_increment_op
 
-		StrongNumeric operator+() const
+		constexpr StrongNumeric operator+() const noexcept
 		{
 			return *this;
 		}
 
-		StrongNumeric operator-() const
+		constexpr StrongNumeric operator-() const noexcept
+			requires std::is_signed_v<value_type>
 		{
-			if constexpr (std::is_signed_v<value_type>)
-			{
-				return -_value;
-			}
-			else {
-				static_assert(false_v<value_type>, "value_type is not signed");
-			}
+			return -_value;
 		}
+
+		constexpr auto operator<=>(const StrongNumeric&) const = default;
 
 	private:
 		value_type _value;
@@ -366,7 +374,7 @@ namespace tofu {
 
 #define tofu_def_binary_op(op) \
 	template<class TTag, class TNumeric> \
-	StrongNumeric<TTag, TNumeric> operator op(const StrongNumeric<TTag, TNumeric>& lhs, const StrongNumeric<TTag, TNumeric>& rhs) \
+	constexpr StrongNumeric<TTag, TNumeric> operator op(const StrongNumeric<TTag, TNumeric>& lhs, const StrongNumeric<TTag, TNumeric>& rhs) noexcept \
 	{ \
 		StrongNumeric<TTag, TNumeric> res = lhs; \
 		res op ## = rhs; \
@@ -386,66 +394,50 @@ namespace tofu {
 
 #undef tofu_def_binary_op
 
-#define tofu_def_compare_op(op) \
-	template<class TTag, class TNumeric> \
-	bool operator op(const StrongNumeric<TTag, TNumeric>& lhs, const StrongNumeric<TTag, TNumeric>& rhs) \
-	{ \
-		return lhs._value op rhs._value; \
-	} \
-
-	tofu_def_compare_op(<)
-	tofu_def_compare_op(<=)
-	tofu_def_compare_op(>)
-	tofu_def_compare_op(>=)
-	tofu_def_compare_op(!=)
-	tofu_def_compare_op(==)
-
-#undef tofu_def_compare_op
-
 	struct tVec2 
 	{
 		using value_type = float;
 
-		constexpr tVec2()
+		constexpr tVec2() noexcept
 			: _x(0)
 			, _y(0)
 		{
 		}
 
-		constexpr tVec2(value_type x, value_type y)
+		constexpr tVec2(value_type x, value_type y) noexcept
 			: _x(x)
 			, _y(y)
 		{
 		}
 
 #ifdef TOFU_ENABLE_SIV3D
-		constexpr tVec2(const s3d::Float2& other)
+		constexpr tVec2(const s3d::Float2& other) noexcept
 			: _x(other.x)
 			, _y(other.y)
 		{
 		}
-		constexpr operator s3d::Float2() const 
+		constexpr operator s3d::Float2() const  noexcept
 		{
 			return s3d::Vec2{_x, _y};
 		}
-		constexpr tVec2(const s3d::Vec2& other)
+		constexpr tVec2(const s3d::Vec2& other) noexcept
 			: _x(static_cast<float>(other.x))
 			, _y(static_cast<float>(other.y))
 		{
 		}
-		constexpr operator s3d::Vec2() const 
+		constexpr operator s3d::Vec2() const noexcept
 		{
 			return s3d::Vec2{_x, _y};
 		}
 #endif
 
 #ifdef TOFU_ENABLE_BOX2D
-		constexpr tVec2(const b2Vec2& other)
+		constexpr tVec2(const b2Vec2& other) noexcept
 			: _x(other.x)
 			, _y(other.y)
 		{
 		}
-		operator b2Vec2() const 
+		operator b2Vec2() const noexcept
 		{
 			return b2Vec2{_x, _y};
 		}
@@ -454,68 +446,76 @@ namespace tofu {
 		value_type _x;
 		value_type _y;
 
-		tVec2 operator+() const 
+		constexpr tVec2 operator+() const noexcept
 		{
 			return *this;
 		}
-		tVec2 operator-() const 
+		constexpr tVec2 operator-() const noexcept
 		{
 			return { -_x, -_y };
 		}
 
-		constexpr tVec2& operator+=(const tVec2& other) {
+		constexpr tVec2& operator+=(const tVec2& other) noexcept
+		{
 			_x += other._x;
 			_y += other._y;
 			return *this;
 		}
 
-		constexpr tVec2& operator-=(const tVec2& other) {
+		constexpr tVec2& operator-=(const tVec2& other) noexcept
+		{
 			_x -= other._x;
 			_y -= other._y;
 			return *this;
 		}
 
-		constexpr tVec2& operator*=(value_type factor) {
+		constexpr tVec2& operator*=(value_type factor) noexcept
+		{
 			_x *= factor;
 			_y *= factor;
 			return *this;
 		}
 
-		constexpr tVec2& operator/=(value_type factor) {
+		constexpr tVec2& operator/=(value_type factor) noexcept
+		{
 			_x /= factor;
 			_y /= factor;
 			return *this;
 		}
 
-		value_type LengthSquared() const {
+		constexpr value_type LengthSquared() const noexcept
+		{
 			return _x * _x + _y * _y;
 		}
 
-		value_type Length() const {
+		value_type Length() const noexcept
+		{
 			return std::sqrt(LengthSquared());
 		}
 
-		void Normalize() {
+		void Normalize() noexcept
+		{
 			auto length = Length();
 			_x /= length;
 			_y /= length;
 		}
 
-		tVec2 Normalized() const {
+		tVec2 Normalized() const noexcept
+		{
 			auto res = *this;
 			res.Normalize();
 			return res;
 		}
 	};
 
-	inline constexpr tVec2 operator+(const tVec2& lhs, const tVec2& rhs) 
+	inline constexpr tVec2 operator+(const tVec2& lhs, const tVec2& rhs) noexcept
 	{
 		auto ret = lhs;
 		ret += rhs;
 		return ret;
 	}
 
-	inline constexpr tVec2 operator-(const tVec2& lhs, const tVec2& rhs) 
+	inline constexpr tVec2 operator-(const tVec2& lhs, const tVec2& rhs) noexcept
 	{
 		auto ret = lhs;
 		ret -= rhs;
@@ -523,28 +523,28 @@ namespace tofu {
 	}
 
 	template<scalar_type TScalar>
-	inline constexpr tVec2 operator*(const tVec2& lhs, TScalar rhs) 
+	inline constexpr tVec2 operator*(const tVec2& lhs, TScalar rhs) noexcept
 	{
 		auto ret = lhs;
 		ret *= rhs;
 		return ret;
 	}
 	template<scalar_type TScalar>
-	inline constexpr tVec2 operator*(TScalar lhs, const tVec2& rhs) 
+	inline constexpr tVec2 operator*(TScalar lhs, const tVec2& rhs) noexcept 
 	{
 		auto ret = rhs;
 		ret *= lhs;
 		return ret;
 	}
 	template<scalar_type TScalar>
-	inline constexpr tVec2 operator/(const tVec2& lhs, TScalar rhs) 
+	inline constexpr tVec2 operator/(const tVec2& lhs, TScalar rhs) noexcept
 	{
 		auto ret = lhs;
 		ret /= rhs;
 		return ret;
 	}
 	template<scalar_type TScalar>
-	inline constexpr tVec2 operator/(TScalar lhs, const tVec2& rhs) 
+	inline constexpr tVec2 operator/(TScalar lhs, const tVec2& rhs) noexcept 
 	{
 		auto ret = rhs;
 		ret /= lhs;

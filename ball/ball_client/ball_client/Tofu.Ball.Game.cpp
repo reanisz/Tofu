@@ -159,7 +159,7 @@ namespace tofu::ball {
 		{
 			auto queue = _serviceLocator->Get<ActionQueue>();
 			auto clock = _serviceLocator->Get<TickCounter>();
-			auto tick = clock->GetCurrent() + 15;
+			auto tick = clock->GetCurrent() + GameTick{ 15 };
 			auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
 			auto target = (1 / scale) * Cursor::PosF();
 			if (MouseL.down()) {

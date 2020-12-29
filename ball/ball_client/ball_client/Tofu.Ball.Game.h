@@ -61,7 +61,7 @@ namespace tofu::ball {
 	public:
 		static constexpr int QueueCount = 4;
 
-		void SetCurrentTick(GameTick tick)
+		void SetCurrentTick(GameTick tick) noexcept
 		{
 			_current = tick;
 		}
@@ -71,7 +71,7 @@ namespace tofu::ball {
 			auto tick = command._tick;
 			auto d = tick - _current;
 			if (d < _queues.size()) {
-				_queues[d].push_back(std::move(command));
+				_queues[*d].push_back(std::move(command));
 			}
 			else {
 				_futureActions.push_back(command);
@@ -88,7 +88,7 @@ namespace tofu::ball {
 			}
 
 			auto& left = _queues[_queues.size() - 1];
-			auto t = _current + QueueCount - 1;
+			auto t = *_current + QueueCount - 1;
 			for (auto& act : _futureActions) {
 				if (act._tick == t)
 					left.push_back(act);
@@ -144,20 +144,20 @@ namespace tofu::ball {
 	class TickCounter
 	{
 	public:
-		TickCounter()
+		TickCounter() noexcept
 			: _now(0)
 		{
 		}
-		GameTick GetCurrent() const 
+		GameTick GetCurrent() const noexcept
 		{
 			return _now;
 		}
-		void Step() 
+		void Step() noexcept
 		{
 			_now++;
 		}
 
-		void Overwrite(GameTick tick)
+		void Set(GameTick tick) noexcept
 		{
 			_now = tick;
 		}
