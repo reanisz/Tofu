@@ -7,6 +7,7 @@
 #include "Tofu.Utils.h"
 #include "Tofu.Ecs.Core.h"
 #include "Tofu.Ecs.Physics.h"
+#include "Tofu.Renderer.Siv3D.h"
 
 namespace tofu {
 	struct Box2DPrimitiveRenderer
@@ -18,7 +19,7 @@ namespace tofu {
 	class Box2DPrimitiveRenderSystem
 	{
 	public:
-		Box2DPrimitiveRenderSystem(observer_ptr<entt::registry> registry, float scale);
+		Box2DPrimitiveRenderSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, float scale);
 
 		float GetScale() const;
 		void Render();
@@ -37,6 +38,7 @@ namespace tofu {
 
 	private:
 		observer_ptr<entt::registry> _registry;
+		observer_ptr<S3DRenderSystem> _renderSystem;
 		float _factor;
 	};
 

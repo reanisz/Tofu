@@ -119,6 +119,7 @@
     <ClCompile Include="Tofu.Ecs.Physics.cpp" />
     <None Include="Tofu.Ecs.Physics.h" />
     <ClCompile Include="Tofu.Utils.cpp" />
+    <None Include="Tofu.Renderer.h" />
     <None Include="Tofu.Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +251,9 @@
     <ProjectReference Include="..\..\..\libs-build\box2d-win\src\box2d.vcxproj">
       <Project>{4db25ba3-0d7a-3c36-9a11-9db274c13bd8}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tofu.Renderer.Siv3D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

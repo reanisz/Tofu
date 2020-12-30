@@ -159,7 +159,7 @@ namespace tofu::ball {
 		{
 			auto queue = _serviceLocator->Get<ActionQueue>();
 			auto clock = _serviceLocator->Get<TickCounter>();
-			auto tick = clock->GetCurrent() + GameTick{ 15 };
+			auto tick = clock->GetCurrent() + GameTick{ 0 };
 			auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
 			auto target = (1 / scale) * Cursor::PosF();
 			if (MouseL.down()) {
@@ -174,7 +174,13 @@ namespace tofu::ball {
 	UpdateSystem::UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
 		: _serviceLocator(service_locator)
 		, _registry(registry)
+		, _thread(std::chrono::milliseconds{ 15 }, [this](ScheduledUpdateThread&) { this->Step(); })
 	{
+	}
+
+	void UpdateSystem::Start()
+	{
+		_thread.Start();
 	}
 
 	void UpdateSystem::Step()
@@ -187,8 +193,12 @@ namespace tofu::ball {
 		_serviceLocator->Get<ActionSystem>()->Step();
 
 		_serviceLocator->Get<Physics>()->FollowTransform();
-		_serviceLocator->Get<Physics>()->Step(Scene::DeltaTime());
+		_serviceLocator->Get<Physics>()->Step(1.f / 60);
 		_serviceLocator->Get<Physics>()->WriteBackToTransform();
+		
+		_serviceLocator->Get<S3DRenderSystem>()->StartWrite();
+		_serviceLocator->Get<Box2DPrimitiveRenderSystem>()->Render();
+		_serviceLocator->Get<S3DRenderSystem>()->EndWrite();
 	}
 
 	Game::Game()
@@ -212,7 +222,10 @@ namespace tofu::ball {
 		initStage();
 		initBall();
 		initPlayers();
+
+		_serviceLocator.Get<UpdateSystem>()->Start();
 	}
+
 	void Game::initSystems()
 	{
 		// === Core ===
@@ -230,7 +243,8 @@ namespace tofu::ball {
 		// === Renderer ===
 		auto camera = _serviceLocator.Register(std::make_unique<s3d::Camera2D>());
 		camera->setCenter({ 400,300 });
-		_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_registry, 100));
+		_serviceLocator.Register(std::make_unique<S3DRenderSystem>());
+		_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_serviceLocator, &_registry, 100));
 	}
 	void Game::initStage()
 	{
@@ -425,7 +439,10 @@ namespace tofu::ball {
 
 		auto transform = _serviceLocator.Get<Camera2D>()->createTransformer();
 
-		_serviceLocator.Get<UpdateSystem>()->Step();
-		_serviceLocator.Get<Box2DPrimitiveRenderSystem>()->Render();
+		// _serviceLocator.Get<UpdateSystem>()->Step();
+
+		if (_serviceLocator.Get<S3DRenderSystem>()->HasData()) {
+			_serviceLocator.Get<S3DRenderSystem>()->Render();
+		}
 	}
 }

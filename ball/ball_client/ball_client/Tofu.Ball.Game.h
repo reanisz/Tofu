@@ -2,6 +2,9 @@
 
 #include <variant>
 #include <cstdint>
+#include <thread>
+#include <condition_variable>
+#include <optional>
 
 #include <entt/entt.hpp>
 #include <Siv3D.hpp>
@@ -170,10 +173,16 @@ namespace tofu::ball {
 	{
 	public:
 		UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry);
-		void Step();
+
+		void Start();
+
 	private:
+		void Step();
+
 		observer_ptr<ServiceLocator> _serviceLocator;
 		observer_ptr<entt::registry> _registry;
+
+		ScheduledUpdateThread _thread;
 	};
 
 	class Game {

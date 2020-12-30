@@ -1,9 +1,10 @@
 #include "Tofu.Ecs.Box2DPrimitiveRenderer.h"
 
 namespace tofu {
-	Box2DPrimitiveRenderSystem::Box2DPrimitiveRenderSystem(observer_ptr<entt::registry> registry, float scale)
+	Box2DPrimitiveRenderSystem::Box2DPrimitiveRenderSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, float scale)
 		: _registry(registry)
 		, _factor(scale)
+		, _renderSystem(service_locator->Get<S3DRenderSystem>())
 	{
 	}
 	float Box2DPrimitiveRenderSystem::GetScale() const
@@ -39,11 +40,14 @@ namespace tofu {
 	void Box2DPrimitiveRenderSystem::RenderShape(const Transform& transform, const Box2DPrimitiveRenderer& config, b2CircleShape* shape)
 	{
 		auto center = _factor * (transform._pos + rotate(Float2{ shape->m_p.x, shape->m_p.y }, transform._angle));
-		Circle{ center, _factor * shape->m_radius }
-			.draw(config._fillColor)
-			.drawFrame(1, config._frameColor);
+		Circle circle{ center, _factor * shape->m_radius };
+		_renderSystem->Enqueue({ render_command::S3DShapeFill<Circle>{ circle, config._fillColor } }, 0);
+		_renderSystem->Enqueue({ render_command::S3DShapeFrame<Circle>{ circle, config._frameColor } }, 0);
+
 		auto p2 = center + rotate(Float2{ _factor * shape->m_radius, 0 }, transform._angle);
-		Line{ center, p2 }.draw(config._frameColor);
+
+		Line line{ center,p2 };
+		_renderSystem->Enqueue({ render_command::S3DShapeFill<Line>{ line, config._fillColor } }, 0);
 	}
 	void Box2DPrimitiveRenderSystem::RenderShape(const Transform& transform, const Box2DPrimitiveRenderer& config, b2PolygonShape* shape)
 	{
@@ -57,14 +61,18 @@ namespace tofu {
 		}
 
 		Polygon polygon{ v.data(), v.size() };
-		polygon.draw(config._fillColor).drawFrame(1, config._frameColor);
+
+		_renderSystem->Enqueue({ render_command::S3DShapeFill<Polygon>{ polygon, config._fillColor } }, 0);
+		_renderSystem->Enqueue({ render_command::S3DShapeFrame<Polygon>{ polygon, config._frameColor } }, 0);
 	}
 	void Box2DPrimitiveRenderSystem::RenderShape(const Transform& transform, const Box2DPrimitiveRenderer& config, b2EdgeShape* shape)
 	{
 		auto p1 = _factor * (transform._pos + rotate(Float2{ shape->m_vertex1.x, shape->m_vertex1.y }, transform._angle));
 		auto p2 = _factor * (transform._pos + rotate(Float2{ shape->m_vertex2.x, shape->m_vertex2.y }, transform._angle));
 
-		Line{ p1, p2 }.draw(config._frameColor);
+		Line line{ p1, p2 };
+
+		_renderSystem->Enqueue({ render_command::S3DShapeFill<Line>{ line, config._frameColor } }, 0);
 	}
 	void Box2DPrimitiveRenderSystem::RenderShape(const Transform& transform, const Box2DPrimitiveRenderer& config, b2ChainShape* shape)
 	{
