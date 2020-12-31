@@ -870,7 +870,10 @@ namespace tofu {
 				break;
 			default:
 			case State::Reading:
-				buffer->_state = State::Used;
+				if (findForState(State::Valid))
+					buffer->_state = State::Invalid;
+				else
+					buffer->_state = State::Used;
 				break;
 			}
 		}

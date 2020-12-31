@@ -174,7 +174,7 @@ namespace tofu::ball {
 	UpdateSystem::UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
 		: _serviceLocator(service_locator)
 		, _registry(registry)
-		, _thread(std::chrono::milliseconds{ 15 }, [this](ScheduledUpdateThread&) { this->Step(); })
+		, _thread(std::chrono::microseconds{ 16'666 }, [this](ScheduledUpdateThread&) { this->Step(); })
 	{
 	}
 
