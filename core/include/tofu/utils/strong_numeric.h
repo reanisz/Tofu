@@ -45,6 +45,7 @@ namespace tofu {
 		tofu_def_assign_op(-=)
 		tofu_def_assign_op(*=)
 		tofu_def_assign_op(/=)
+		tofu_def_assign_op(%=)
 
 #undef tofu_def_assign_op
 

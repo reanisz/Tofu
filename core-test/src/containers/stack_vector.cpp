@@ -135,6 +135,16 @@ TEST(Container_StackVector, emplace_back)
     EXPECT_EQ(20, vec[2]._value);
 }
 
+TEST(Container_StackVector, pop_back)
+{
+    tofu::stack_vector<int, 8> vec = {1, 2, 3};
+    vec.pop_back();
+
+    EXPECT_EQ(2, vec.size());
+    EXPECT_EQ(1, vec[0]);
+    EXPECT_EQ(2, vec[1]);
+}
+
 TEST(Container_StackVector, 先頭へのinsert)
 {
     tofu::stack_vector<int, 8> vec = {1, 2, 3};
@@ -194,14 +204,25 @@ TEST(Container_StackVector, 末尾のerase)
     EXPECT_EQ(2, vec[1]);
 }
 
-TEST(Container_StackVector, 範囲のerase)
+TEST(Container_StackVector, 途中の範囲のerase)
 {
     tofu::stack_vector<int, 8> vec = {1, 2, 3, 4, 5};
 
-    vec.erase(vec.begin() + 1, vec.begin() + 3);
+    vec.erase(vec.begin() + 1, vec.begin() + 4);
 
-    EXPECT_EQ(3, vec.size());
+    EXPECT_EQ(2, vec.size());
     EXPECT_EQ(1, vec[0]);
     EXPECT_EQ(5, vec[1]);
+}
+
+TEST(Container_StackVector, 末尾までの範囲のerase)
+{
+    tofu::stack_vector<int, 8> vec = {1, 2, 3, 4, 5};
+
+    vec.erase(vec.begin() + 2, vec.end());
+
+    EXPECT_EQ(2, vec.size());
+    EXPECT_EQ(1, vec[0]);
+    EXPECT_EQ(2, vec[1]);
 }
 
