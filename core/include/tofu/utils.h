@@ -13,11 +13,8 @@
 #include <optional>
 #include <cmath>
 
-#include "utils/obsrever_ptr.h"
-#include "utils/static_vector.h"
+#include "utils/observer_ptr.h"
 #include "utils/strong_numeric.h"
 #include "utils/tvec2.h"
 #include "utils/service_locator.h"
 #include "utils/scheduled_update_thread.h"
-#include "utils/triple_buffer.h"
-#include "utils/ring_buffer.h"

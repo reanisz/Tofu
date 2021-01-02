@@ -1,5 +1,8 @@
 #pragma once
 
+#include <thread>
+#include <chrono>
+
 namespace tofu 
 {
 	class ScheduledUpdateThread
@@ -18,8 +21,7 @@ namespace tofu
 		}
 
 		~ScheduledUpdateThread() {
-			End();
-			_thread.join();
+			End(true);
 		}
 
 		void Start()
@@ -30,9 +32,18 @@ namespace tofu
 			_start_cv.notify_all();
 		}
 
-		void End()
+		void End(bool wait = false)
 		{
 			_end = true;
+            if(!_started)
+            {
+                Start();
+            }
+
+            if(wait && _thread.joinable())
+            {
+                _thread.join();
+            }
 		}
 
 		bool IsRunning() const

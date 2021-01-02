@@ -1,13 +1,13 @@
 #pragma once
 
 #include <array>
+#include <utility>
 
 namespace tofu {
-	// TODO: テストを書く
-	// TODO: コンストラクタ/デストラクタをpush時/remove時に呼べるように変える
 	// スタック上にデータが置かれるvector
+	// TODO: コンストラクタ/デストラクタをpush時/remove時に呼べるように変える
 	template<class T, std::size_t max>
-	class static_vector
+	class stack_vector
 	{
 	public:
 		using reference = T&;
@@ -20,24 +20,24 @@ namespace tofu {
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		constexpr static_vector() noexcept
+		constexpr stack_vector() noexcept
 			: _size(0)
 		{
 		}
 
-		constexpr static_vector(std::initializer_list<T> init_list)
+		constexpr stack_vector(std::initializer_list<T> init_list)
 			: _size(0)
 		{
 			*this = init_list;
 		}
 
-		constexpr static_vector& operator=(const static_vector& x)
+		constexpr stack_vector& operator=(const stack_vector& x)
 		{
 			_size = x._size;
 			_data = x._data;
 			return *this;
 		}
-		constexpr static_vector& operator=(std::initializer_list<T> init_list)
+		constexpr stack_vector& operator=(std::initializer_list<T> init_list)
 		{
 			assert(init_list.size() <= max);
 			clear();
@@ -83,7 +83,7 @@ namespace tofu {
 		constexpr reference at(size_type n) 
 		{
 			if (size() <= n) {
-				throw std::out_of_range("static_vector: out of range");
+				throw std::out_of_range("stack_vector: out of range");
 			}
 			assert(n < size());
 			return _data[n];
@@ -92,7 +92,7 @@ namespace tofu {
 		constexpr reference at(size_type n) const
 		{
 			if (size() <= n) {
-				throw std::out_of_range("static_vector: out of range");
+				throw std::out_of_range("stack_vector: out of range");
 			}
 			return _data[n];
 		}
@@ -117,7 +117,7 @@ namespace tofu {
 		constexpr void emplace_back(Args&&... args)
 		{
 			assert(!full());
-			push_back(T{ std::forward(args)... });
+			push_back(T{ std::forward<Args>(args)... });
 		}
 
 		constexpr void pop_back() noexcept
@@ -140,7 +140,9 @@ namespace tofu {
 			{
 				std::swap(*it, *(it - 1));
 			}
-			*position = std::forward(x);
+			*position = std::forward<T>(x);
+
+            _size++;
 
 			return position;
 		}

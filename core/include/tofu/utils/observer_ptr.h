@@ -62,6 +62,8 @@ namespace tofu {
 			return _ptr;
 		}
 
+        constexpr auto operator<=>(const observer_ptr&) const = default;
+
 	private:
 		T* _ptr;
 	};

@@ -1,10 +1,12 @@
 #pragma once
 
 #include <unordered_map>
+#include <typeindex>
+
+#include "observer_ptr.h"
 
 namespace tofu {
 	// シンプルなサービスロケータ
-	// TODO: テストを書く
 	class ServiceLocator 
 	{
 	public:
