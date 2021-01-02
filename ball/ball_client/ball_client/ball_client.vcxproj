@@ -119,6 +119,7 @@
     <ClCompile Include="Tofu.Ecs.Physics.cpp" />
     <None Include="Tofu.Ecs.Physics.h" />
     <ClCompile Include="Tofu.Utils.cpp" />
+    <None Include="Tofu.Input.h" />
     <None Include="Tofu.Renderer.h" />
     <None Include="Tofu.Utils.h" />
   </ItemGroup>

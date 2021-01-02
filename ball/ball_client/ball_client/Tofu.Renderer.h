@@ -30,7 +30,8 @@ namespace tofu
 		template<class TRenderer>
 		void Render(TRenderer& renderer)
 		{
-			std::ranges::sort(_commands, [](const command_type& lhs, const command_type& rhs) { return lhs._priority < rhs._priority; });
+			// std::ranges::stable_sort‚ªMSVC‚Å‚Ü‚¾ŽÀ‘•‚³‚ê‚Ä‚È‚©‚Á‚½BBB
+			std::stable_sort(_commands.begin(), _commands.end(), [](const command_type& lhs, const command_type& rhs) { return lhs._priority < rhs._priority; });
 			for (auto& command : _commands)
 			{
 				std::visit([&](auto& cmd) { renderer(cmd); }, command._command);

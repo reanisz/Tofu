@@ -345,6 +345,9 @@
     <None Include="Tofu.Renderer.h">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="Tofu.Input.h">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="App\engine\font\fontawesome\LICENSE.txt">

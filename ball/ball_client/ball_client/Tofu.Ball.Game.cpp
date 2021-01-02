@@ -144,7 +144,7 @@ namespace tofu::ball {
 		auto d = action._target - tVec2{ body->GetPosition() };
 		d.Normalize();
 		body->SetLinearVelocity({ 0, 0 });
-		body->ApplyForceToCenter(d * 80, true);
+		body->ApplyForceToCenter(d * 40, true);
 	}
 
 	PlayerController::PlayerController(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry)
@@ -155,19 +155,22 @@ namespace tofu::ball {
 
 	void PlayerController::Step()
 	{
+		auto& input = _serviceLocator->Get<InputSystem>()->GetCurrent();
+
 		for (auto&& [entity, player] : _registry->view<Player>().proxy()) 
 		{
 			auto queue = _serviceLocator->Get<ActionQueue>();
 			auto clock = _serviceLocator->Get<TickCounter>();
 			auto tick = clock->GetCurrent() + GameTick{ 0 };
 			auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
-			auto target = (1 / scale) * Cursor::PosF();
-			if (MouseL.down()) {
+			auto target = (1 / scale) * input._cursor.get();
+			if (input._leftClick.is_down()) {
 				queue->Enqueue({ entity, actions::Dash{ target }, tick });
 			}
-			if (MouseR.pressed()) {
+			if (input._rightClick.is_pressed()) {
 				queue->Enqueue({ entity, actions::Move{ target }, tick });
 			}
+
 		}
 	}
 
@@ -186,6 +189,8 @@ namespace tofu::ball {
 	void UpdateSystem::Step()
 	{
 		_serviceLocator->Get<TickCounter>()->Step();
+		_serviceLocator->Get<InputSystem>()->Step();
+		
 		auto tick = _serviceLocator->Get<TickCounter>()->GetCurrent();
 		_serviceLocator->Get<ActionQueue>()->SetCurrentTick(tick);
 
@@ -198,6 +203,12 @@ namespace tofu::ball {
 		
 		_serviceLocator->Get<S3DRenderSystem>()->StartWrite();
 		_serviceLocator->Get<Box2DPrimitiveRenderSystem>()->Render();
+
+		{
+			auto& input = _serviceLocator->Get<InputSystem>()->GetCurrent();
+			auto pos = input._cursor.get();
+			_serviceLocator->Get<S3DRenderSystem>()->Enqueue(render_command::S3DShapeFrame<Circle>{Circle{pos._x, pos._y, 5}}, 1);
+		}
 		_serviceLocator->Get<S3DRenderSystem>()->EndWrite();
 	}
 
@@ -230,6 +241,9 @@ namespace tofu::ball {
 	{
 		// === Core ===
 		_serviceLocator.Register(std::make_unique<TickCounter>());
+
+		// === Input ===
+		_serviceLocator.Register(std::make_unique<InputSystem>());
 
 		// === Physics ===
 		auto physics = _serviceLocator.Register(std::make_unique<Physics>(&_registry));
@@ -439,7 +453,7 @@ namespace tofu::ball {
 
 		auto transform = _serviceLocator.Get<Camera2D>()->createTransformer();
 
-		// _serviceLocator.Get<UpdateSystem>()->Step();
+		_serviceLocator.Get<InputSystem>()->Update();
 
 		if (_serviceLocator.Get<S3DRenderSystem>()->HasData()) {
 			_serviceLocator.Get<S3DRenderSystem>()->Render();
