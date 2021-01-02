@@ -1,5 +1,8 @@
 #pragma once
 
+#include <optional>
+#include <array>
+
 namespace tofu {
 	namespace ring_buffer
 	{
