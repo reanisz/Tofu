@@ -236,7 +236,6 @@ namespace tofu {
 		}
 
 	private:
-		// std::array<T, max> _data;
 		alignas(T) std::byte _buffer[sizeof(T) * max];
 		size_type _size;
 	};

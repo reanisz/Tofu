@@ -10,7 +10,7 @@ namespace
     using SampleDouble = tofu::StrongNumeric<class tag_test_sample_dobule, double>;
 }
 
-TEST(Util_StrongNumreic, 基本の演算)
+TEST(Util_StrongNumeric, 基本の演算)
 {
     SampleInt a = 20;
     SampleInt b = 6;
