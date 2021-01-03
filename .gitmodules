@@ -4,3 +4,9 @@
 [submodule "libs/box2d"]
 	path = libs/box2d
 	url = git@github.com:erincatto/box2d.git
+[submodule "libs/lsquic"]
+	path = libs/lsquic
+	url = git@github.com:litespeedtech/lsquic
+[submodule "libs/boringssl"]
+	path = libs/boringssl
+	url = https://boringssl.googlesource.com/boringssl
