@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.10.2)
 
+set(CMAKE_CXX_STANDARD 20)
+
 include (CMakeLists-configure-gtest.txt.in)
 
 include_directories("${PROJECT_SOURCE_DIR}/core/include")

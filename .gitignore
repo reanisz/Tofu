@@ -3,6 +3,8 @@
 *_log.html
 build/
 build-win/
+libs-build/boringssl-*/
+libs-build/lsquic-*/
 
 #=============================
 ## Ignore Visual Studio temporary files, build results, and
