@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #ifdef TOFU_ENABLE_SIV3D
 #include <Siv3D.hpp>
 #endif
