@@ -9,8 +9,6 @@ add_executable(tofu_sandbox ${source_files})
 include_directories(../core/include/)
 target_link_libraries(tofu_core)
 
-set(PLATFORM_SUFFIX linux)
-
 include_directories(../libs/lsquic/include/)
 
 ## ==== link

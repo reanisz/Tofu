@@ -10,3 +10,12 @@
 [submodule "libs/boringssl"]
 	path = libs/boringssl
 	url = https://boringssl.googlesource.com/boringssl
+[submodule "libs/zlib"]
+	path = libs/zlib
+	url = https://github.com/madler/zlib
+[submodule "libs/libevent"]
+	path = libs/libevent
+	url = git@github.com:libevent/libevent.git
+[submodule "libs/openssl"]
+	path = libs/openssl
+	url = git@github.com:openssl/openssl.git
