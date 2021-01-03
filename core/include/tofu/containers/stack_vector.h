@@ -5,7 +5,6 @@
 
 namespace tofu {
 	// スタック上にデータが置かれるvector
-	// TODO: コンストラクタ/デストラクタをpush時/remove時に呼べるように変える
 	template<class T, std::size_t max>
 	class stack_vector
 	{
@@ -31,10 +30,16 @@ namespace tofu {
 			*this = init_list;
 		}
 
+		~stack_vector()
+		{
+			erase(begin(), end());
+		}
+
 		constexpr stack_vector& operator=(const stack_vector& x)
 		{
-			_size = x._size;
-			_data = x._data;
+			clear();
+			for (auto& v : x)
+				push_back(v);
 			return *this;
 		}
 		constexpr stack_vector& operator=(std::initializer_list<T> init_list)
@@ -50,12 +55,12 @@ namespace tofu {
 			return *this;
 		}
 
-		constexpr iterator begin() noexcept { return _data.data(); }
-		constexpr iterator end() noexcept { return _data.data() + _size; }
-		constexpr iterator begin() const noexcept { return _data.data(); }
-		constexpr iterator end() const noexcept { return _data.data() + _size; }
-		constexpr const_iterator cbegin() const noexcept { return _data.data(); }
-		constexpr const_iterator cend() const noexcept { return _data.data() + _size; }
+		constexpr iterator begin() noexcept { return data(); }
+		constexpr iterator end() noexcept { return data() + _size; }
+		constexpr const_iterator begin() const noexcept { return data(); }
+		constexpr const_iterator end() const noexcept { return data() + _size; }
+		constexpr const_iterator cbegin() const noexcept { return data(); }
+		constexpr const_iterator cend() const noexcept { return data() + _size; }
 		constexpr reverse_iterator rbegin() noexcept { return reverse_iterator{ end() }; }
 		constexpr reverse_iterator rend() noexcept { return reverse_iterator{ begin() }; }
 		constexpr const_reverse_iterator rbegin() const noexcept { return reverse_iterator{ end() }; }
@@ -71,13 +76,13 @@ namespace tofu {
 		constexpr reference& operator[](size_type n)
 		{
 			assert(n < size());
-			return _data[n];
+			return data()[n];
 		}
 
 		constexpr const_reference& operator[](size_type n) const
 		{
 			assert(n < size());
-			return _data[n];
+			return data()[n];
 		}
 
 		constexpr reference at(size_type n) 
@@ -86,7 +91,7 @@ namespace tofu {
 				throw std::out_of_range("stack_vector: out of range");
 			}
 			assert(n < size());
-			return _data[n];
+			return data()[n];
 		}
 
 		constexpr reference at(size_type n) const
@@ -94,23 +99,27 @@ namespace tofu {
 			if (size() <= n) {
 				throw std::out_of_range("stack_vector: out of range");
 			}
-			return _data[n];
+			return data()[n];
 		}
 
 		constexpr T* data() noexcept
 		{
-			return _data.data();
+			return reinterpret_cast<T*>(_buffer);
 		}
 
 		constexpr const T* data() const noexcept
 		{
-			return _data.data();
+			return reinterpret_cast<const T*>(_buffer);
 		}
 
-		constexpr void push_back(const T& x)
+	public:
+
+		template<class U = T>
+		constexpr void push_back(U&& x)
+			requires std::is_convertible_v<U, T>
 		{
 			assert(!full());
-			_data[_size++] = x;
+			std::construct_at(&(data()[_size++]), std::forward<U>(x));
 		}
 
 		template<class... Args>
@@ -124,6 +133,7 @@ namespace tofu {
 		{
 			assert(!empty());
 			_size--;
+			std::destroy_at(&(data()[_size]));
 		}
 
 		constexpr void clear() noexcept
@@ -172,11 +182,12 @@ namespace tofu {
 		constexpr iterator erase(iterator position)
 		{
 			assert(!empty());
-			for (iterator it = position; it != end() - 1; it++) 
+			for (iterator it = position; it != end() - 1; it++)
 			{
 				std::swap(*it, *(it + 1));
 			}
 			_size--;
+			std::destroy_at(&(data()[_size]));
 			return position;
 		}
 
@@ -188,20 +199,34 @@ namespace tofu {
 
 		constexpr iterator erase(iterator first, iterator last)
 		{
+			if (first == last)
+				return first;
+			
 			assert(!empty());
+			int d = std::distance(first, last);
+
 			if (last == end()) {
-				_size -= std::distance(first, last);
+				_size -= d;
+				for (int i = 0; i < d; i++) {
+					std::destroy_at(&(data()[i + _size]));
+				}
+
 				return end();
 			}
 			iterator lhs = first;
 			iterator rhs = last;
 
 			while(lhs != last && rhs != end()) {
-				std::swap(*lhs, *rhs);
+				using std::swap;
+				swap(*lhs, *rhs);
 				lhs++;
 				rhs++;
 			}
-			_size -= std::distance(first, last);
+			_size -= d;
+			for (int i = 0; i < d; i++) {
+				std::destroy_at(&(data()[i + _size]));
+			}
+
 			return first;
 		}
 
@@ -211,7 +236,8 @@ namespace tofu {
 		}
 
 	private:
-		std::array<T, max> _data;
+		// std::array<T, max> _data;
+		alignas(T) std::byte _buffer[sizeof(T) * max];
 		size_type _size;
 	};
 }

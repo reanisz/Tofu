@@ -226,3 +226,56 @@ TEST(Container_StackVector, 末尾までの範囲のerase)
     EXPECT_EQ(2, vec[1]);
 }
 
+namespace {
+    namespace stack_vector_test {
+		static int ctor = 0;
+		static int dtor = 0;
+
+        struct Sample {
+            Sample()
+                : _deleted(false)
+            {
+                ctor++;
+            }
+            Sample(const Sample&)
+                : _deleted(false)
+            {
+                ctor++;
+            }
+            ~Sample() {
+                EXPECT_FALSE(_deleted);
+                _deleted = true;
+                dtor++;
+            }
+
+            bool _deleted;
+        };
+
+        void swap(Sample& lhs, Sample& rhs)
+        {
+            std::swap(lhs._deleted, rhs._deleted);
+        }
+    }
+}
+TEST(Container_StackVector, ctorとdtorの呼ばれる回数)
+{
+    using namespace stack_vector_test;
+    ctor = dtor = 0;
+
+    {
+        tofu::stack_vector<Sample, 8> vec;
+        vec.push_back(Sample{});
+        vec.emplace_back();
+        vec.emplace_back();
+        vec.emplace_back();
+        vec.emplace_back();
+
+        vec.erase(vec.begin() + 1, vec.begin() + 3);
+
+        tofu::stack_vector<Sample, 8> vec2;
+        vec2 = vec;
+        vec2.emplace_back();
+    }
+
+    EXPECT_EQ(ctor, dtor);
+}

@@ -166,12 +166,5 @@ namespace tofu {
 		ret /= rhs;
 		return ret;
 	}
-	template<scalar_type TScalar>
-	inline constexpr tVec2 operator/(TScalar lhs, const tVec2& rhs) noexcept 
-	{
-		auto ret = rhs;
-		ret /= lhs;
-		return ret;
-	}
 }
 
