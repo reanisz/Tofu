@@ -1,16 +1,68 @@
 #include <iostream>
 #include <string>
+#include <memory>
+#include <functional>
+
+#include <cstring>
+
+#include <fmt/core.h>
 
 #include "quic.h"
 
 namespace quic 
 {
+    struct OnError
+    {
+        template<class TFunc>
+        OnError(const TFunc& func)
+            : _succeeded(false)
+            , _func(func)
+        {
+        }
+
+        ~OnError()
+        {
+            if(_func && !_succeeded)
+                _func();
+        }
+
+        void succeeded()
+        {
+            _succeeded = true;
+        }
+
+    private:
+        bool _succeeded;
+        std::function<void()> _func;
+    };
+    
+    struct SendData
+    {
+        SendData(std::size_t size, const std::byte* data)
+            : _buffer(std::make_unique<std::byte[]>(size))
+            , _quic_buffer({.Length = size, .Buffer = reinterpret_cast<std::uint8_t*>(_buffer.get())})
+        {
+            std::memcpy(_buffer.get(), data, size);
+        }
+
+        SendData(const SendData&) = delete;
+        SendData(SendData&& other) = delete;
+
+        std::unique_ptr<std::byte[]> _buffer;
+        QUIC_BUFFER _quic_buffer;
+    };
+
+
+    QUIC_STATUS client_connection_callback(HQUIC connection, void* context, QUIC_CONNECTION_EVENT* event);
+    QUIC_STATUS client_stream_callback(HQUIC stream, void* context, QUIC_STREAM_EVENT* event);
+    void client_send(HQUIC connection);
+
     QUIC_STATUS client_connection_callback(HQUIC connection, void* context, QUIC_CONNECTION_EVENT* event)
     {
         switch (event->Type) {
             case QUIC_CONNECTION_EVENT_CONNECTED:
                 printf("[conn][%p] Connected\n", connection);
-                // ClientSend(connection);
+                client_send(connection);
                 break;
             case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
                 printf("[conn][%p] Shut down by transport, 0x%x\n", connection, event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status);
@@ -24,6 +76,8 @@ namespace quic
                     MsQuic->ConnectionClose(connection);
                 }
                 break;
+            case QUIC_CONNECTION_EVENT_DATAGRAM_STATE_CHANGED:
+                printf("[conn][%p] Datagram State Changed, enabled=%d, max_length=%hu\n", connection, event->DATAGRAM_STATE_CHANGED.SendEnabled, event->DATAGRAM_STATE_CHANGED.MaxSendLength);
             case QUIC_CONNECTION_EVENT_RESUMPTION_TICKET_RECEIVED:
                 printf("[conn][%p] Resumption ticket received (%u bytes):\n", connection, event->RESUMPTION_TICKET_RECEIVED.ResumptionTicketLength);
                 for (uint32_t i = 0; i < event->RESUMPTION_TICKET_RECEIVED.ResumptionTicketLength; i++) {
@@ -38,11 +92,84 @@ namespace quic
         return QUIC_STATUS_SUCCESS;
     }
 
+    QUIC_STATUS client_stream_callback(HQUIC stream, void* context, QUIC_STREAM_EVENT* event)
+    {
+        switch (event->Type) {
+        case QUIC_STREAM_EVENT_SEND_COMPLETE:
+            delete (SendData*)(event->SEND_COMPLETE.ClientContext);
+            printf("[strm][%p] Data sent\n", stream);
+            break;
+        case QUIC_STREAM_EVENT_RECEIVE:
+            {
+                printf("[strm][%p] Data received\n", stream);
+                // printf("  data: %s\n", event->RECEIVE.Buffers);
+            }
+            break;
+        case QUIC_STREAM_EVENT_PEER_SEND_ABORTED:
+            printf("[strm][%p] Peer aborted\n", stream);
+            break;
+        case QUIC_STREAM_EVENT_PEER_SEND_SHUTDOWN:
+            printf("[strm][%p] Peer shut down\n", stream);
+            break;
+        case QUIC_STREAM_EVENT_SHUTDOWN_COMPLETE:
+            printf("[strm][%p] All done\n", stream);
+            MsQuic->StreamClose(stream);
+            break;
+        default:
+            break;
+        }
+        return QUIC_STATUS_SUCCESS;
+    }
+
+    void client_send(HQUIC connection)
+    {
+        OnError error{
+            [&](){
+                MsQuic->ConnectionShutdown(connection, QUIC_CONNECTION_SHUTDOWN_FLAG_NONE, 0);
+            }
+        };
+
+        HQUIC stream = nullptr;
+
+        if(auto status = MsQuic->StreamOpen(connection, QUIC_STREAM_OPEN_FLAG_NONE, client_stream_callback, nullptr, &stream); QUIC_FAILED(status))
+        {
+            std::cout << "Error at StreamOpen: " << status << std::endl;
+            return;
+        }
+
+        std::cout << "[strm][" << stream << "] Stream opened." << std::endl;
+        if(auto status = MsQuic->StreamStart(stream, QUIC_STREAM_START_FLAG_NONE); QUIC_FAILED(status))
+        {
+            std::cout << "Error at StreamStart : " << status << std::endl;
+            return;
+        }
+        std::cout << "[strm][" << stream << "] Stream started." << std::endl;
+
+        for(int i=0;i<5;i++){
+            const char send_str[] = "abcdefghijklmnopqrstuvwxyz";
+
+            auto send_data = std::make_unique<SendData>(sizeof(send_str), reinterpret_cast<const std::byte*>(send_str));
+
+            std::cout << "[strm][" << stream << "] Sending data..." << std::endl;
+            if(auto status = MsQuic->StreamSend(stream, &send_data->_quic_buffer, 1, QUIC_SEND_FLAG_FIN, send_data.get()); QUIC_FAILED(status))
+            {
+                std::cout << "Error at StreamSend: " << status << std::endl;
+                return;
+            }
+
+            // 送信完了後にdeleteするのでunique_ptrで解放する責任は負わない
+            send_data.release();
+        }
+        error.succeeded();
+    }
+
     void as_client(const std::string& target, int port)
     {
         init_configuration(_registration, _configuration, false, "cert/ca-crt.pem", "cert/ca-privatekey.pem");
 
         HQUIC connection = nullptr;
+
+        OnError error { [&](){ if(connection) { MsQuic->ConnectionClose(connection); }  } };
 
         if(auto status = MsQuic->ConnectionOpen(_registration, client_connection_callback, nullptr, &connection); QUIC_FAILED(status))
         {
@@ -55,17 +182,104 @@ namespace quic
             std::cout << "Error at ConnectionStart : " << status << std::endl;
             return;
         }
+
+        puts("Press Enter to exit.\n\n");
+        getchar();
     }
+
+    // ============================================
+    QUIC_STATUS server_listener_callback(HQUIC listener, void* context, QUIC_LISTENER_EVENT* event);
+    QUIC_STATUS server_connection_callback(HQUIC listener, void* context, QUIC_CONNECTION_EVENT* event);
+    QUIC_STATUS server_stream_callback(HQUIC stream, void* context, QUIC_STREAM_EVENT* event);
 
     QUIC_STATUS server_listener_callback(HQUIC listener, void* context, QUIC_LISTENER_EVENT* event)
     {
         switch(event->Type)
         {
         case QUIC_LISTENER_EVENT_NEW_CONNECTION:
+            MsQuic->SetCallbackHandler(event->NEW_CONNECTION.Connection, (void*)server_connection_callback, nullptr);
+            return MsQuic->ConnectionSetConfiguration(event->NEW_CONNECTION.Connection, _configuration);
         default:
-            std::cout << "client_connection_callback: " << event->Type << std::endl;
+            std::cout << "server_listener_callback: " << event->Type << std::endl;
             return QUIC_STATUS_NOT_SUPPORTED;
         }
+    }
+
+    QUIC_STATUS server_connection_callback(HQUIC connection, void* context, QUIC_CONNECTION_EVENT* event)
+    {
+        switch(event->Type)
+        {
+        case QUIC_CONNECTION_EVENT_CONNECTED:
+            printf("[conn][%p] Connected\n", connection);
+            MsQuic->ConnectionSendResumptionTicket(connection, QUIC_SEND_RESUMPTION_FLAG_NONE, 0, NULL);
+            break;
+        case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_TRANSPORT:
+            printf("[conn][%p] Shut down by transport, 0x%x\n", connection, event->SHUTDOWN_INITIATED_BY_TRANSPORT.Status);
+            break;
+        case QUIC_CONNECTION_EVENT_SHUTDOWN_INITIATED_BY_PEER:
+            printf("[conn][%p] Shut down by peer, 0x%llu\n", connection, (unsigned long long)event->SHUTDOWN_INITIATED_BY_PEER.ErrorCode);
+            break;
+        case QUIC_CONNECTION_EVENT_SHUTDOWN_COMPLETE:
+            printf("[conn][%p] All done\n", connection);
+            MsQuic->ConnectionClose(connection);
+            break;
+        case QUIC_CONNECTION_EVENT_PEER_STREAM_STARTED:
+            printf("[strm][%p] Peer started\n", event->PEER_STREAM_STARTED.Stream);
+            MsQuic->SetCallbackHandler(event->PEER_STREAM_STARTED.Stream, (void*)server_stream_callback, nullptr);
+            break;
+        case QUIC_CONNECTION_EVENT_RESUMED:
+            printf("[conn][%p] Connection resumed!\n", connection);
+            break;
+
+        default:
+            std::cout << "server_connection_callback: " << event->Type << std::endl;
+        }
+        return QUIC_STATUS_SUCCESS;
+    }
+    
+    QUIC_STATUS server_stream_callback(HQUIC stream, void* context, QUIC_STREAM_EVENT* event)
+    {
+        switch (event->Type) {
+        case QUIC_STREAM_EVENT_SEND_COMPLETE:
+            free(event->SEND_COMPLETE.ClientContext);
+            printf("[strm][%p] Data sent\n", stream);
+            break;
+        case QUIC_STREAM_EVENT_RECEIVE:
+        {
+            auto& recv = event->RECEIVE;
+            printf("[strm][%p] Data received\n", stream);
+            fmt::print(
+                    "  offset : {}\n"
+                    "  total_buf_length : {}\n"
+                    "  buffer_cnt : {}\n"
+                    "  flags : {}\n"
+                    , recv.AbsoluteOffset
+                    , recv.TotalBufferLength
+                    , recv.BufferCount
+                    , recv.Flags
+                    );
+
+            for(int i=0;i<recv.BufferCount;i++){
+                fmt::print("  [{}] : {}\n", i, reinterpret_cast<const char*>(recv.Buffers[i].Buffer));
+            }
+        }
+            break;
+        case QUIC_STREAM_EVENT_PEER_SEND_SHUTDOWN:
+            printf("[strm][%p] Peer shut down\n", stream);
+            // ServerSend(Stream);
+            break;
+        case QUIC_STREAM_EVENT_PEER_SEND_ABORTED:
+            printf("[strm][%p] Peer aborted\n", stream);
+            MsQuic->StreamShutdown(stream, QUIC_STREAM_SHUTDOWN_FLAG_ABORT, 0);
+            break;
+        case QUIC_STREAM_EVENT_SHUTDOWN_COMPLETE:
+            printf("[strm][%p] All done\n", stream);
+            MsQuic->StreamClose(stream);
+            break;
+        default:
+            break;
+        }
+        return QUIC_STATUS_SUCCESS;
     }
 
     void as_server(int port)

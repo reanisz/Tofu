@@ -9,6 +9,10 @@ MESSAGE(STATUS "sandbox sources: ${source_files}")
 LIST(APPEND LIBS tofu_core)
 include_directories(../core/include/)
 
+## ==== fmt
+LIST(APPEND LIBS fmt)
+include_directories(../libs/fmt/include/)
+
 ## ==== msquic
 set(QUIC_LIB_DIR ${PROJECT_SOURCE_DIR}/libs/msquic/build/linux/x64_openssl/obj/Debug)
 set(QUIC_OPENSSL_LIB_DIR ${PROJECT_SOURCE_DIR}/libs/msquic/build/linux/x64_openssl/openssl/lib)
