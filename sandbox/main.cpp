@@ -40,7 +40,7 @@ namespace quic
     {
         SendData(std::size_t size, const std::byte* data)
             : _buffer(std::make_unique<std::byte[]>(size))
-            , _quic_buffer({.Length = size, .Buffer = reinterpret_cast<std::uint8_t*>(_buffer.get())})
+            , _quic_buffer({.Length = static_cast<std::uint32_t>(size), .Buffer = reinterpret_cast<std::uint8_t*>(_buffer.get())})
         {
             std::memcpy(_buffer.get(), data, size);
         }
@@ -165,7 +165,11 @@ namespace quic
 
     void as_client(const std::string& target, int port)
     {
-        init_configuration(_registration, _configuration, false, "cert/ca-crt.pem", "cert/ca-privatekey.pem");
+#ifdef WIN32 
+        init_configuration(_registration, _configuration, false, nullptr);
+#else
+        init_configuration(_registration, _configuration, false, nullptr, nullptr);
+#endif
 
         HQUIC connection = nullptr;
 
@@ -284,7 +288,11 @@ namespace quic
 
     void as_server(int port)
     {
-        init_configuration(_registration, _configuration, true, "cert/server-crt.pem", "cert/server-privatekey.pem");
+#ifdef WIN32 
+        init_configuration(_registration, _configuration, true, "cert/_wildcard.reanisz.info+3-sha.dat");
+#else
+        init_configuration(_registration, _configuration, true, "cert/server-crt.crt", "cert/server-privatekey.pem");
+#endif
 
         HQUIC listener = nullptr;
 
@@ -348,10 +356,12 @@ void print_error_list()
     dump(STATUS_PROTOCOL_ERROR);
     dump(STATUS_VER_NEG_ERROR);
     dump(STATUS_UNREACHABLE);
+#ifndef WIN32
     dump(STATUS_PERMISSION_DENIED);
     dump(STATUS_EPOLL_ERROR);
     dump(STATUS_DNS_RESOLUTION_ERROR);
     dump(STATUS_SOCKET_ERROR);
+#endif
     dump(STATUS_TLS_ERROR);
     dump(STATUS_USER_CANCELED);
     dump(STATUS_ALPN_NEG_FAILURE);
