@@ -9,3 +9,5 @@ include_directories(${QUIC_INCLUDES})
 
 target_link_libraries(tofu_sandbox tofu_core)
 target_link_libraries(tofu_sandbox fmt)
+target_link_libraries(tofu_sandbox ${QUIC_LIBS})
+
