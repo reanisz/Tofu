@@ -55,6 +55,11 @@ void sandbox_server(CommandlineArguments args)
 
     QuicServer quic{ config };
     quic.Start();
+    
+    if (quic.HasError())
+    {
+        quic.GetError().Dump();
+    }
 }
 
 int main(int argc, const char** argv)

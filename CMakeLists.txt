@@ -14,6 +14,7 @@ endif()
 ## ====== picoquic
 
 list(APPEND QUIC_INCLUDES "${PROJECT_SOURCE_DIR}/libs/picoquic/picoquic/")
+list(APPEND QUIC_INCLUDES "${PROJECT_SOURCE_DIR}/libs/picoquic/loglib/")
 
 if(WIN32)
     set(QUIC_LIB_DIR "${PROJECT_SOURCE_DIR}/libs/picoquic/x64/Release/")
@@ -49,7 +50,6 @@ if(WIN32)
     # list(APPEND QUIC_LIBS "${OPENSSL64DIR}/lib/uitest.${LIBRARY_SUFFIX}")
 
     list(APPEND QUIC_LIBS Ws2_32.lib)
-
 else()
     set(QUIC_LIB_DIR "${PROJECT_SOURCE_DIR}/libs/picoquic/")
 
