@@ -6,7 +6,7 @@
 #include <picosocks.h>
 #include <autoqlog.h>
 
-#include "quic_server.h"
+#include "tofu/net/quic_server.h"
 
 namespace tofu::net
 {
@@ -183,7 +183,7 @@ namespace tofu::net
         picoquic_set_cookie_mode(quic, 2);
         picoquic_set_default_congestion_algorithm(quic, picoquic_bbr_algorithm);
         picoquic_set_qlog(quic, _config._config._qlogDirectory.string().c_str());
-        picoquic_set_log_level(quic, 1);
+        picoquic_set_log_level(quic, _config._config._qlogLevel);
         picoquic_set_key_log_file_from_env(quic);
 
         std::atomic<int> loop_ret = 0;
@@ -229,6 +229,8 @@ namespace tofu::net
 
     int QuicServer::CallbackConnectionInit(picoquic_cnx_t* cnx, std::uint64_t stream_id, std::uint8_t* bytes, std::size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* v_stream_ctx)
     {
+        fmt::print("[QuicServer] CallbackConnectionInit()\n");
+
         auto quic = picoquic_get_quic_ctx(cnx);
 
         picoquic_set_callback(cnx,

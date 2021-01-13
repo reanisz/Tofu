@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
 ## ====
-file(GLOB source_files "*.cpp")
+file(GLOB source_files "**/*.cpp")
 add_executable(tofu_sandbox ${source_files})
 
+include_directories("include")
 include_directories("${PROJECT_SOURCE_DIR}/core/include")
 include_directories(${QUIC_INCLUDES})
 

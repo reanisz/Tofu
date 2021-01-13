@@ -4,7 +4,8 @@
 
 #include <fmt/core.h>
 
-#include "quic_server.h"
+#include "tofu/net/quic_server.h"
+#include "tofu/net/quic_client.h"
 
 struct CommandlineArguments
 {
@@ -58,7 +59,32 @@ void sandbox_server(CommandlineArguments args)
     
     if (quic.HasError())
     {
-        quic.GetError().Dump();
+        quic.GetError()->Dump();
+    }
+}
+
+void sandbox_client(CommandlineArguments args)
+{
+	using namespace tofu::net;
+
+    std::string address = args.shift();
+    Port port = std::stoi(args.shift());
+
+    QuicClientConfig config = {
+        ._config = {
+            ._qlogDirectory = std::filesystem::path{"./qlog/"}
+		},
+        ._serverName = address,
+        ._port = port,
+        ._alpn = "tofu_sandbox"
+    };
+
+    QuicClient quic{ config };
+    quic.Start();
+    
+    if (quic.HasError())
+    {
+        quic.GetError()->Dump();
     }
 }
 
@@ -73,6 +99,7 @@ int main(int argc, const char** argv)
     if(mode == "client")
     {
         fmt::print("Client mode\n");
+        sandbox_client(args);
     }
     else if(mode == "server")
     {

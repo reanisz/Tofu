@@ -2,7 +2,6 @@
 
 namespace tofu {
 	// https://en.cppreference.com/w/cpp/experimental/observer_ptr の簡易的な実装
-	// TODO: テストを書く
 	template<class T>
 	struct observer_ptr {
 		using pointer = T*;
