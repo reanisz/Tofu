@@ -20,20 +20,15 @@ namespace tofu::net
         Port _port;
         std::filesystem::path _certFile;
         std::filesystem::path _secretFile;
+        std::string _alpn;
     };
 
     class QuicServer
     {
     public:
-        QuicServer(const QuicServerConfig& config)
-            : _config(config)
-        {
-        }
+        QuicServer(const QuicServerConfig& config);
 
-        void Start()
-        {
-            picoquic_quic_t* quic = NULL;
-        }
+        void Start();
 
     private:
         QuicServerConfig _config;

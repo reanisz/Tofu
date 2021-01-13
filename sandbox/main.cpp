@@ -4,6 +4,8 @@
 
 #include <fmt/core.h>
 
+#include "quic_server.h"
+
 struct CommandlineArguments
 {
     CommandlineArguments(int argc, const char** argv)
@@ -35,6 +37,26 @@ private:
     int _pos;
 };
 
+void sandbox_server(CommandlineArguments args)
+{
+	using namespace tofu::net;
+
+    Port port = std::stoi(args.shift());
+
+    QuicServerConfig config = {
+        ._config = {
+            ._qlogDirectory = std::filesystem::path{"./qlog/"}
+		},
+        ._port = port,
+        ._certFile = {"./cert/_wildcard.reanisz.info+3.pem"},
+        ._secretFile = {"./cert/_wildcard.reanisz.info+3-key.pem"},
+        ._alpn = "tofu_sandbox"
+    };
+
+    QuicServer quic{ config };
+    quic.Start();
+}
+
 int main(int argc, const char** argv)
 {
     auto args = CommandlineArguments(argc, argv);
@@ -50,6 +72,7 @@ int main(int argc, const char** argv)
     else if(mode == "server")
     {
         fmt::print("Server mode\n");
+        sandbox_server(args);
     }
     else 
     {
