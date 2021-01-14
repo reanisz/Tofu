@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+
 #include "tofu/net/quic.h"
 
 namespace tofu::net
@@ -14,25 +16,14 @@ namespace tofu::net
         std::string _alpn;
     };
 
-    class QuicServer;
-
-    class QuicServerConnection
-    {
-    public:
-        QuicServerConnection(observer_ptr<QuicServer> server);
-        int CallbackConnection(picoquic_cnx_t* cnx, std::uint64_t stream_id, std::uint8_t* bytes, std::size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* v_stream_ctx);
-
-    private:
-        observer_ptr<QuicServer> _server;
-        Error _error;
-    };
-
     class QuicServer
     {
     public:
         QuicServer(const QuicServerConfig& config);
 
         void Start();
+
+        void OnCloseConnection(const std::shared_ptr<QuicConnection>& connection);
 
         int CallbackConnectionInit(picoquic_cnx_t* cnx, std::uint64_t stream_id, std::uint8_t* bytes, std::size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* v_stream_ctx);
         int CallbackPacketLoop(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx);
@@ -46,5 +37,6 @@ namespace tofu::net
 
         std::thread _thread;
         std::atomic<bool> _end = false;
+        std::set<std::shared_ptr<QuicConnection>> _connections;
     };
 }
