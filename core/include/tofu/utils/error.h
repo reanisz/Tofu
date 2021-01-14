@@ -15,7 +15,11 @@ namespace tofu
 
         void Dump() const
         {
+#if _DEBUG
             fmt::print("message=<{}>, file={}, line={}\n", _message, _file, _line);
+#else
+            fmt::print("message=<{}>\n", _message);
+#endif
         }
 	};
 

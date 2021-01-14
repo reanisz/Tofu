@@ -53,15 +53,19 @@ if(WIN32)
 else()
     set(QUIC_LIB_DIR "${PROJECT_SOURCE_DIR}/libs/picoquic/")
 
-    list(APPEND QUIC_LIBS "${QUIC_LIB_DIR}libpicohttp.${LIBRARY_SUFFIX}")
-    list(APPEND QUIC_LIBS "${QUIC_LIB_DIR}libpicoquic-core.${LIBRARY_SUFFIX}")
     list(APPEND QUIC_LIBS "${QUIC_LIB_DIR}libpicoquic-log.${LIBRARY_SUFFIX}")
+    list(APPEND QUIC_LIBS "${QUIC_LIB_DIR}libpicohttp-core.${LIBRARY_SUFFIX}")
+    list(APPEND QUIC_LIBS "${QUIC_LIB_DIR}libpicoquic-core.${LIBRARY_SUFFIX}")
 
     set(TLS_LIB_DIR "${PROJECT_SOURCE_DIR}/libs/picotls/")
     list(APPEND QUIC_LIBS "${TLS_LIB_DIR}libpicotls-core.${LIBRARY_SUFFIX}")
     list(APPEND QUIC_LIBS "${TLS_LIB_DIR}libpicotls-fusion.${LIBRARY_SUFFIX}")
     list(APPEND QUIC_LIBS "${TLS_LIB_DIR}libpicotls-minicrypto.${LIBRARY_SUFFIX}")
     list(APPEND QUIC_LIBS "${TLS_LIB_DIR}libpicotls-openssl.${LIBRARY_SUFFIX}")
+
+    list(APPEND QUIC_LIBS crypto)
+    list(APPEND QUIC_LIBS ssl)
+    list(APPEND QUIC_LIBS pthread)
 endif()
 
 ## ======

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+
 namespace tofu {
 	// https://en.cppreference.com/w/cpp/experimental/observer_ptr の簡易的な実装
 	template<class T>
