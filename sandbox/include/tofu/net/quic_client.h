@@ -34,6 +34,9 @@ namespace tofu::net
 
         int CallbackPacketLoop(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx);
 
+        // Ú‘±‚ªI—¹‚µ‚½‚±‚Æ‚ğ•ñ
+        void ReportConnectionExit(int error_no);
+
         bool HasError() const { return _error.has_value(); }
         const Error& GetError() const { return _error; }
 

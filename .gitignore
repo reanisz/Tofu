@@ -3,6 +3,7 @@
 *_log.html
 build/
 build-win/
+*.qlog
 
 #=============================
 ## Ignore Visual Studio temporary files, build results, and

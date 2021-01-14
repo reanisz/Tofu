@@ -19,7 +19,115 @@ namespace tofu::net
     {
         auto quic = picoquic_get_quic_ctx(cnx);
 
-        return 0;
+        int ret = 0;
+
+        if (ret == 0) {
+            switch (fin_or_event) {
+            case picoquic_callback_stream_data:
+            case picoquic_callback_stream_fin:
+                /* Data arrival on stream #x, maybe with fin mark */
+                // TODO: implement
+                break;
+            case picoquic_callback_stop_sending: /* Should not happen, treated as reset */
+                /* Mark stream as abandoned, close the file, etc. */
+                picoquic_reset_stream(cnx, stream_id, 0);
+                /* Fall through */
+            case picoquic_callback_stream_reset: /* Server reset stream #x */
+                // if (stream_ctx->is_stream_reset || stream_ctx->is_stream_finished) {
+                //     /* Unexpected: receive after fin */
+                //     return -1;
+                // }
+                // else {
+                //     stream_ctx->remote_error = picoquic_get_remote_stream_error(cnx, stream_id);
+                //     stream_ctx->is_stream_reset = 1;
+                //     client_ctx->nb_files_failed++;
+
+                //     if ((client_ctx->nb_files_received + client_ctx->nb_files_failed) >= client_ctx->nb_files) {
+                //         /* everything is done, close the connection */
+                //         fprintf(stdout, "All done, closing the connection.\n");
+                //         ret = picoquic_close(cnx, 0);
+                //     }
+                // }
+                break;
+            case picoquic_callback_stateless_reset:
+            case picoquic_callback_close: /* Received connection close */
+            case picoquic_callback_application_close: /* Received application close */
+                fmt::print("[QuicClientConnection] Connection closed.\n");
+                _client->ReportConnectionExit(0);
+                /* Remove the application callback */
+                picoquic_set_callback(cnx, NULL, NULL);
+                // delete this;
+                return 0;
+            case picoquic_callback_version_negotiation:
+                /* The client did not get the right version.
+                 * TODO: some form of negotiation?
+                 */
+                fmt::print("[QuicClientConnection] Received a version negotiation request:");
+                for (size_t byte_index = 0; byte_index + 4 <= length; byte_index += 4) {
+                    uint32_t vn = 0;
+                    for (int i = 0; i < 4; i++) {
+                        vn <<= 8;
+                        vn += bytes[byte_index + i];
+                    }
+                    fmt::print("{}{:0x}", (byte_index == 0) ? " " : ", ", vn);
+                }
+                fmt::print("\n");
+                break;
+            case picoquic_callback_stream_gap:
+                /* This callback is never used. */
+                break;
+            case picoquic_callback_prepare_to_send:
+                fmt::print("[QuicClientConnection] picoquic_callback_prepare_to_send\n");
+                /* Active sending API */
+                // if (stream_ctx->name_sent_length < stream_ctx->name_length) {
+                //     uint8_t* buffer;
+                //     size_t available = stream_ctx->name_length - stream_ctx->name_sent_length;
+                //     int is_fin = 1;
+
+                //     /* The length parameter marks the space available in the packet */
+                //     if (available > length) {
+                //         available = length;
+                //         is_fin = 0;
+                //     }
+                //     /* Needs to retrieve a pointer to the actual buffer
+                //      * the "bytes" parameter points to the sending context
+                //      */
+                //     buffer = picoquic_provide_stream_data_buffer(bytes, available, is_fin, !is_fin);
+                //     if (buffer != NULL) {
+                //         char const* filename = client_ctx->file_names[stream_ctx->file_rank];
+                //         memcpy(buffer, filename + stream_ctx->name_sent_length, available);
+                //         stream_ctx->name_sent_length += available;
+                //         stream_ctx->is_name_sent = is_fin;
+                //     }
+                //     else {
+                //         ret = -1;
+                //     }
+                // }
+                // else {
+                //     /* Nothing to send, just return */
+                // }
+                break;
+            case picoquic_callback_almost_ready:
+                fmt::print("[QuicClientConnection] Connection to the server completed, almost ready.\n");
+                break;
+            case picoquic_callback_ready:
+            {
+                /* TODO: Check that the transport parameters are what the sample expects */
+                fmt::print("[QuicClientConnection] Connection to the server confirmed.\n");
+
+                const char buf[] = "abcdefghijkl";
+
+                picoquic_queue_datagram_frame(cnx, sizeof(buf), reinterpret_cast<const std::uint8_t*>(buf));
+				break;
+            }
+            default:
+                fmt::print("[QuicClientConnection] unexpected event : {}\n", fin_or_event);
+                /* unexpected -- just ignore. */
+                break;
+            }
+        }
+
+        return ret;
     }
 
 	QuicClient::QuicClient(const QuicClientConfig& config)
@@ -99,7 +207,7 @@ namespace tofu::net
 		fmt::print("[QuicClient] Initial connection ID: ");
 		for (int i = 0; i < icid.id_len; i++) 
 		{
-			fmt::print("{:x}", icid.id[i]);
+			fmt::print("{:0x}", icid.id[i]);
 		}
 		fmt::print("\n");
 
@@ -148,6 +256,16 @@ namespace tofu::net
             return error_code::Interrupt;
 
         return 0;
+    }
+
+    void QuicClient::ReportConnectionExit(int error_no)
+    {
+        fmt::print("[QuicClient] ReportConnectionExit({})\n", error_no);
+        if (error_no != 0)
+        {
+            _error = TOFU_MAKE_ERROR("Connection did not complete successfully. error_code = {}", error_no);
+        }
+        _end = true;
     }
 }
 

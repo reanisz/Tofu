@@ -20,6 +20,9 @@ namespace tofu::net
 
         // ユーザー操作によって中断された
         inline constexpr int Interrupt = Base + 1;
+
+        // コンテキストが見つからなかった
+        inline constexpr int ContextNotFound = Base + 2;
     }
 
     using Port = StrongNumeric<class tag_Port, int>;

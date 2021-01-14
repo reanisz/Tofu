@@ -118,6 +118,13 @@ namespace tofu::net
         //         picoquic_reset_stream(cnx, stream_id, PICOQUIC_SAMPLE_FILE_CANCEL_ERROR);
         //     }
         //     break;
+        case picoquic_callback_datagram:
+        {
+            std::string_view view{ reinterpret_cast<char*>(bytes), length };
+            fmt::print("[QuicServerConnection] received datagram: <{}>\n", view);
+
+        }
+            break;
         case picoquic_callback_stateless_reset: /* Received an error message */
         case picoquic_callback_close: /* Received connection close */
         case picoquic_callback_application_close: /* Received application close */
