@@ -3,3 +3,6 @@ if ERRORLEVEL 1 cmd /c exit 0
 
 cd build-win
 cmake ..
+
+pause
+

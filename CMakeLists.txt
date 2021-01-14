@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 if(WIN32)
     set(LIBRARY_SUFFIX lib)
+
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 else()
     set(LIBRARY_SUFFIX a)
 endif()
