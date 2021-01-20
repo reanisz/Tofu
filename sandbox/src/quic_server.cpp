@@ -16,12 +16,17 @@ namespace tofu::net
     {
     }
 
+    QuicServer::~QuicServer()
+    {
+        Exit();
+    }
+
     void QuicServer::Start()
     {
         fmt::print("[QuicServer] Starting server on port {}\n", *_config._port);
         auto current_time = picoquic_current_time();
 
-        picoquic_quic_t* quic = picoquic_create(
+        _quic = picoquic_create(
             1, // nb_connections
             _config._certFile.string().c_str(),
             _config._secretFile.string().c_str(),
@@ -41,23 +46,21 @@ namespace tofu::net
             0 // ticket_encryption_key_length
             );
 
-        if (!quic)
+        if (!_quic)
         {
             _error = TOFU_MAKE_ERROR("Could not create server context");
             return;
         }
 
-        picoquic_set_cookie_mode(quic, 2);
-        picoquic_set_default_congestion_algorithm(quic, picoquic_bbr_algorithm);
-        picoquic_set_qlog(quic, _config._config._qlogDirectory.string().c_str());
-        picoquic_set_log_level(quic, _config._config._qlogLevel);
-        picoquic_set_key_log_file_from_env(quic);
+        picoquic_set_cookie_mode(_quic, 2);
+        picoquic_set_default_congestion_algorithm(_quic, picoquic_bbr_algorithm);
+        picoquic_set_qlog(_quic, _config._config._qlogDirectory.string().c_str());
+        picoquic_set_log_level(_quic, _config._config._qlogLevel);
+        picoquic_set_key_log_file_from_env(_quic);
 
-        std::atomic<int> loop_ret = 0;
-
-		_thread = std::thread{ [this, quic, port = *_config._port, &loop_ret]() {
+		_thread = std::thread{ [this, quic = _quic, port = *_config._port]() {
             fmt::print("[QuicServer] loop start.\n");
-            loop_ret = 
+            _loopReturnCode = 
 #ifdef _WINDOWS
             picoquic_packet_loop_win(
 #else
@@ -72,32 +75,40 @@ namespace tofu::net
             fmt::print("[QuicServer] loop exit.\n");
 			} 
         };
+    }
 
-        fmt::print("[QuicServer] Press key to exit\n");
-        getchar();
+    void QuicServer::Exit()
+    {
+        if (!_quic)
+            return;
 
         _end = true;
 
         if(_thread.joinable())
 			_thread.join();
 
-        if (loop_ret != 0 && loop_ret != error_code::Interrupt)
+        if (_loopReturnCode != 0 && _loopReturnCode != error_code::Interrupt)
         {
-            _error = TOFU_MAKE_ERROR("picoquic_packet_loop_win() did not complete successfully. error_code = {}", loop_ret);
+            _error = TOFU_MAKE_ERROR("picoquic_packet_loop_win() did not complete successfully. error_code = {}", _loopReturnCode);
         }
 
         fmt::print("[QuicServer] Server Exit.\n");
 
-        if (quic)
+        if (_quic)
         {
-            picoquic_free(quic);
+            picoquic_free(_quic);
         }
+
+        _quic = nullptr;
     }
 
     void QuicServer::OnCloseConnection(const std::shared_ptr<QuicConnection>& connection)
     {
         fmt::print("[QuicServer] OnCloseConnection()\n");
-        _connections.erase(connection);
+        {
+            std::lock_guard lock{ _mutexConnections };
+            _connections.erase(connection);
+        }
     }
 
     int QuicServer::CallbackConnectionInit(picoquic_cnx_t* cnx, std::uint64_t stream_id, std::uint8_t* bytes, std::size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* v_stream_ctx)
@@ -107,7 +118,10 @@ namespace tofu::net
         auto quic = picoquic_get_quic_ctx(cnx);
 
         auto connection = std::make_shared<QuicConnection>(cnx, this);
-        _connections.insert(connection);
+        {
+            std::lock_guard lock{ _mutexConnections };
+			_connections.insert(connection);
+        }
 
         picoquic_set_callback(cnx,
             [](picoquic_cnx_t* cnx, uint64_t stream_id, uint8_t* bytes, size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* stream_ctx) -> int {
@@ -121,7 +135,7 @@ namespace tofu::net
 
     int QuicServer::CallbackPacketLoop(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx)
     {
-        fmt::print("[QuicServer] CallbackPacketLoop(cb_mode = {})\n", cb_mode);
+        // fmt::print("[QuicServer] CallbackPacketLoop(cb_mode = {})\n", cb_mode);
         if (_end)
             return error_code::Interrupt;
 

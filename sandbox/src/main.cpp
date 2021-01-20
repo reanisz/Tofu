@@ -6,6 +6,7 @@
 
 #include "tofu/net/quic_server.h"
 #include "tofu/net/quic_client.h"
+#include <tofu/utils/scheduled_update_thread.h>
 
 struct CommandlineArguments
 {
@@ -56,6 +57,32 @@ void sandbox_server(CommandlineArguments args)
 
     QuicServer quic{ config };
     quic.Start();
+
+    auto app = tofu::ScheduledUpdateThread{
+        std::chrono::milliseconds{100},
+        [&](const auto&)
+        {
+            quic.ForeachConnections([](tofu::net::QuicConnection& connection) {
+                std::byte buf[65536];
+                while (auto size = connection.ReadUnreliable(buf, sizeof(buf)))
+                {
+                    fmt::print("Receved Unreliable: {}\n", std::string_view{reinterpret_cast<char*>(buf), size});
+					fmt::print("RTT: {}\n", picoquic_get_rtt(connection.GetRaw()));
+
+                    std::string str{ reinterpret_cast<char*>(buf), size };
+                    str += str;
+                    connection.SendUnreliable(reinterpret_cast<const std::byte*>(str.c_str()), str.size());
+                }
+            });
+		}
+    };
+
+    app.Start();
+	fmt::print("[sandbox_server] Press key to exit\n");
+	getchar();
+
+    app.End();
+    quic.Exit();
     
     if (quic.HasError())
     {
@@ -81,6 +108,42 @@ void sandbox_client(CommandlineArguments args)
 
     QuicClient quic{ config };
     quic.Start();
+
+    auto connection = quic.GetConnection();
+
+    auto app = tofu::ScheduledUpdateThread{
+        std::chrono::milliseconds{100},
+        [&](const auto&)
+        {
+			std::byte buf[65536];
+			while (auto size = connection->ReadUnreliable(buf, sizeof(buf)))
+			{
+				fmt::print("Receved Unreliable: {}\n", std::string_view{reinterpret_cast<char*>(buf), size});
+				fmt::print("RTT: {}\n", picoquic_get_rtt(connection->GetRaw()));
+			}
+
+            if(0){
+                const char str[] = "abcde";
+                connection->SendUnreliable(reinterpret_cast<const std::byte*>(str), sizeof(str));
+            }
+		}
+    };
+    app.Start();
+
+    while (true) {
+        fmt::print("> ");
+        std::string line;
+        std::cin >> line;
+        fmt::print("\n");
+
+        if (line == "exit")
+            break;
+        connection->SendUnreliable(reinterpret_cast<const std::byte*>(line.c_str()), line.size());
+
+    }
+
+    app.End();
+    quic.Exit();
     
     if (quic.HasError())
     {

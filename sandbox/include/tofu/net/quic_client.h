@@ -16,8 +16,12 @@ namespace tofu::net
     {
     public:
         QuicClient(const QuicClientConfig& config);
+        ~QuicClient();
 
         void Start();
+        void Exit();
+
+        std::shared_ptr<QuicConnection> GetConnection();
 
         void OnCloseConnection(const std::shared_ptr<QuicConnection>& connection);
 
@@ -26,9 +30,18 @@ namespace tofu::net
         bool HasError() const { return _error.has_value(); }
         const Error& GetError() const { return _error; }
 
+        const QuicClientConfig& GetConfig() const noexcept
+        {
+            return _config;
+        }
+
     private:
         QuicClientConfig _config;
         Error _error;
+        std::atomic<int> _loopReturnCode;
+
+        picoquic_quic_t* _quic = nullptr;
+        std::shared_ptr<QuicConnection> _connection;
 
         std::thread _thread;
         std::atomic<bool> _end = false;

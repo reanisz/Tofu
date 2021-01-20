@@ -15,6 +15,11 @@ namespace tofu::net
 	{
 	}
 
+	QuicClient::~QuicClient()
+	{
+		Exit();
+	}
+
 	void QuicClient::Start()
 	{
 		auto current_time = picoquic_current_time();
@@ -32,13 +37,13 @@ namespace tofu::net
 		if (is_name)
 			sni = _config._serverName;
 
-		auto quic = picoquic_create(1, nullptr, nullptr, nullptr,
+		_quic = picoquic_create(1, nullptr, nullptr, nullptr,
 			_config._alpn.c_str(), nullptr, nullptr, nullptr, nullptr, nullptr,
 			current_time, nullptr,
 			nullptr, // ticket_file_name
 			nullptr, 0);
 
-		if (!quic)
+		if (!_quic)
 		{
 			_error = TOFU_MAKE_ERROR("Could not create quic context");
 			return;
@@ -46,19 +51,19 @@ namespace tofu::net
 
 		// picoquic_load_retry_tokens
 
-		picoquic_set_default_congestion_algorithm(quic, picoquic_bbr_algorithm);
+		picoquic_set_default_congestion_algorithm(_quic, picoquic_bbr_algorithm);
 
-		picoquic_set_key_log_file_from_env(quic);
+		picoquic_set_key_log_file_from_env(_quic);
 		if (!_config._config._qlogDirectory.empty()) 
 		{
-			picoquic_set_qlog(quic, _config._config._qlogDirectory.string().c_str());
-			picoquic_set_log_level(quic, _config._config._qlogLevel);
+			picoquic_set_qlog(_quic, _config._config._qlogDirectory.string().c_str());
+			picoquic_set_log_level(_quic, _config._config._qlogLevel);
 		}
 
 		// ==================================
 		fmt::print("[QuicClient] Starting connection to {}:{}\n", _config._serverName, *_config._port);
 
-		auto cnx = picoquic_create_cnx(quic, picoquic_null_connection_id, picoquic_null_connection_id, (sockaddr*)&address, current_time, 0, sni.c_str(), _config._alpn.c_str(), 1);
+		auto cnx = picoquic_create_cnx(_quic, picoquic_null_connection_id, picoquic_null_connection_id, (sockaddr*)&address, current_time, 0, sni.c_str(), _config._alpn.c_str(), 1);
 
 		if (!cnx)
 		{
@@ -66,13 +71,13 @@ namespace tofu::net
 			return;
 		}
 
-		auto connection = std::make_shared<QuicConnection>(cnx, this);
+		_connection = std::make_shared<QuicConnection>(cnx, this);
 
 		picoquic_set_callback(cnx,
             [](picoquic_cnx_t* cnx, uint64_t stream_id, uint8_t* bytes, size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* stream_ctx) -> int {
                 return ((QuicConnection*)callback_ctx)->CallbackConnection(cnx, stream_id, bytes, length, fin_or_event, callback_ctx, stream_ctx);
             },
-			connection.get()
+			_connection.get()
 			);
 
 		if (int ret = picoquic_start_client_cnx(cnx); ret < 0)
@@ -91,11 +96,11 @@ namespace tofu::net
 		}
 		fmt::print("\n");
 
-		std::atomic<int> loop_ret = 0;
+		std::atomic<int> _loopReturnCode = 0;
 
-		_thread = std::thread{ [this, quic, address, &loop_ret]() {
+		_thread = std::thread{ [this, quic = _quic, address, &_loopReturnCode]() {
 			fmt::print("[QuicClient] loop start.\n");
-			loop_ret =
+			_loopReturnCode =
 	#ifdef _WINDOWS
 			picoquic_packet_loop_win(
 	#else
@@ -110,23 +115,34 @@ namespace tofu::net
 			fmt::print("[QuicClient] loop exit.\n");
 		} };
 
-        fmt::print("[QuicClient] Press key to exit\n");
-        getchar();
+		return;
+	}
+
+	void QuicClient::Exit()
+	{
+		if (_connection)
+			_connection->Close();
 
         _end = true;
 
         if(_thread.joinable())
 			_thread.join();
 
-        if (loop_ret != 0 && loop_ret != error_code::Interrupt)
+        if (_loopReturnCode != 0 && _loopReturnCode != error_code::Interrupt)
         {
-            _error = TOFU_MAKE_ERROR("picoquic_packet_loop_win() did not complete successfully. error_code = {}", loop_ret);
+            _error = TOFU_MAKE_ERROR("picoquic_packet_loop_win() did not complete successfully. error_code = {}", _loopReturnCode);
         }
 
-		if (quic)
-			picoquic_free(quic);
+		if (_quic)
+			picoquic_free(_quic);
 
-		return;
+		_quic = nullptr;
+		_connection = nullptr;
+	}
+
+	std::shared_ptr<QuicConnection> tofu::net::QuicClient::GetConnection()
+	{
+		return _connection;
 	}
 
 	void QuicClient::OnCloseConnection(const std::shared_ptr<QuicConnection>& connection)
@@ -137,7 +153,7 @@ namespace tofu::net
 
     int QuicClient::CallbackPacketLoop(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx)
     {
-        fmt::print("[QuicClient] CallbackPacketLoop(cb_mode = {})\n", cb_mode);
+        // fmt::print("[QuicClient] CallbackPacketLoop(cb_mode = {})\n", cb_mode);
         if (_end)
             return PICOQUIC_NO_ERROR_TERMINATE_PACKET_LOOP;
 
