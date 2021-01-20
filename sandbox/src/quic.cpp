@@ -12,6 +12,11 @@ namespace tofu::net {
     {
     }
 
+    std::int64_t QuicStream::GetId() const noexcept
+    {
+        return _streamId;
+    }
+
     std::size_t QuicStream::ReceivedSize() noexcept
     {
         std::lock_guard lock{ _recvMutex };
@@ -40,6 +45,8 @@ namespace tofu::net {
     {
         std::lock_guard lock{ _sendMutex };
         _sendBuffer.Write(data, length);
+
+        picoquic_mark_active_stream(_connection->GetRaw(), _streamId, true, this);
     }
 
     void QuicStream::FinishSend()
@@ -67,7 +74,7 @@ namespace tofu::net {
 
         bool is_fin = _isSendFinish;
 
-        auto buffer = picoquic_provide_stream_data_buffer(context, send_length, is_fin, !is_fin);
+        auto buffer = picoquic_provide_stream_data_buffer(context, send_length, is_fin, _sendBuffer.Remain() == length);
         if (!buffer)
             return -1;
 
@@ -126,11 +133,32 @@ namespace tofu::net {
 
     std::shared_ptr<QuicStream> QuicConnection::OpenStream(std::uint64_t stream_id)
     {
+        std::lock_guard lock{ _streamMutex };
         auto ctx = std::make_shared<QuicStream>(this, stream_id);
 
-        picoquic_mark_active_stream(_cnx, stream_id, true, &ctx);
+        auto ret = picoquic_mark_active_stream(_cnx, stream_id, true, ctx.get());
+
+        if (ret != 0)
+        {
+            return nullptr;
+        }
+
+        _streams.insert({ stream_id, ctx });
 
         return ctx;
+    }
+
+    std::shared_ptr<QuicStream> QuicConnection::GetStream(std::uint64_t stream_id)
+    {
+        std::lock_guard lock{ _streamMutex };
+        if (auto it = _streams.find(stream_id); it != _streams.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     void QuicConnection::SendUnreliable(observer_ptr<const std::byte> data, std::size_t size)
@@ -178,11 +206,14 @@ namespace tofu::net {
         case picoquic_callback_stream_fin:
             /* Data arrival on stream #x, maybe with fin mark */
             if (!stream_ctx) {
+                std::lock_guard lock{ _streamMutex };
+
                 auto ctx = std::make_shared<QuicStream>(this, stream_id);
                 stream_ctx = ctx.get();
 
+                _streams.insert({ stream_id, ctx });
 
-                _streams.insert(ctx);
+                picoquic_set_app_stream_ctx(cnx, stream_id, stream_ctx);
             }
 
             stream_ctx->ArriveData(reinterpret_cast<const std::byte*>(bytes), length);
@@ -191,6 +222,7 @@ namespace tofu::net {
             break;
         case picoquic_callback_prepare_to_send:
             /* Active sending API */
+            fmt::print("[QuicConnection] prepare_to_send.\n");
             assert(stream_ctx);
 
             return *stream_ctx->OnPrepareToSend(bytes, length);

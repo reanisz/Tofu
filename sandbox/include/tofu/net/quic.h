@@ -4,6 +4,7 @@
 #include <optional>
 #include <thread>
 #include <set>
+#include <unordered_map>
 #include <mutex>
 #include <chrono>
 
@@ -51,6 +52,8 @@ namespace tofu::net
     {
     public:
         QuicStream(observer_ptr<QuicConnection> connection, std::uint64_t stream_id);
+
+        std::int64_t GetId() const noexcept;
 
         std::size_t ReceivedSize() noexcept;
         void Peek(std::byte* data, std::size_t length);
@@ -102,6 +105,7 @@ namespace tofu::net
 
         // === Stream
         std::shared_ptr<QuicStream> OpenStream(std::uint64_t stream_id);
+        std::shared_ptr<QuicStream> GetStream(std::uint64_t stream_id);
 
         // === DATAGRAM
         void SendUnreliable(observer_ptr<const std::byte> data, std::size_t size);
@@ -122,7 +126,8 @@ namespace tofu::net
         std::mutex _unreliableRecvMutex;
         CircularQueueBuffer _unreliableRecvBuffer;
 
-        std::set<std::shared_ptr<QuicStream>> _streams;
+        std::mutex _streamMutex;
+        std::unordered_map<std::uint64_t, std::shared_ptr<QuicStream>> _streams;
     };
 }
 

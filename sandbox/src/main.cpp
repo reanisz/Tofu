@@ -73,6 +73,15 @@ void sandbox_server(CommandlineArguments args)
                     str += str;
                     connection.SendUnreliable(reinterpret_cast<const std::byte*>(str.c_str()), str.size());
                 }
+
+				if (auto stream = connection.GetStream(2))
+				{
+                    if (auto size = std::min<std::size_t>(stream->ReceivedSize(), sizeof(buf)))
+                    {
+                        stream->Read(buf, size);
+						fmt::print("Receved Stream [{}]: {}\n", stream->GetId(), std::string_view{ reinterpret_cast<char*>(buf), size });
+                    }
+                }
             });
 		}
     };
@@ -111,6 +120,10 @@ void sandbox_client(CommandlineArguments args)
 
     auto connection = quic.GetConnection();
 
+    std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
+
+    auto stream = connection->OpenStream(2);
+
     auto app = tofu::ScheduledUpdateThread{
         std::chrono::milliseconds{100},
         [&](const auto&)
@@ -121,11 +134,6 @@ void sandbox_client(CommandlineArguments args)
 				fmt::print("Receved Unreliable: {}\n", std::string_view{reinterpret_cast<char*>(buf), size});
 				fmt::print("RTT: {}\n", picoquic_get_rtt(connection->GetRaw()));
 			}
-
-            if(0){
-                const char str[] = "abcde";
-                connection->SendUnreliable(reinterpret_cast<const std::byte*>(str), sizeof(str));
-            }
 		}
     };
     app.Start();
@@ -139,6 +147,7 @@ void sandbox_client(CommandlineArguments args)
         if (line == "exit")
             break;
         connection->SendUnreliable(reinterpret_cast<const std::byte*>(line.c_str()), line.size());
+        stream->Send(reinterpret_cast<const std::byte*>(line.c_str()), line.size());
 
     }
 
