@@ -13,7 +13,7 @@ struct CommandlineArguments
     CommandlineArguments(int argc, const char** argv)
         : _pos(0)
     {
-        for(int i=0;i<argc;i++)
+        for (int i = 0; i < argc; i++)
         {
             _args.emplace_back(argv[i]);
         }
@@ -41,14 +41,14 @@ private:
 
 void sandbox_server(CommandlineArguments args)
 {
-	using namespace tofu::net;
+    using namespace tofu::net;
 
     Port port = std::stoi(args.shift());
 
     QuicServerConfig config = {
         ._config = {
             ._qlogDirectory = std::filesystem::path{"./qlog/"}
-		},
+        },
         ._port = port,
         ._certFile = {"./cert/_wildcard.reanisz.info+3.pem"},
         ._secretFile = {"./cert/_wildcard.reanisz.info+3-key.pem"},
@@ -67,32 +67,32 @@ void sandbox_server(CommandlineArguments args)
                 while (auto size = connection.ReadUnreliable(buf, sizeof(buf)))
                 {
                     fmt::print("Receved Unreliable: {}\n", std::string_view{reinterpret_cast<char*>(buf), size});
-					fmt::print("RTT: {}\n", picoquic_get_rtt(connection.GetRaw()));
+                    fmt::print("RTT: {}\n", picoquic_get_rtt(connection.GetRaw()));
 
                     std::string str{ reinterpret_cast<char*>(buf), size };
                     str += str;
                     connection.SendUnreliable(reinterpret_cast<const std::byte*>(str.c_str()), str.size());
                 }
 
-				if (auto stream = connection.GetStream(2))
-				{
+                if (auto stream = connection.GetStream(2))
+                {
                     if (auto size = std::min<std::size_t>(stream->ReceivedSize(), sizeof(buf)))
                     {
                         stream->Read(buf, size);
-						fmt::print("Receved Stream [{}]({}): {}\n", stream->GetId(), size, std::string_view{ reinterpret_cast<char*>(buf), size });
+                        fmt::print("Receved Stream [{}]({}): {}\n", stream->GetId(), size, std::string_view{ reinterpret_cast<char*>(buf), size });
                     }
                 }
             });
-		}
+        }
     };
 
     app.Start();
-	fmt::print("[sandbox_server] Press key to exit\n");
-	getchar();
+    fmt::print("[sandbox_server] Press key to exit\n");
+    getchar();
 
     app.End();
     quic.Exit();
-    
+
     if (quic.HasError())
     {
         quic.GetError()->Dump();
@@ -101,7 +101,7 @@ void sandbox_server(CommandlineArguments args)
 
 void sandbox_client(CommandlineArguments args)
 {
-	using namespace tofu::net;
+    using namespace tofu::net;
 
     std::string address = args.shift();
     Port port = std::stoi(args.shift());
@@ -109,7 +109,7 @@ void sandbox_client(CommandlineArguments args)
     QuicClientConfig config = {
         ._config = {
             ._qlogDirectory = std::filesystem::path{"./qlog/"}
-		},
+        },
         ._serverName = address,
         ._port = port,
         ._alpn = "tofu_sandbox"
@@ -126,7 +126,7 @@ void sandbox_client(CommandlineArguments args)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds{ 10 });
     }
-	fmt::print("\ndone.\n");
+    fmt::print("\ndone.\n");
 
     std::shared_ptr<QuicStream> stream;
 
@@ -134,13 +134,13 @@ void sandbox_client(CommandlineArguments args)
         std::chrono::milliseconds{100},
         [&](const auto&)
         {
-			std::byte buf[65536];
-			while (auto size = connection->ReadUnreliable(buf, sizeof(buf)))
-			{
-				fmt::print("Receved Unreliable: {}\n", std::string_view{reinterpret_cast<char*>(buf), size});
-				fmt::print("RTT: {}\n", picoquic_get_rtt(connection->GetRaw()));
-			}
-		}
+            std::byte buf[65536];
+            while (auto size = connection->ReadUnreliable(buf, sizeof(buf)))
+            {
+                fmt::print("Receved Unreliable: {}\n", std::string_view{reinterpret_cast<char*>(buf), size});
+                fmt::print("RTT: {}\n", picoquic_get_rtt(connection->GetRaw()));
+            }
+        }
     };
     app.Start();
 
@@ -174,7 +174,7 @@ void sandbox_client(CommandlineArguments args)
 
     app.End();
     quic.Exit();
-    
+
     if (quic.HasError())
     {
         quic.GetError()->Dump();
@@ -184,22 +184,22 @@ void sandbox_client(CommandlineArguments args)
 int main(int argc, const char** argv)
 {
     auto args = CommandlineArguments(argc, argv);
-    
+
     // argv[0] を読み飛ばす
     args.shift();
 
     auto& mode = args.shift();
-    if(mode == "client")
+    if (mode == "client")
     {
         fmt::print("Client mode\n");
         sandbox_client(args);
     }
-    else if(mode == "server")
+    else if (mode == "server")
     {
         fmt::print("Server mode\n");
         sandbox_server(args);
     }
-    else 
+    else
     {
         fmt::print("Invalid Argument\n");
     }

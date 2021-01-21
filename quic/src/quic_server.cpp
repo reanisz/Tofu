@@ -32,19 +32,19 @@ namespace tofu::net
             _config._secretFile.string().c_str(),
             nullptr, // cert_root_file_name
             _config._alpn.c_str(),
-			[](picoquic_cnx_t* cnx, uint64_t stream_id, uint8_t* bytes, size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* stream_ctx) -> int { 
+            [](picoquic_cnx_t* cnx, uint64_t stream_id, uint8_t* bytes, size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* stream_ctx) -> int {
                 return ((QuicServer*)callback_ctx)->CallbackConnectionInit(cnx, stream_id, bytes, length, fin_or_event, callback_ctx, stream_ctx);
             },
             this, // context
-            nullptr, // cnx_id_callback
-            nullptr, // cnx_id_callback_data
-            nullptr, // reset_seed
-            current_time, //seed
-            nullptr, // p_simulated_time
-            nullptr, // ticket_file_name
-            nullptr, // ticket_encryption_key
-            0 // ticket_encryption_key_length
-            );
+                nullptr, // cnx_id_callback
+                nullptr, // cnx_id_callback_data
+                nullptr, // reset_seed
+                current_time, //seed
+                nullptr, // p_simulated_time
+                nullptr, // ticket_file_name
+                nullptr, // ticket_encryption_key
+                0 // ticket_encryption_key_length
+                );
 
         if (!_quic)
         {
@@ -58,9 +58,9 @@ namespace tofu::net
         picoquic_set_log_level(_quic, _config._config._qlogLevel);
         picoquic_set_key_log_file_from_env(_quic);
 
-		_thread = std::thread{ [this, quic = _quic, port = *_config._port]() {
+        _thread = std::thread{ [this, quic = _quic, port = *_config._port] () {
             fmt::print("[QuicServer] loop start.\n");
-            _loopReturnCode = 
+            _loopReturnCode =
 #ifdef _WINDOWS
             picoquic_packet_loop_win(
 #else
@@ -70,11 +70,11 @@ namespace tofu::net
                 [](picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx) -> int
                 {
                     return ((QuicServer*)callback_ctx)->CallbackPacketLoop(quic, cb_mode, callback_ctx);
-				}, this
+                }, this
             );
             fmt::print("[QuicServer] loop exit.\n");
-			} 
-        };
+            }
+                };
     }
 
     void QuicServer::Exit()
@@ -90,8 +90,8 @@ namespace tofu::net
 
         _end = true;
 
-        if(_thread.joinable())
-			_thread.join();
+        if (_thread.joinable())
+            _thread.join();
 
         if (_loopReturnCode != 0 && _loopReturnCode != error_code::Interrupt)
         {
@@ -126,7 +126,7 @@ namespace tofu::net
         auto connection = std::make_shared<QuicConnection>(cnx, this);
         {
             std::lock_guard lock{ _mutexConnections };
-			_connections.insert(connection);
+            _connections.insert(connection);
         }
 
         picoquic_set_callback(cnx,
@@ -134,7 +134,7 @@ namespace tofu::net
                 return ((QuicConnection*)callback_ctx)->CallbackConnection(cnx, stream_id, bytes, length, fin_or_event, callback_ctx, stream_ctx);
             },
             connection.get()
-		);
+                );
 
         return 0;
     }
