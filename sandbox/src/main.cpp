@@ -4,8 +4,8 @@
 
 #include <fmt/core.h>
 
-#include "tofu/net/quic_server.h"
-#include "tofu/net/quic_client.h"
+#include <tofu/net/quic_server.h>
+#include <tofu/net/quic_client.h>
 #include <tofu/utils/scheduled_update_thread.h>
 
 struct CommandlineArguments
