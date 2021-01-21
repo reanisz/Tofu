@@ -7,10 +7,9 @@
 
 namespace tofu
 {
-    // 循環メモリバッファー内で任意サイズのデータを格納できるキュー
-    //  TODO: 8byte alignmentでAllocateするようにする
-    class CircularQueueBuffer
+    class CircularBufferAllocator
     {
+    protected:
         struct ForwardTag
         {
             bool used : 1; // 使用中ならtrue
@@ -25,12 +24,130 @@ namespace tofu
         static constexpr std::size_t tag_size = sizeof(ForwardTag) + sizeof(BackwardTag);
 
         // capacityはデータが溜まる推定最大量の2倍くらいが目安
-        CircularQueueBuffer(std::size_t capacity)
+        CircularBufferAllocator(std::size_t capacity)
             : _capacity(capacity)
         {
             _buffer = std::make_unique<std::byte[]>(capacity);
+            _front = _back = _buffer.get();
+        }
+        // コピー禁止・ムーブ許可
+        CircularBufferAllocator(const CircularBufferAllocator&) = delete;
+        CircularBufferAllocator(CircularBufferAllocator&& other) = default;
 
-            _iterator = _front = _back = _buffer.get();
+        bool CanAllocate(std::size_t size)
+        {
+            return CanAllocateBack(size) || CanAllocateHead(size);
+        }
+
+        std::byte* Allocate(std::size_t size)
+        {
+            std::byte* base;
+
+            if (CanAllocateBack(size))
+            {
+                base = _back;
+            }
+            else if (CanAllocateHead(size))
+            {
+                base = _front;
+                // 循環させたよフラグを立てておく
+                BackwardTag* b_tag = reinterpret_cast<BackwardTag*>(_back - sizeof(BackwardTag));
+                ForwardTag* f_tag = reinterpret_cast<ForwardTag*>(_back - sizeof(BackwardTag) - b_tag->size - sizeof(ForwardTag));
+                f_tag->is_next_head = true;
+            }
+            else
+            {
+                // full
+                return nullptr;
+            }
+
+            ForwardTag* f_tag = reinterpret_cast<ForwardTag*>(base);
+            BackwardTag* b_tag = reinterpret_cast<BackwardTag*>(base + sizeof(ForwardTag) + size);
+
+            std::byte* res = base + sizeof(ForwardTag);
+
+            std::byte* next_back = base + sizeof(ForwardTag) + size + sizeof(BackwardTag);
+
+            f_tag->used = true;
+            f_tag->is_next_head = false;
+            f_tag->size = size;
+
+            b_tag->size = size;
+
+            _allocateCount++;
+            _back = next_back;
+
+            _size += size;
+
+            return res;
+        }
+        void Deallocate(const std::byte* const_ptr)
+        {
+            auto ptr = const_cast<std::byte*>(const_ptr);
+            _allocateCount--;
+
+            ForwardTag* f_tag = reinterpret_cast<ForwardTag*>(ptr - sizeof(ForwardTag));
+            f_tag->used = false;
+
+            _size -= f_tag->size;
+
+            if (reinterpret_cast<std::byte*>(f_tag) != _front)
+            {
+                // 解放は後回し
+                return;
+            }
+
+            do
+            {
+                if (f_tag->is_next_head)
+                {
+                    f_tag = reinterpret_cast<ForwardTag*>(_buffer.get());
+                }
+                else {
+                    f_tag = reinterpret_cast<ForwardTag*>(reinterpret_cast<std::byte*>(f_tag) + f_tag->size + sizeof(ForwardTag) + sizeof(BackwardTag));
+                }
+            } while (reinterpret_cast<std::byte*>(f_tag) != _back && !f_tag->used);
+            _front = reinterpret_cast<std::byte*>(f_tag);
+        }
+	protected:
+        // backの後ろにそのまま確保可能
+        bool CanAllocateBack(std::size_t size)
+        {
+            std::intptr_t used = reinterpret_cast<std::intptr_t>(_back) - reinterpret_cast<std::intptr_t>(_buffer.get());
+            return size <= _capacity - used;
+        }
+        // headに確保可能
+        bool CanAllocateHead(std::size_t size)
+        {
+            std::intptr_t space = reinterpret_cast<std::intptr_t>(_front) - reinterpret_cast<std::intptr_t>(_buffer.get());
+            return size <= space;
+        }
+
+	protected:
+        std::unique_ptr<std::byte[]> _buffer;
+        const std::size_t _capacity;
+
+        // allocatedなブロック数 (deallocateしたら減る)
+        std::size_t _allocateCount = 0;
+
+        // 総サイズ
+        std::size_t _size = 0;
+
+        // allocatedなブロックの先頭 (deallocateしたら進む)
+        std::byte* _front;
+        // allocatedなブロックの最後尾 (allocateしたら進む)
+        std::byte* _back;
+    };
+
+    // 循環メモリバッファー内で任意サイズのデータを格納できるキュー
+    class CircularQueueBuffer : private CircularBufferAllocator
+    {
+    public:
+        // capacityはデータが溜まる推定最大量の2倍くらいが目安
+        CircularQueueBuffer(std::size_t capacity)
+            : CircularBufferAllocator(capacity)
+        {
+            _iterator = _buffer.get();
         }
         // コピー禁止・ムーブ許可
         CircularQueueBuffer(const CircularQueueBuffer&) = delete;
@@ -38,7 +155,7 @@ namespace tofu
 
         bool CanWrite(std::size_t size)
         {
-            return CanAllocateBack(size) || CanAllocateHead(size);
+            return CanAllocate(size);
         }
 
         void Write(const std::byte* const data, std::size_t length)
@@ -49,6 +166,7 @@ namespace tofu
             }
 
             auto buf = Allocate(length);
+            _count++;
             memcpy(buf, data, length);
         }
 
@@ -138,108 +256,8 @@ namespace tofu
         }
 
     private:
-
-        std::byte* Allocate(std::size_t size)
-        {
-            std::byte* base;
-
-            if (CanAllocateBack(size))
-            {
-                base = _back;
-            }
-            else if (CanAllocateHead(size))
-            {
-                base = _front;
-                // 循環させたよフラグを立てておく
-                BackwardTag* b_tag = reinterpret_cast<BackwardTag*>(_back - sizeof(BackwardTag));
-                ForwardTag* f_tag = reinterpret_cast<ForwardTag*>(_back - sizeof(BackwardTag) - b_tag->size - sizeof(ForwardTag));
-                f_tag->is_next_head = true;
-            }
-            else
-            {
-                // full
-                return nullptr;
-            }
-
-            ForwardTag* f_tag = reinterpret_cast<ForwardTag*>(base);
-            BackwardTag* b_tag = reinterpret_cast<BackwardTag*>(base + sizeof(ForwardTag) + size);
-
-            std::byte* res = base + sizeof(ForwardTag);
-
-            std::byte* next_back = base + sizeof(ForwardTag) + size + sizeof(BackwardTag);
-
-            f_tag->used = true;
-            f_tag->is_next_head = false;
-            f_tag->size = size;
-
-            b_tag->size = size;
-
-            _allocateCount++;
-            _count++;
-            _back = next_back;
-
-            _size += size;
-
-            return res;
-        }
-        void Deallocate(const std::byte* const_ptr)
-        {
-            auto ptr = const_cast<std::byte*>(const_ptr);
-            _allocateCount--;
-
-            ForwardTag* f_tag = reinterpret_cast<ForwardTag*>(ptr - sizeof(ForwardTag));
-            f_tag->used = false;
-
-            _size -= f_tag->size;
-
-            if (reinterpret_cast<std::byte*>(f_tag) != _front)
-            {
-                // 解放は後回し
-                return;
-            }
-
-            do
-            {
-                if (f_tag->is_next_head)
-                {
-                    f_tag = reinterpret_cast<ForwardTag*>(_buffer.get());
-                }
-                else {
-                    f_tag = reinterpret_cast<ForwardTag*>(reinterpret_cast<std::byte*>(f_tag) + f_tag->size + sizeof(ForwardTag) + sizeof(BackwardTag));
-                }
-            } while (reinterpret_cast<std::byte*>(f_tag) != _back && !f_tag->used);
-            _front = reinterpret_cast<std::byte*>(f_tag);
-        }
-    private:
-        // backの後ろにそのまま確保可能
-        bool CanAllocateBack(std::size_t size)
-        {
-            std::intptr_t used = reinterpret_cast<std::intptr_t>(_back) - reinterpret_cast<std::intptr_t>(_buffer.get());
-            return size <= _capacity - used;
-        }
-        // headに確保可能
-        bool CanAllocateHead(std::size_t size)
-        {
-            std::intptr_t space = reinterpret_cast<std::intptr_t>(_front) - reinterpret_cast<std::intptr_t>(_buffer.get());
-            return size <= space;
-        }
-    private:
-        std::unique_ptr<std::byte[]> _buffer;
-        const std::size_t _capacity;
-
         // queueとして見たときのcount (popしたら減る)
         std::size_t _count = 0;
-
-        // allocatedなブロック数 (deallocateしたら減る)
-        std::size_t _allocateCount = 0;
-
-        // 総サイズ
-        std::size_t _size = 0;
-
-        // allocatedなブロックの先頭 (deallocateしたら進む)
-        std::byte* _front;
-        // allocatedなブロックの最後尾 (allocateしたら進む)
-        std::byte* _back;
 
         // queueとして見たときの先頭 (popしたら進む)
         std::byte* _iterator;

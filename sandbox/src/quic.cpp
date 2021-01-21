@@ -41,6 +41,12 @@ namespace tofu::net {
         _recvBuffer.Seek(length);
     }
 
+    bool QuicStream::IsReceiveFinished()
+    {
+        std::lock_guard lock{ _recvMutex };
+        return _isArrivedFinish && _recvBuffer.Size() == 0;
+    }
+
     void QuicStream::Send(const std::byte* data, std::size_t length)
     {
         std::lock_guard lock{ _sendMutex };
@@ -52,6 +58,17 @@ namespace tofu::net {
     void QuicStream::FinishSend()
     {
         _isSendFinish = true;
+		picoquic_mark_active_stream(_connection->GetRaw(), _streamId, true, this);
+    }
+
+    bool QuicStream::IsSendFinished() const
+    {
+        return _isSendFinish;
+    }
+
+    void QuicStream::Close()
+    {
+        FinishSend();
     }
 
     void QuicStream::ArriveData(const std::byte* data, std::size_t length)
@@ -125,6 +142,8 @@ namespace tofu::net {
 
         picoquic_close(_cnx, 0);
 
+        _isDisconnected = true;
+
         if (_client)
             _client->OnCloseConnection(shared_from_this());
         if (_server)
@@ -134,14 +153,23 @@ namespace tofu::net {
     std::shared_ptr<QuicStream> QuicConnection::OpenStream(std::uint64_t stream_id)
     {
         std::lock_guard lock{ _streamMutex };
+
+        if (auto it = _streams.find(stream_id); it != _streams.end())
+        {
+            return it->second;
+        }
+
         auto ctx = std::make_shared<QuicStream>(this, stream_id);
 
-        auto ret = picoquic_mark_active_stream(_cnx, stream_id, true, ctx.get());
+        picoquic_reset_stream(_cnx, stream_id, 0);
+        picoquic_set_app_stream_ctx(_cnx, stream_id, ctx.get());
 
-        if (ret != 0)
-        {
-            return nullptr;
-        }
+        // auto ret = picoquic_mark_active_stream(_cnx, stream_id, true, ctx.get());
+        // 
+        // if (ret != 0)
+        // {
+        //     return nullptr;
+        // }
 
         _streams.insert({ stream_id, ctx });
 
@@ -259,6 +287,7 @@ namespace tofu::net {
 		{
 			/* TODO: Check that the transport parameters are what the sample expects */
 			fmt::print("[QuicConnection] Connection to the server confirmed.\n");
+            _isReady = true;
 			break;
 		}
 		default:

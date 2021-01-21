@@ -79,6 +79,12 @@ namespace tofu::net
 
     void QuicServer::Exit()
     {
+        ForeachConnections(
+            [](QuicConnection& connection)
+            {
+                connection.Close();
+            }
+        );
         if (!_quic)
             return;
 

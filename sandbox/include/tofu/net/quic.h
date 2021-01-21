@@ -59,9 +59,13 @@ namespace tofu::net
         void Peek(std::byte* data, std::size_t length);
         void Read(std::byte* data, std::size_t length);
         void Seek(std::size_t length);
+        bool IsReceiveFinished();
 
         void Send(const std::byte* data, std::size_t length);
         void FinishSend();
+        bool IsSendFinished() const;
+
+        void Close();
 
     protected:
         friend class QuicConnection;
@@ -103,6 +107,16 @@ namespace tofu::net
             return _cnx;
         }
 
+        bool IsConnected() const
+        {
+            return _isReady && !_isDisconnected;
+        }
+
+        bool IsDisconnected() const
+        {
+            return _isDisconnected;
+        }
+
         // === Stream
         std::shared_ptr<QuicStream> OpenStream(std::uint64_t stream_id);
         std::shared_ptr<QuicStream> GetStream(std::uint64_t stream_id);
@@ -117,6 +131,9 @@ namespace tofu::net
 
     private:
         picoquic_cnx_t* _cnx;
+        std::atomic<bool> _isReady = false;
+        std::atomic<bool> _isDisconnected = false;
+
         // とりあえず別々に持ったけどインターフェース切るなりしたほうがいいか後で考える
         observer_ptr<QuicServer> _server = nullptr;
         observer_ptr<QuicClient> _client = nullptr;

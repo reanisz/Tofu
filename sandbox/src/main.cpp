@@ -79,7 +79,7 @@ void sandbox_server(CommandlineArguments args)
                     if (auto size = std::min<std::size_t>(stream->ReceivedSize(), sizeof(buf)))
                     {
                         stream->Read(buf, size);
-						fmt::print("Receved Stream [{}]: {}\n", stream->GetId(), std::string_view{ reinterpret_cast<char*>(buf), size });
+						fmt::print("Receved Stream [{}]({}): {}\n", stream->GetId(), size, std::string_view{ reinterpret_cast<char*>(buf), size });
                     }
                 }
             });
@@ -120,9 +120,15 @@ void sandbox_client(CommandlineArguments args)
 
     auto connection = quic.GetConnection();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
+    fmt::print("Waiting for connect...\n");
 
-    auto stream = connection->OpenStream(2);
+    while (!connection->IsConnected() && !connection->IsDisconnected())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds{ 10 });
+    }
+	fmt::print("\ndone.\n");
+
+    std::shared_ptr<QuicStream> stream;
 
     auto app = tofu::ScheduledUpdateThread{
         std::chrono::milliseconds{100},
@@ -138,7 +144,7 @@ void sandbox_client(CommandlineArguments args)
     };
     app.Start();
 
-    while (true) {
+    while (!connection->IsDisconnected()) {
         fmt::print("> ");
         std::string line;
         std::cin >> line;
@@ -146,8 +152,23 @@ void sandbox_client(CommandlineArguments args)
 
         if (line == "exit")
             break;
+        if (line == "open")
+        {
+            stream = connection->OpenStream(2);
+            continue;
+        }
+        if (line == "close")
+        {
+            stream->Close();
+            stream = nullptr;
+            continue;
+        }
+
         connection->SendUnreliable(reinterpret_cast<const std::byte*>(line.c_str()), line.size());
-        stream->Send(reinterpret_cast<const std::byte*>(line.c_str()), line.size());
+
+        if (stream) {
+            stream->Send(reinterpret_cast<const std::byte*>(line.c_str()), line.size());
+        }
 
     }
 

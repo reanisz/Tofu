@@ -6,23 +6,23 @@ namespace
 {
 	// allocateÇ∑ÇÈÇØÇ«
 	template<class T>
-	T* allocate(tofu::CircularQueueAllocator& allocator)
+	T* allocate(tofu::CircularBufferAllocator& allocator)
 	{
 		T* ptr = reinterpret_cast<T*>(allocator.Allocate(sizeof(T)));
 		return ptr;
 	}
 
 	template<class T>
-	void deallocate(tofu::CircularQueueAllocator& allocator, T* ptr)
+	void deallocate(tofu::CircularBufferAllocator& allocator, T* ptr)
 	{
 		allocator.Deallocate(reinterpret_cast<std::byte*>(ptr));
 	}
 }
 
 // TODO: ç◊ï™âªÇ∑ÇÈ
-TEST(Util_CircularQueueAllocator, í èÌìÆçÏ)
+TEST(Util_CircularBufferAllocator, í èÌìÆçÏ)
 {
-	tofu::CircularQueueAllocator allocator{ (sizeof(int) + tofu::CircularQueueAllocator::tag_size) * 3 };
+	tofu::CircularBufferAllocator allocator{ (sizeof(int) + tofu::CircularBufferAllocator::tag_size) * 3 };
 	auto a = allocate<int>(allocator);
 	auto b = allocate<int>(allocator);
 	auto c = allocate<int>(allocator);
