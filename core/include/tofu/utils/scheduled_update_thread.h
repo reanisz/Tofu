@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <thread>
+#include <condition_variable>
 #include <chrono>
 
 namespace tofu 

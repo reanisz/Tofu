@@ -4,7 +4,7 @@
 
 namespace
 {
-	// allocate‚·‚é‚¯‚Ç
+	// allocateã™ã‚‹ã‘ã©
 	template<class T>
 	T* allocate(tofu::CircularBufferAllocator& allocator)
 	{
@@ -19,21 +19,21 @@ namespace
 	}
 }
 
-// TODO: ×•ª‰»‚·‚é
-TEST(Util_CircularBufferAllocator, ’Êí“®ì)
+// TODO: ç´°åˆ†åŒ–ã™ã‚‹
+TEST(Util_CircularBufferAllocator, é€šå¸¸å‹•ä½œ)
 {
 	tofu::CircularBufferAllocator allocator{ (sizeof(int) + tofu::CircularBufferAllocator::tag_size) * 3 };
 	auto a = allocate<int>(allocator);
 	auto b = allocate<int>(allocator);
 	auto c = allocate<int>(allocator);
-	auto d = allocate<int>(allocator); // —Ìˆæ‚ª‘«‚è‚È‚­‚È‚é
+	auto d = allocate<int>(allocator); // é ˜åŸŸãŒè¶³ã‚Šãªããªã‚‹
 	EXPECT_TRUE(a);
 	EXPECT_TRUE(b);
 	EXPECT_TRUE(c);
 	EXPECT_FALSE(d);
 
 	deallocate(allocator, b);
-	auto e = allocate<int>(allocator); // front‚ª‰ğ•ú‚³‚ê‚Ä‚È‚¢‚Ì‚Å‚Ü‚¾‚¾‚ß
+	auto e = allocate<int>(allocator); // frontãŒè§£æ”¾ã•ã‚Œã¦ãªã„ã®ã§ã¾ã ã ã‚
 
 	EXPECT_FALSE(e);
 	
