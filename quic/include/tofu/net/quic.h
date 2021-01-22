@@ -18,133 +18,133 @@
 
 namespace tofu::net
 {
-	namespace error_code
-	{
-		// Tofu固有エラーコードの基点
-		inline constexpr int Base = 0x10000000;
+    namespace error_code
+    {
+        // Tofu固有エラーコードの基点
+        inline constexpr int Base = 0x10000000;
 
-		// ユーザー操作によって中断された
-		inline constexpr int Interrupt = Base + 1;
+        // ユーザー操作によって中断された
+        inline constexpr int Interrupt = Base + 1;
 
-		// コンテキストが見つからなかった
-		inline constexpr int ContextNotFound = Base + 2;
-	}
+        // コンテキストが見つからなかった
+        inline constexpr int ContextNotFound = Base + 2;
+    }
 
-	using Port = StrongNumeric<class tag_Port, int>;
-	using QuicReturnCode = StrongNumeric<class tag_QuicReturnCode, int>;
+    using Port = StrongNumeric<class tag_Port, int>;
+    using QuicReturnCode = StrongNumeric<class tag_QuicReturnCode, int>;
 
-	struct QuicConfig
-	{
-		std::filesystem::path _qlogDirectory;
-		int _qlogLevel = 1;
+    struct QuicConfig
+    {
+        std::filesystem::path _qlogDirectory;
+        int _qlogLevel = 1;
 
-		std::size_t _unreliableRecvBufferSize = 2 * 1024 * 1024;
+        std::size_t _unreliableRecvBufferSize = 2 * 1024 * 1024;
 
-		std::chrono::microseconds _pingInterval = std::chrono::microseconds{ 10 * 1000 };
-	};
+        std::chrono::microseconds _pingInterval = std::chrono::microseconds{ 10 * 1000 };
+    };
 
-	class QuicConnection;
-	class QuicServer;
-	class QuicClient;
+    class QuicConnection;
+    class QuicServer;
+    class QuicClient;
 
-	class QuicStream
-		: public std::enable_shared_from_this<QuicStream>
-	{
-	public:
-		QuicStream(observer_ptr<QuicConnection> connection, std::uint64_t stream_id);
+    class QuicStream
+        : public std::enable_shared_from_this<QuicStream>
+    {
+    public:
+        QuicStream(observer_ptr<QuicConnection> connection, std::uint64_t stream_id);
 
-		std::int64_t GetId() const noexcept;
+        std::int64_t GetId() const noexcept;
 
-		std::size_t ReceivedSize() noexcept;
-		void Peek(std::byte* data, std::size_t length);
-		void Read(std::byte* data, std::size_t length);
-		void Seek(std::size_t length);
-		bool IsReceiveFinished();
+        std::size_t ReceivedSize() noexcept;
+        void Peek(std::byte* data, std::size_t length);
+        void Read(std::byte* data, std::size_t length);
+        void Seek(std::size_t length);
+        bool IsReceiveFinished();
 
-		void Send(const std::byte* data, std::size_t length);
-		void FinishSend();
-		bool IsSendFinished() const;
+        void Send(const std::byte* data, std::size_t length);
+        void FinishSend();
+        bool IsSendFinished() const;
 
-		void Close();
+        void Close();
 
-	protected:
-		friend class QuicConnection;
-		void ArriveData(const std::byte* data, std::size_t length);
-		void ArriveFinish();
+    protected:
+        friend class QuicConnection;
+        void ArriveData(const std::byte* data, std::size_t length);
+        void ArriveFinish();
 
-		QuicReturnCode OnPrepareToSend(void* context, int length);
+        QuicReturnCode OnPrepareToSend(void* context, int length);
 
-	private:
-		observer_ptr<QuicConnection> _connection;
-		std::uint64_t _streamId;
+    private:
+        observer_ptr<QuicConnection> _connection;
+        std::uint64_t _streamId;
 
-		std::mutex _recvMutex;
-		std::atomic<bool> _isArrivedFinish = false;
-		CircularContinuousBuffer _recvBuffer;
+        std::mutex _recvMutex;
+        std::atomic<bool> _isArrivedFinish = false;
+        CircularContinuousBuffer _recvBuffer;
 
-		std::mutex _sendMutex;
-		std::atomic<bool> _isSendFinish = false;
-		CircularContinuousBuffer _sendBuffer;
-	};
+        std::mutex _sendMutex;
+        std::atomic<bool> _isSendFinish = false;
+        CircularContinuousBuffer _sendBuffer;
+    };
 
-	class QuicConnection
-		: public std::enable_shared_from_this<QuicConnection>
-	{
-	public:
-		QuicConnection(picoquic_cnx_t* cnx, observer_ptr<QuicServer> server);
-		QuicConnection(picoquic_cnx_t* cnx, observer_ptr<QuicClient> client);
+    class QuicConnection
+        : public std::enable_shared_from_this<QuicConnection>
+    {
+    public:
+        QuicConnection(picoquic_cnx_t* cnx, observer_ptr<QuicServer> server);
+        QuicConnection(picoquic_cnx_t* cnx, observer_ptr<QuicClient> client);
 
-		~QuicConnection();
+        ~QuicConnection();
 
-	private:
-		void Init();
-	public:
+    private:
+        void Init();
+    public:
 
-		void Close();
+        void Close();
 
-		picoquic_cnx_t* GetRaw() const
-		{
-			return _cnx;
-		}
+        picoquic_cnx_t* GetRaw() const
+        {
+            return _cnx;
+        }
 
-		bool IsConnected() const
-		{
-			return _isReady && !_isDisconnected;
-		}
+        bool IsConnected() const
+        {
+            return _isReady && !_isDisconnected;
+        }
 
-		bool IsDisconnected() const
-		{
-			return _isDisconnected;
-		}
+        bool IsDisconnected() const
+        {
+            return _isDisconnected;
+        }
 
-		// === Stream
-		std::shared_ptr<QuicStream> OpenStream(std::uint64_t stream_id);
-		std::shared_ptr<QuicStream> GetStream(std::uint64_t stream_id);
+        // === Stream
+        std::shared_ptr<QuicStream> OpenStream(std::uint64_t stream_id);
+        std::shared_ptr<QuicStream> GetStream(std::uint64_t stream_id);
 
-		// === DATAGRAM
-		void SendUnreliable(observer_ptr<const std::byte> data, std::size_t size);
-		std::size_t ReceivedUnreliableCount();
-		std::size_t GetUnreliableTopSize();
-		std::size_t ReadUnreliable(std::byte* dest, std::size_t dest_size);
+        // === DATAGRAM
+        void SendUnreliable(observer_ptr<const std::byte> data, std::size_t size);
+        std::size_t ReceivedUnreliableCount();
+        std::size_t GetUnreliableTopSize();
+        std::size_t ReadUnreliable(std::byte* dest, std::size_t dest_size);
 
-		int CallbackConnection(picoquic_cnx_t* cnx, std::uint64_t stream_id, std::uint8_t* bytes, std::size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* v_stream_ctx);
+        int CallbackConnection(picoquic_cnx_t* cnx, std::uint64_t stream_id, std::uint8_t* bytes, std::size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* v_stream_ctx);
 
-	private:
-		picoquic_cnx_t* _cnx;
-		std::atomic<bool> _isReady = false;
-		std::atomic<bool> _isDisconnected = false;
+    private:
+        picoquic_cnx_t* _cnx;
+        std::atomic<bool> _isReady = false;
+        std::atomic<bool> _isDisconnected = false;
 
-		// とりあえず別々に持ったけどインターフェース切るなりしたほうがいいか後で考える
-		observer_ptr<QuicServer> _server = nullptr;
-		observer_ptr<QuicClient> _client = nullptr;
+        // とりあえず別々に持ったけどインターフェース切るなりしたほうがいいか後で考える
+        observer_ptr<QuicServer> _server = nullptr;
+        observer_ptr<QuicClient> _client = nullptr;
 
-		QuicConfig _config;
+        QuicConfig _config;
 
-		std::mutex _unreliableRecvMutex;
-		CircularQueueBuffer _unreliableRecvBuffer;
+        std::mutex _unreliableRecvMutex;
+        CircularQueueBuffer _unreliableRecvBuffer;
 
-		std::mutex _streamMutex;
-		std::unordered_map<std::uint64_t, std::shared_ptr<QuicStream>> _streams;
-	};
+        std::mutex _streamMutex;
+        std::unordered_map<std::uint64_t, std::shared_ptr<QuicStream>> _streams;
+    };
 }
 

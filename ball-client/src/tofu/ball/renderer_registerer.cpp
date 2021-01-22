@@ -17,7 +17,7 @@ namespace tofu::ball
 {
     void RendererRegisterer::OnConstructPlayer(entt::registry& registry, entt::entity entity)
     {
-		registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::Aqua, Palette::Black);
+        registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::Aqua, Palette::Black);
     }
     void RendererRegisterer::OnConstructBall(entt::registry& registry, entt::entity entity)
     {
@@ -29,11 +29,11 @@ namespace tofu::ball
     }
     void RendererRegisterer::OnConstructGoal(entt::registry& registry, entt::entity entity)
     {
-		registry.emplace<Box2DPrimitiveRenderer>(entity, Color{255, 255, 0, 64}, Color{ 0,0,0,0 });
+        registry.emplace<Box2DPrimitiveRenderer>(entity, Color{255, 255, 0, 64}, Color{ 0,0,0,0 });
     }
     void RendererRegisterer::OnConstructGoalFrame(entt::registry& registry, entt::entity entity)
     {
-		registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+        registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
     }
 
     void RendererRegisterer::Attach(Game& game)
@@ -44,8 +44,8 @@ namespace tofu::ball
         auto renderer = service_locator->Register(std::make_unique<S3DRenderSystem>());
         auto box2d_primitive_renderer = service_locator->Register(std::make_unique<Box2DPrimitiveRenderSystem>(service_locator, registry, 100));
 
-		auto camera = service_locator->Register(std::make_unique<s3d::Camera2D>());
-		camera->setCenter({ 400,300 });
+        auto camera = service_locator->Register(std::make_unique<s3d::Camera2D>());
+        camera->setCenter({ 400,300 });
 
         auto renderer_registerer = service_locator->Register(std::make_unique<RendererRegisterer>());
 

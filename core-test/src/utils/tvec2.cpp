@@ -5,8 +5,8 @@
 #define EXPECT_TVEC2_EQ(expect_x, expect_y, actual) \
     { \
         auto ret = actual; \
-		EXPECT_FLOAT_EQ(expect_x, ret._x); \
-		EXPECT_FLOAT_EQ(expect_y, ret._y); \
+        EXPECT_FLOAT_EQ(expect_x, ret._x); \
+        EXPECT_FLOAT_EQ(expect_y, ret._y); \
     }
 
 

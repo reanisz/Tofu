@@ -11,26 +11,26 @@
 
 namespace tofu::ball 
 {
-	Game::Game()
-	{
-	}
+    Game::Game()
+    {
+    }
     void Game::initBaseSystems()
     {
-		initSystems();
+        initSystems();
     }
     void Game::initEnitites()
     {
-		initStage();
-		initBall();
-		initPlayers();
+        initStage();
+        initBall();
+        initPlayers();
     }
     void Game::start()
     {
-		_serviceLocator.Get<UpdateSystem>()->Start();
+        _serviceLocator.Get<UpdateSystem>()->Start();
     }
     void Game::update()
     {
-	}
+    }
     observer_ptr<entt::registry> Game::getRegistry()
     {
         return &_registry;
@@ -40,19 +40,19 @@ namespace tofu::ball
         return &_serviceLocator;
     }
 
-	void Game::initSystems()
-	{
-		// === Core ===
-		_serviceLocator.Register(std::make_unique<TickCounter>());
+    void Game::initSystems()
+    {
+        // === Core ===
+        _serviceLocator.Register(std::make_unique<TickCounter>());
 
-		// === Physics ===
-		auto physics = _serviceLocator.Register(std::make_unique<Physics>(&_registry));
+        // === Physics ===
+        auto physics = _serviceLocator.Register(std::make_unique<Physics>(&_registry));
 
-		// === Simulation ===
-		auto update_system = _serviceLocator.Register(std::make_unique<UpdateSystem>(&_serviceLocator, &_registry));
+        // === Simulation ===
+        auto update_system = _serviceLocator.Register(std::make_unique<UpdateSystem>(&_serviceLocator, &_registry));
 
-		_serviceLocator.Register(std::make_unique<ActionQueue>());
-		auto action_system = _serviceLocator.Register(std::make_unique<ActionSystem>(&_serviceLocator, &_registry));
+        _serviceLocator.Register(std::make_unique<ActionQueue>());
+        auto action_system = _serviceLocator.Register(std::make_unique<ActionSystem>(&_serviceLocator, &_registry));
 
         // === Job ===
         auto job_scheduler = _serviceLocator.Register(std::make_unique<JobScheduler>());
@@ -66,42 +66,42 @@ namespace tofu::ball
 
             job_scheduler->Register(make_job<EndUpdate>({get_job_tag<StepAction>(), get_job_tag<StepPhysics>()}));
         }
-	}
-	void Game::initStage()
-	{
+    }
+    void Game::initStage()
+    {
         generate_stage(&_serviceLocator, &_registry);
-	}
-	void Game::initPlayers()
-	{
-		auto physics = _serviceLocator.Get<Physics>();
-		{
-			// Player 
-			Player::Generate(&_serviceLocator, &_registry, 0, {1.0f, 5.0f});
-			Player::Generate(&_serviceLocator, &_registry, 1, {7.0f, 5.0f});
-		}
-	}
-	void Game::initBall()
-	{
-		auto physics = _serviceLocator.Get<Physics>();
-		{
-			// ball
-			auto entity = _registry.create();
-			_registry.emplace<Transform>(entity, tVec2{ 4.f, 0.5f }, 0.0f);
-			auto ball = _registry.emplace<Ball>(entity, 0.28f);
+    }
+    void Game::initPlayers()
+    {
+        auto physics = _serviceLocator.Get<Physics>();
+        {
+            // Player 
+            Player::Generate(&_serviceLocator, &_registry, 0, {1.0f, 5.0f});
+            Player::Generate(&_serviceLocator, &_registry, 1, {7.0f, 5.0f});
+        }
+    }
+    void Game::initBall()
+    {
+        auto physics = _serviceLocator.Get<Physics>();
+        {
+            // ball
+            auto entity = _registry.create();
+            _registry.emplace<Transform>(entity, tVec2{ 4.f, 0.5f }, 0.0f);
+            auto ball = _registry.emplace<Ball>(entity, 0.28f);
 
-			b2BodyDef body_def;
-			body_def.type = b2BodyType::b2_dynamicBody;
+            b2BodyDef body_def;
+            body_def.type = b2BodyType::b2_dynamicBody;
 
-			auto body = physics->GenerateBody(entity, body_def)._body;
-			b2CircleShape shape;
-			shape.m_radius = ball._radius;
-			b2FixtureDef fixture_def;
-			fixture_def.shape = &shape;
-			fixture_def.density = 0.22f;
-			fixture_def.friction = 0.9f;
-			fixture_def.restitution = 0.85f;
+            auto body = physics->GenerateBody(entity, body_def)._body;
+            b2CircleShape shape;
+            shape.m_radius = ball._radius;
+            b2FixtureDef fixture_def;
+            fixture_def.shape = &shape;
+            fixture_def.density = 0.22f;
+            fixture_def.friction = 0.9f;
+            fixture_def.restitution = 0.85f;
 
-			body->CreateFixture(&fixture_def);
-		}
-	}
+            body->CreateFixture(&fixture_def);
+        }
+    }
 }

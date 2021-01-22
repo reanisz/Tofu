@@ -10,7 +10,7 @@ void Main()
 {
     Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
 
-	tofu::ball::Game game;
+    tofu::ball::Game game;
 
     game.initBaseSystems();
 
@@ -41,7 +41,7 @@ void Main()
     }
 
     game.initEnitites();
-	game.start();
+    game.start();
 
     while (System::Update())
     {
@@ -50,9 +50,9 @@ void Main()
 
         auto transform = service_locator->Get<Camera2D>()->createTransformer();
 
-		if (service_locator->Get<tofu::S3DRenderSystem>()->HasData()) {
-			service_locator->Get<tofu::S3DRenderSystem>()->Render();
-		}
+        if (service_locator->Get<tofu::S3DRenderSystem>()->HasData()) {
+            service_locator->Get<tofu::S3DRenderSystem>()->Render();
+        }
 
     }
 }

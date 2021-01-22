@@ -10,47 +10,47 @@
 
 namespace tofu::ball
 {
-	class UpdateSystem
-	{
-	public:
-		UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry);
+    class UpdateSystem
+    {
+    public:
+        UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry);
 
-		void Start();
-	
-		void StartFrame();
+        void Start();
+    
+        void StartFrame();
 
-	private:
-		void Step();
+    private:
+        void Step();
 
-		observer_ptr<ServiceLocator> _serviceLocator;
-		observer_ptr<entt::registry> _registry;
+        observer_ptr<ServiceLocator> _serviceLocator;
+        observer_ptr<entt::registry> _registry;
 
-		ScheduledUpdateThread _thread;
-	};
+        ScheduledUpdateThread _thread;
+    };
 
-	namespace jobs
-	{
-		class StartFrame
-		{
-		public:
-			StartFrame(observer_ptr<UpdateSystem> system)
-				: _system(system)
-			{
-			}
+    namespace jobs
+    {
+        class StartFrame
+        {
+        public:
+            StartFrame(observer_ptr<UpdateSystem> system)
+                : _system(system)
+            {
+            }
 
-			void operator()() const
-			{
-				_system->StartFrame();
-			}
-		private:
-			observer_ptr<UpdateSystem> _system;
-		};
+            void operator()() const
+            {
+                _system->StartFrame();
+            }
+        private:
+            observer_ptr<UpdateSystem> _system;
+        };
 
-		class EndUpdate
-		{
-		public:
-			void operator()() const {
-			}
-		};
-	}
+        class EndUpdate
+        {
+        public:
+            void operator()() const {
+            }
+        };
+    }
 }

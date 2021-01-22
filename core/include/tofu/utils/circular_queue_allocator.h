@@ -109,7 +109,7 @@ namespace tofu
             } while (reinterpret_cast<std::byte*>(f_tag) != _back && !f_tag->used);
             _front = reinterpret_cast<std::byte*>(f_tag);
         }
-	protected:
+    protected:
         // backの後ろにそのまま確保可能
         bool CanAllocateBack(std::size_t size)
         {
@@ -123,7 +123,7 @@ namespace tofu
             return size <= space;
         }
 
-	protected:
+    protected:
         std::unique_ptr<std::byte[]> _buffer;
         const std::size_t _capacity;
 
@@ -381,11 +381,11 @@ namespace tofu
         {
             if (_front < _back)
             {
-				return reinterpret_cast<std::intptr_t>(_back) - reinterpret_cast<std::intptr_t>(_front);
+                return reinterpret_cast<std::intptr_t>(_back) - reinterpret_cast<std::intptr_t>(_front);
             }
             else 
             {
-				return reinterpret_cast<std::intptr_t>(_buffer.get() + _capacity) - reinterpret_cast<std::intptr_t>(_front);
+                return reinterpret_cast<std::intptr_t>(_buffer.get() + _capacity) - reinterpret_cast<std::intptr_t>(_front);
             }
         }
 
@@ -398,7 +398,7 @@ namespace tofu
             }
             else 
             {
-				return reinterpret_cast<std::intptr_t>(_back) - reinterpret_cast<std::intptr_t>(_buffer.get());
+                return reinterpret_cast<std::intptr_t>(_back) - reinterpret_cast<std::intptr_t>(_buffer.get());
             }
         }
 

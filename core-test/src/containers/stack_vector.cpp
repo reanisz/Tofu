@@ -228,8 +228,8 @@ TEST(Container_StackVector, 末尾までの範囲のerase)
 
 namespace {
     namespace stack_vector_test {
-		static int ctor = 0;
-		static int dtor = 0;
+        static int ctor = 0;
+        static int dtor = 0;
 
         struct Sample {
             Sample()

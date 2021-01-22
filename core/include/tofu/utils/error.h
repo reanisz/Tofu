@@ -5,12 +5,12 @@
 
 namespace tofu
 {
-	struct ErrorData
-	{
-		std::string _message;
+    struct ErrorData
+    {
+        std::string _message;
 #if _DEBUG
-		const char* _file;
-		int _line;
+        const char* _file;
+        int _line;
 #endif
 
         void Dump() const
@@ -21,7 +21,7 @@ namespace tofu
             fmt::print("message=<{}>\n", _message);
 #endif
         }
-	};
+    };
 
     using Error = std::optional<ErrorData>;
 
