@@ -4,6 +4,29 @@
 #include <tofu/ecs/core.h>
 #include <tofu/ecs/physics.h>
 
+namespace
+{
+    float to_radians(float degree)
+    {
+        return degree * b2_pi / 180;
+    }
+
+    template<class T>
+    void rotate(T& vec, float degree) {
+        for (b2Vec2& v : vec) {
+            v = b2Mul(b2Rot{ to_radians(degree) }, v);
+        }
+    }
+
+    template<class T>
+    void translate(T& vec, b2Vec2 offset)
+    {
+        for (b2Vec2& v : vec) {
+            v += offset;
+        }
+    }
+}
+
 namespace tofu::ball
 {
 	std::tuple<entt::entity> GoalFrame::Generate(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, tVec2 pos)
@@ -19,14 +42,6 @@ namespace tofu::ball
 
 		auto body = physics->GenerateBody(entity, body_def)._body;
 
-		auto apply = [](auto& vec, const Mat3x2& mat) {
-			for (b2Vec2& v : vec) {
-				auto s = s3d::Float2{ v.x, v.y };
-				s = mat.transform(s);
-				v = b2Vec2{s.x, s.y};
-			}
-		};
-
 		const float w = 0.5f;
 		const float h = 0.05f;
 
@@ -41,10 +56,8 @@ namespace tofu::ball
 			};
 			int k = (i == 0 ? 1 : -1);
 			auto offset = tVec2{w * k, 0};
-			auto mat =
-				s3d::Mat3x2::Rotate(ToRadians(-60 * k))
-				* s3d::Mat3x2::Translate(offset);
-			apply(v, mat);
+            rotate(v, -60 * k);
+            translate(v, offset);
 			shape.Set(v.data(), v.size());
 			b2FixtureDef fixture_def;
 			fixture_def.shape = &shape;
@@ -89,7 +102,7 @@ namespace tofu::ball
 		{
 			// floor
 			auto entity = registry->create();
-			registry->emplace<Transform>(entity, Float2{ 4.f, 6.f }, 0.0f);
+			registry->emplace<Transform>(entity, tVec2{ 4.f, 6.f }, 0.0f);
 
 			auto body = physics->GenerateBody(entity)._body;
 			b2PolygonShape shape;
@@ -106,7 +119,7 @@ namespace tofu::ball
 		{
 			// ceil
 			auto entity = registry->create();
-			registry->emplace<Transform>(entity, Float2{ 4.f, 0.f }, 0.0f);
+			registry->emplace<Transform>(entity, tVec2{ 4.f, 0.f }, 0.0f);
 
 			auto body = physics->GenerateBody(entity)._body;
 			b2PolygonShape shape;
@@ -123,7 +136,7 @@ namespace tofu::ball
 		{
 			// Wall
 			auto entity = registry->create();
-			registry->emplace<Transform>(entity, Float2{ 0.f, 3.f }, 0.0f);
+			registry->emplace<Transform>(entity, tVec2{ 0.f, 3.f }, 0.0f);
 
 			auto body = physics->GenerateBody(entity)._body;
 			b2PolygonShape shape;
@@ -140,7 +153,7 @@ namespace tofu::ball
 		{
 			// Wall
 			auto entity = registry->create();
-			registry->emplace<Transform>(entity, Float2{ 8.f, 3.f }, 0.0f);
+			registry->emplace<Transform>(entity, tVec2{ 8.f, 3.f }, 0.0f);
 
 			auto body = physics->GenerateBody(entity)._body;
 			b2PolygonShape shape;
@@ -158,7 +171,7 @@ namespace tofu::ball
 			// Left-Slope
 			auto entity = registry->create();
 			float d = 0.4f;
-			registry->emplace<Transform>(entity, Float2{ d, 6 - d }, s3d::ToRadians(-45.f));
+			registry->emplace<Transform>(entity, tVec2{ d, 6 - d }, to_radians(-45.f));
 
 			auto body = physics->GenerateBody(entity)._body;
 			b2PolygonShape shape;
@@ -176,7 +189,7 @@ namespace tofu::ball
 			// Right-Slope
 			auto entity = registry->create();
 			float d = 0.4f;
-			registry->emplace<Transform>(entity, Float2{ 8 - d, 6 - d }, s3d::ToRadians(45.f));
+			registry->emplace<Transform>(entity, tVec2{ 8 - d, 6 - d }, to_radians(45.f));
 
 			auto body = physics->GenerateBody(entity)._body;
 			b2PolygonShape shape;
