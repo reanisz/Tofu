@@ -20,11 +20,14 @@ namespace tofu::ball
 	public:
 		Game();
 
+		void initBaseSystems();
+		void initEnitites();
 		void run();
 
-	private:
-		void initialize();
+		observer_ptr<entt::registry> getRegistry();
+		observer_ptr<ServiceLocator> getServiceLocator();
 
+	private:
 		void initSystems();
 		void initStage();
 		void initPlayers();

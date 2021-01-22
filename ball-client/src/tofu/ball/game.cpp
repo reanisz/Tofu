@@ -20,26 +20,33 @@ namespace tofu::ball
 		: _end(false)
 	{
 	}
+    void Game::initBaseSystems()
+    {
+		initSystems();
+    }
+    void Game::initEnitites()
+    {
+		initStage();
+		initBall();
+		initPlayers();
+    }
 	void Game::run()
 	{
-		initialize();
+		_end = false;
+		_serviceLocator.Get<UpdateSystem>()->Start();
+
 		while (!_end && System::Update()) {
 			game_loop();
 		}
 	}
-	void Game::initialize()
-	{
-		Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
-
-		_end = false;
-
-		initSystems();
-		initStage();
-		initBall();
-		initPlayers();
-
-		_serviceLocator.Get<UpdateSystem>()->Start();
-	}
+    observer_ptr<entt::registry> Game::getRegistry()
+    {
+        return &_registry;
+    }
+    observer_ptr<ServiceLocator> Game::getServiceLocator()
+    {
+        return &_serviceLocator;
+    }
 
 	void Game::initSystems()
 	{
@@ -63,17 +70,6 @@ namespace tofu::ball
 		camera->setCenter({ 400,300 });
 		_serviceLocator.Register(std::make_unique<S3DRenderSystem>());
 		_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_serviceLocator, &_registry, 100));
-
-        auto renderer_registerer = _serviceLocator.Register(std::make_unique<RendererRegisterer>());
-
-        _registry.on_construct<Player>()
-            .connect<&RendererRegisterer::OnConstructPlayer>(renderer_registerer.get());
-        _registry.on_construct<Goal>()
-            .connect<&RendererRegisterer::OnConstructGoal>(renderer_registerer.get());
-        _registry.on_construct<GoalFrame>()
-            .connect<&RendererRegisterer::OnConstructGoalFrame>(renderer_registerer.get());
-        _registry.on_construct<Wall>()
-            .connect<&RendererRegisterer::OnConstructWall>(renderer_registerer.get());
 	}
 	void Game::initStage()
 	{
@@ -110,8 +106,6 @@ namespace tofu::ball
 			fixture_def.restitution = 0.85f;
 
 			body->CreateFixture(&fixture_def);
-
-			_registry.emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
 		}
 	}
 	void Game::game_loop()
