@@ -10,13 +10,13 @@ namespace tofu
 		template<class TShape>
 		struct S3DShapeFill
 		{
-			constexpr S3DShapeFill(const TShape& shape)
+			constexpr S3DShapeFill(const TShape& shape) noexcept
 				: _shape(shape)
 				, _color(Palette::Black)
 			{
 			}
 
-			constexpr S3DShapeFill(const TShape& shape, Color color)
+			constexpr S3DShapeFill(const TShape& shape, Color color) noexcept
 				: _shape(shape)
 				, _color(color)
 			{
@@ -28,21 +28,21 @@ namespace tofu
 		template<class TShape>
 		struct S3DShapeFrame
 		{
-			constexpr S3DShapeFrame(const TShape& shape)
+			constexpr S3DShapeFrame(const TShape& shape) noexcept
 				: _shape(shape)
 				, _color(Palette::Black)
 				, _tickness(1)
 			{
 			}
 
-			constexpr S3DShapeFrame(const TShape& shape, Color color)
+			constexpr S3DShapeFrame(const TShape& shape, Color color) noexcept
 				: _shape(shape)
 				, _color(color)
 				, _tickness(1)
 			{
 			}
 
-			constexpr S3DShapeFrame(const TShape& shape, Color color, int tickness)
+			constexpr S3DShapeFrame(const TShape& shape, Color color, int tickness) noexcept
 				: _shape(shape)
 				, _color(color)
 				, _tickness(tickness)

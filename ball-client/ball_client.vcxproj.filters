@@ -401,6 +401,21 @@
     <ClCompile Include="src\tofu\ecs\box2d_primitive_renderer.cpp">
       <Filter>Source Files\tofu\ecs</Filter>
     </ClCompile>
+    <ClCompile Include="src\tofu\ball\actions.cpp">
+      <Filter>Source Files\tofu\ball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tofu\ball\stage.cpp">
+      <Filter>Source Files\tofu\ball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tofu\ball\player.cpp">
+      <Filter>Source Files\tofu\ball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tofu\ball\player_controller.cpp">
+      <Filter>Source Files\tofu\ball</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tofu\ball\frame_updater.cpp">
+      <Filter>Source Files\tofu\ball</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\tofu\ball\game.h">
@@ -411,6 +426,24 @@
     </ClInclude>
     <ClInclude Include="include\tofu\renderer\siv3d.h">
       <Filter>Header Files\tofu\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tofu\ball\actions.h">
+      <Filter>Header Files\tofu\ball</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tofu\ball\input.h">
+      <Filter>Header Files\tofu\ball</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tofu\ball\stage.h">
+      <Filter>Header Files\tofu\ball</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tofu\ball\player.h">
+      <Filter>Header Files\tofu\ball</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tofu\ball\player_controller.h">
+      <Filter>Header Files\tofu\ball</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tofu\ball\frame_updater.h">
+      <Filter>Header Files\tofu\ball</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
