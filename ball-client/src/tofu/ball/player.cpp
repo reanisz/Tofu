@@ -3,9 +3,6 @@
 #include <tofu/ecs/core.h>
 #include <tofu/ecs/physics.h>
 
-// TODO: これの依存はあとで切る
-#include <tofu/ecs/box2d_primitive_renderer.h>
-
 namespace tofu::ball
 {
 	std::tuple<entt::entity, Player&> Player::Generate(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, int id, tVec2 pos)
@@ -31,8 +28,6 @@ namespace tofu::ball
 		fixture_def.restitution = 0.4f;
 
 		body->CreateFixture(&fixture_def);
-
-		registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::Aqua, Palette::Black);
 
 		return { entity, player };
 	}

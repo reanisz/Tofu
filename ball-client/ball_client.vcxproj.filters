@@ -416,6 +416,9 @@
     <ClCompile Include="src\tofu\ball\frame_updater.cpp">
       <Filter>Source Files\tofu\ball</Filter>
     </ClCompile>
+    <ClCompile Include="src\tofu\ball\renderer_registerer.cpp">
+      <Filter>Source Files\tofu\ball</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\tofu\ball\game.h">
@@ -443,6 +446,9 @@
       <Filter>Header Files\tofu\ball</Filter>
     </ClInclude>
     <ClInclude Include="include\tofu\ball\frame_updater.h">
+      <Filter>Header Files\tofu\ball</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tofu\ball\renderer_registerer.h">
       <Filter>Header Files\tofu\ball</Filter>
     </ClInclude>
   </ItemGroup>

@@ -16,7 +16,7 @@ namespace tofu::ball
 	{
 	};
 
-	struct Floor
+	struct Wall
 	{
 	};
 

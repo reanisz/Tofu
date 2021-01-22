@@ -4,9 +4,6 @@
 #include <tofu/ecs/core.h>
 #include <tofu/ecs/physics.h>
 
-// TODO: これの依存はあとで切る
-#include <tofu/ecs/box2d_primitive_renderer.h>
-
 namespace tofu::ball
 {
 	std::tuple<entt::entity> GoalFrame::Generate(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, tVec2 pos)
@@ -55,8 +52,6 @@ namespace tofu::ball
 		}
 
 
-		registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
-
 		return { entity };
 	}
 
@@ -82,8 +77,6 @@ namespace tofu::ball
 
 		body->CreateFixture(&fixture_def);
 
-		registry->emplace<Box2DPrimitiveRenderer>(entity, Color{255, 255, 0, 64}, Color{ 0,0,0,0 });
-
 		goal._frame = std::get<0>(GoalFrame::Generate(service_locator, registry, pos));
 
 		return { entity, goal };
@@ -108,9 +101,7 @@ namespace tofu::ball
 			fixture_def.restitution = 0.1f;
 
 			body->CreateFixture(&fixture_def);
-			registry->emplace<Floor>(entity);
-
-			registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			registry->emplace<Wall>(entity);
 		}
 		{
 			// ceil
@@ -127,9 +118,7 @@ namespace tofu::ball
 			fixture_def.restitution = 0.1f;
 
 			body->CreateFixture(&fixture_def);
-			registry->emplace<Floor>(entity);
-
-			registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			registry->emplace<Wall>(entity);
 		}
 		{
 			// Wall
@@ -146,9 +135,7 @@ namespace tofu::ball
 			fixture_def.restitution = 0.1f;
 
 			body->CreateFixture(&fixture_def);
-			registry->emplace<Floor>(entity);
-
-			registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			registry->emplace<Wall>(entity);
 		}
 		{
 			// Wall
@@ -165,9 +152,7 @@ namespace tofu::ball
 			fixture_def.restitution = 0.1f;
 
 			body->CreateFixture(&fixture_def);
-			registry->emplace<Floor>(entity);
-
-			registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			registry->emplace<Wall>(entity);
 		}
 		{
 			// Left-Slope
@@ -185,9 +170,7 @@ namespace tofu::ball
 			fixture_def.restitution = 0.1f;
 
 			body->CreateFixture(&fixture_def);
-			registry->emplace<Floor>(entity);
-
-			registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			registry->emplace<Wall>(entity);
 		}
 		{
 			// Right-Slope
@@ -205,37 +188,13 @@ namespace tofu::ball
 			fixture_def.restitution = 0.1f;
 
 			body->CreateFixture(&fixture_def);
-			registry->emplace<Floor>(entity);
-
-			registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::White, Palette::Black);
+			registry->emplace<Wall>(entity);
 		}
 
 		{
 			// goal
 			Goal::Generate(service_locator, registry, { 0.5f, 3.5f });
 			Goal::Generate(service_locator, registry, { 7.5f, 3.5f });
-		}
-
-		{
-			// box
-			auto entity = registry->create();
-			registry->emplace<Transform>(entity, Float2{ 2.5f, 0.5f }, 1.0f);
-
-			b2BodyDef body_def;
-			body_def.type = b2BodyType::b2_dynamicBody;
-
-			auto body = physics->GenerateBody(entity, body_def)._body;
-			b2PolygonShape shape;
-			shape.SetAsBox(0.06f, 0.06f);
-			b2FixtureDef fixture_def;
-			fixture_def.shape = &shape;
-			fixture_def.density = 1.0f;
-			fixture_def.friction = 0.9f;
-			fixture_def.restitution = 0.4f;
-
-			body->CreateFixture(&fixture_def);
-
-			registry->emplace<Box2DPrimitiveRenderer>(entity, Palette::Aqua, Palette::Black);
 		}
     }
 

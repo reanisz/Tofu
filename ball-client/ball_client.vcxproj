@@ -240,6 +240,7 @@
     <ClCompile Include="src\tofu\ball\game.cpp" />
     <ClCompile Include="src\tofu\ball\player.cpp" />
     <ClCompile Include="src\tofu\ball\player_controller.cpp" />
+    <ClCompile Include="src\tofu\ball\renderer_registerer.cpp" />
     <ClCompile Include="src\tofu\ball\stage.cpp" />
     <ClCompile Include="src\tofu\ecs\box2d_primitive_renderer.cpp" />
   </ItemGroup>
@@ -250,6 +251,7 @@
     <ClInclude Include="include\tofu\ball\input.h" />
     <ClInclude Include="include\tofu\ball\player.h" />
     <ClInclude Include="include\tofu\ball\player_controller.h" />
+    <ClInclude Include="include\tofu\ball\renderer_registerer.h" />
     <ClInclude Include="include\tofu\ball\stage.h" />
     <ClInclude Include="include\tofu\ecs\box2d_primitive_renderer.h" />
     <ClInclude Include="include\tofu\renderer\siv3d.h" />

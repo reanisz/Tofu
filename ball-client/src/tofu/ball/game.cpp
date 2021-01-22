@@ -12,6 +12,7 @@
 #include "tofu/ball/player.h"
 #include "tofu/ball/player_controller.h"
 #include "tofu/ball/frame_updater.h"
+#include "tofu/ball/renderer_registerer.h"
 
 namespace tofu::ball 
 {
@@ -62,6 +63,17 @@ namespace tofu::ball
 		camera->setCenter({ 400,300 });
 		_serviceLocator.Register(std::make_unique<S3DRenderSystem>());
 		_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_serviceLocator, &_registry, 100));
+
+        auto renderer_registerer = _serviceLocator.Register(std::make_unique<RendererRegisterer>());
+
+        _registry.on_construct<Player>()
+            .connect<&RendererRegisterer::OnConstructPlayer>(renderer_registerer.get());
+        _registry.on_construct<Goal>()
+            .connect<&RendererRegisterer::OnConstructGoal>(renderer_registerer.get());
+        _registry.on_construct<GoalFrame>()
+            .connect<&RendererRegisterer::OnConstructGoalFrame>(renderer_registerer.get());
+        _registry.on_construct<Wall>()
+            .connect<&RendererRegisterer::OnConstructWall>(renderer_registerer.get());
 	}
 	void Game::initStage()
 	{
