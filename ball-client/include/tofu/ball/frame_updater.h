@@ -16,6 +16,8 @@ namespace tofu::ball
 		UpdateSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry);
 
 		void Start();
+	
+		void StartFrame();
 
 	private:
 		void Step();
@@ -25,4 +27,30 @@ namespace tofu::ball
 
 		ScheduledUpdateThread _thread;
 	};
+
+	namespace jobs
+	{
+		class StartFrame
+		{
+		public:
+			StartFrame(observer_ptr<UpdateSystem> system)
+				: _system(system)
+			{
+			}
+
+			void operator()() const
+			{
+				_system->StartFrame();
+			}
+		private:
+			observer_ptr<UpdateSystem> _system;
+		};
+
+		class EndUpdate
+		{
+		public:
+			void operator()() const {
+			}
+		};
+	}
 }

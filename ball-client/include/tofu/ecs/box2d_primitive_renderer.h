@@ -9,7 +9,8 @@
 #include <tofu/ecs/physics.h>
 #include <tofu/renderer/siv3d.h>
 
-namespace tofu {
+namespace tofu 
+{
 	struct Box2DPrimitiveRenderer
 	{
 		Color _fillColor;
@@ -42,5 +43,23 @@ namespace tofu {
 		float _factor;
 	};
 
+	namespace jobs
+	{
+		class RenderBox2DPrimitives
+		{
+		public:
+			RenderBox2DPrimitives(observer_ptr<Box2DPrimitiveRenderSystem> system)
+				: _system(system)
+			{
+			}
 
+			void operator()() const
+			{
+				_system->Render();
+			}
+		private:
+			observer_ptr<Box2DPrimitiveRenderSystem> _system;
+		};
+	}
 }
+

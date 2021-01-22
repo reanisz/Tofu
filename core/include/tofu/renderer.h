@@ -85,5 +85,44 @@ namespace tofu
 		ownership _writeQueue;
 	};
 
+	namespace jobs
+	{
+		template<class TRenderSystem>
+		class StartRender
+		{
+		public:
+			StartRender(observer_ptr<TRenderSystem> system)
+				: _system(system)
+			{
+			}
+
+			void operator()() const
+			{
+				_system->StartWrite();
+			}
+
+		private:
+			observer_ptr<TRenderSystem> _system;
+		};
+
+		template<class TRenderSystem>
+		class EndRender
+		{
+		public:
+			EndRender(observer_ptr<TRenderSystem> system)
+				: _system(system)
+			{
+			}
+
+			void operator()() const
+			{
+				_system->EndWrite();
+			}
+
+		private:
+			observer_ptr<TRenderSystem> _system;
+		};
+	}
+
 }
 

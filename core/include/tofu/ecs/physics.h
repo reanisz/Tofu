@@ -31,4 +31,26 @@ namespace tofu
 		std::unique_ptr<b2World> _world;
 	};
 
+	namespace jobs
+	{
+		class StepPhysics
+		{
+		public:
+			StepPhysics(observer_ptr<Physics> system)
+				: _system(system)
+			{
+			}
+
+			void operator()() const
+			{
+				_system->FollowTransform();
+				_system->Step(1.f / 60);
+				_system->WriteBackToTransform();
+			}
+
+		private:
+			observer_ptr<Physics> _system;
+		};
+	}
+
 }

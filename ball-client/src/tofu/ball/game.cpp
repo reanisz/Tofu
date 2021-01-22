@@ -2,8 +2,10 @@
 
 #include "tofu/ball/game.h"
 
-#include "tofu/ecs/core.h"
-#include "tofu/ecs/physics.h"
+#include <tofu/utils/job.h>
+#include <tofu/ecs/core.h>
+#include <tofu/ecs/physics.h>
+
 #include "tofu/ecs/box2d_primitive_renderer.h"
 
 #include "tofu/ball/input.h"
@@ -53,23 +55,27 @@ namespace tofu::ball
 		// === Core ===
 		_serviceLocator.Register(std::make_unique<TickCounter>());
 
-		// === Input ===
-		_serviceLocator.Register(std::make_unique<InputSystem>());
-
 		// === Physics ===
 		auto physics = _serviceLocator.Register(std::make_unique<Physics>(&_registry));
 
 		// === Simulation ===
-		_serviceLocator.Register(std::make_unique<UpdateSystem>(&_serviceLocator, &_registry));
+		auto update_system = _serviceLocator.Register(std::make_unique<UpdateSystem>(&_serviceLocator, &_registry));
+
 		_serviceLocator.Register(std::make_unique<ActionQueue>());
-		_serviceLocator.Register(std::make_unique<ActionSystem>(&_serviceLocator, &_registry));
-		_serviceLocator.Register(std::make_unique<PlayerController>(&_serviceLocator, &_registry));
-		
-		// === Renderer ===
-		auto camera = _serviceLocator.Register(std::make_unique<s3d::Camera2D>());
-		camera->setCenter({ 400,300 });
-		_serviceLocator.Register(std::make_unique<S3DRenderSystem>());
-		_serviceLocator.Register(std::make_unique<Box2DPrimitiveRenderSystem>(&_serviceLocator, &_registry, 100));
+		auto action_system = _serviceLocator.Register(std::make_unique<ActionSystem>(&_serviceLocator, &_registry));
+
+        // === Job ===
+        auto job_scheduler = _serviceLocator.Register(std::make_unique<JobScheduler>());
+        {
+            using namespace jobs;
+            using namespace tofu::jobs;
+
+            job_scheduler->Register(make_job<StartFrame>({}, update_system));
+            job_scheduler->Register(make_job<StepAction>({get_job_tag<StartFrame>()}, action_system));
+            job_scheduler->Register(make_job<StepPhysics>({get_job_tag<StepAction>()}, physics));
+
+            job_scheduler->Register(make_job<EndUpdate>({get_job_tag<StepAction>(), get_job_tag<StepPhysics>()}));
+        }
 	}
 	void Game::initStage()
 	{

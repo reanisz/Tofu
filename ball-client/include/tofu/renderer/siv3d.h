@@ -97,5 +97,11 @@ namespace tofu
 	};
 
 	using S3DRenderSystem = RenderSystem<S3DRenderCommandVariant, S3DRenderer>;
+
+	namespace jobs
+	{
+		using S3DStartRender = StartRender<S3DRenderSystem>;
+		using S3DEndRender = EndRender<S3DRenderSystem>;
+	}
 }
 

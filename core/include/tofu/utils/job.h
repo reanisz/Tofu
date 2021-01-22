@@ -9,14 +9,19 @@
 
 namespace tofu
 {
+	using job_tag = std::type_index;
+
 	template<class T>
-	using job_tag = std::type_index{ typeid(T) };
+	job_tag get_job_tag() noexcept
+	{
+		return job_tag{ typeid(T) };
+	}
 
 	class Job
 	{
 	public:
 		using task_t = std::function<void()>;
-		Job(std::type_index tag, std::initializer_list<std::type_index> dependency, const task_t& task)
+		Job(job_tag tag, std::initializer_list<job_tag> dependency, const task_t& task)
 			: _tag(tag)
 			, _dependency(dependency)
 			, _task(task)
@@ -40,23 +45,34 @@ namespace tofu
 			return _done;
 		}
 
-		const std::vector<std::type_index>& GetDependency() const noexcept
+		void AddDependency(job_tag tag)
+		{
+			_dependency.push_back(tag);
+		}
+
+		const std::vector<job_tag>& GetDependency() const noexcept
 		{
 			return _dependency;
 		}
 
-		std::type_index GetTag() const noexcept
+		job_tag GetTag() const noexcept
 		{
 			return _tag;
 		}
 
 	private:
-		std::type_index	_tag;
+		job_tag	_tag;
 		task_t _task;
-		std::vector<std::type_index> _dependency;
+		std::vector<job_tag> _dependency;
 
 		bool _done = false;
 	};
+
+	template<class T, class... TArgs>
+	std::shared_ptr<Job> make_job(std::initializer_list<job_tag> dependency, TArgs&&... args)
+	{
+		return std::make_shared<Job>(get_job_tag<T>(), dependency, T{std::forward<TArgs>(args)...});
+	}
 
 	class JobScheduler
 	{
@@ -71,6 +87,13 @@ namespace tofu
 				_jobs.erase(it);
 		}
 
+		std::shared_ptr<Job> GetJob(job_tag tag)
+		{
+			if (auto it = std::ranges::find_if(_jobs, [tag](std::shared_ptr<Job>& job) { return job->GetTag() == tag; }); it != _jobs.end())
+				return (*it);
+			return nullptr;
+		}
+
 		void Run()
 		{
 			for (auto& job : _jobs)
@@ -79,7 +102,7 @@ namespace tofu
 			}
 			_finished.clear();
 
-			while(_finished.size() == _jobs.size())
+			while(_finished.size() != _jobs.size())
 			{
 				bool executed = false;
 				for (auto& job : _jobs)
@@ -117,6 +140,6 @@ namespace tofu
 
 	private:
 		std::vector<std::shared_ptr<Job>> _jobs;
-		std::set<std::type_index> _finished;
+		std::set<job_tag> _finished;
 	};
 }

@@ -15,5 +15,25 @@ namespace tofu::ball
 		observer_ptr<entt::registry> _registry;
 	};
 
+	namespace jobs
+	{
+		class ProcessPlayerControl
+		{
+		public:
+			ProcessPlayerControl(observer_ptr<PlayerController> system)
+				: _system(system)
+			{
+			}
+
+			void operator()() const
+			{
+				_system->Step();
+			}
+
+		private:
+			observer_ptr<PlayerController> _system;
+		};
+	}
+
 }
 

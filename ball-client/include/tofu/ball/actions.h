@@ -105,4 +105,24 @@ namespace tofu::ball
 		observer_ptr<entt::registry> _registry;
 	};
 
+	namespace jobs
+	{
+		class StepAction
+		{
+		public:
+			StepAction(observer_ptr<ActionSystem> system)
+				: _system(system)
+			{
+			}
+
+			void operator()() const
+			{
+				_system->Step();
+			}
+
+		private:
+			observer_ptr<ActionSystem> _system;
+		};
+	}
+
 }
