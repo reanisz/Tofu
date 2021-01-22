@@ -80,6 +80,7 @@ add_subdirectory(libs/fmt)
 
 add_subdirectory(core)
 add_subdirectory(core-test)
+add_subdirectory(ball-core)
 add_subdirectory(quic)
 add_subdirectory(sandbox)
 

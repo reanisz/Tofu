@@ -35,8 +35,6 @@ namespace tofu::ball
 		void initPlayers();
 		void initBall();
 
-		void game_loop();
-
 	private:
 		entt::registry _registry;
 		ServiceLocator _serviceLocator;

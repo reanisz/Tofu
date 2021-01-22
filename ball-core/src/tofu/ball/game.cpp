@@ -1,20 +1,13 @@
-#include <Siv3D.hpp>
-
 #include "tofu/ball/game.h"
 
 #include <tofu/utils/job.h>
 #include <tofu/ecs/core.h>
 #include <tofu/ecs/physics.h>
 
-#include "tofu/ecs/box2d_primitive_renderer.h"
-
-#include "tofu/ball/input.h"
 #include "tofu/ball/actions.h"
 #include "tofu/ball/stage.h"
 #include "tofu/ball/player.h"
-#include "tofu/ball/player_controller.h"
 #include "tofu/ball/frame_updater.h"
-#include "tofu/ball/renderer_registerer.h"
 
 namespace tofu::ball 
 {
@@ -37,7 +30,6 @@ namespace tofu::ball
     }
     void Game::update()
     {
-        game_loop();
 	}
     observer_ptr<entt::registry> Game::getRegistry()
     {
@@ -94,7 +86,7 @@ namespace tofu::ball
 		{
 			// ball
 			auto entity = _registry.create();
-			_registry.emplace<Transform>(entity, Float2{ 4.f, 0.5f }, 0.0f);
+			_registry.emplace<Transform>(entity, tVec2{ 4.f, 0.5f }, 0.0f);
 			auto ball = _registry.emplace<Ball>(entity, 0.28f);
 
 			b2BodyDef body_def;
@@ -110,16 +102,6 @@ namespace tofu::ball
 			fixture_def.restitution = 0.85f;
 
 			body->CreateFixture(&fixture_def);
-		}
-	}
-	void Game::game_loop()
-	{
-		auto transform = _serviceLocator.Get<Camera2D>()->createTransformer();
-
-		_serviceLocator.Get<InputSystem>()->Update();
-
-		if (_serviceLocator.Get<S3DRenderSystem>()->HasData()) {
-			_serviceLocator.Get<S3DRenderSystem>()->Render();
 		}
 	}
 }

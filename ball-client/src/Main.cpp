@@ -11,14 +11,15 @@ void Main()
     Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
 
 	tofu::ball::Game game;
+
+    game.initBaseSystems();
+
+    auto registry = game.getRegistry();
+    auto service_locator = game.getServiceLocator();
+
     {
         using namespace tofu;
         using namespace tofu::ball;
-
-        game.initBaseSystems();
-
-        auto registry = game.getRegistry();
-        auto service_locator = game.getServiceLocator();
 
         auto job_scheduler = service_locator->Get<JobScheduler>();
 
@@ -40,6 +41,19 @@ void Main()
     }
 
     game.initEnitites();
-	game.run();
+	game.start();
+
+    while (System::Update())
+    {
+        service_locator->Get<tofu::ball::InputSystem>()->Update();
+        game.update();
+
+        auto transform = service_locator->Get<Camera2D>()->createTransformer();
+
+		if (service_locator->Get<tofu::S3DRenderSystem>()->HasData()) {
+			service_locator->Get<tofu::S3DRenderSystem>()->Render();
+		}
+
+    }
 }
 
