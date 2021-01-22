@@ -13,6 +13,10 @@ else()
     set(LIBRARY_SUFFIX a)
 endif()
 
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 ## ====== picoquic
 
 list(APPEND QUIC_INCLUDES "${PROJECT_SOURCE_DIR}/libs/picoquic/picoquic/")
