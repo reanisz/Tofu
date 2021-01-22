@@ -72,7 +72,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MinimalRebuild>false</MinimalRebuild>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;$(SolutionDir)\..\ball-core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -97,7 +97,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;$(SolutionDir)\..\ball-core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -235,28 +235,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\tofu\ball\actions.cpp" />
-    <ClCompile Include="src\tofu\ball\frame_updater.cpp" />
-    <ClCompile Include="src\tofu\ball\game.cpp" />
-    <ClCompile Include="src\tofu\ball\player.cpp" />
     <ClCompile Include="src\tofu\ball\player_controller.cpp" />
     <ClCompile Include="src\tofu\ball\renderer_registerer.cpp" />
-    <ClCompile Include="src\tofu\ball\stage.cpp" />
     <ClCompile Include="src\tofu\ecs\box2d_primitive_renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\tofu\ball\actions.h" />
-    <ClInclude Include="include\tofu\ball\frame_updater.h" />
-    <ClInclude Include="include\tofu\ball\game.h" />
     <ClInclude Include="include\tofu\ball\input.h" />
-    <ClInclude Include="include\tofu\ball\player.h" />
     <ClInclude Include="include\tofu\ball\player_controller.h" />
     <ClInclude Include="include\tofu\ball\renderer_registerer.h" />
-    <ClInclude Include="include\tofu\ball\stage.h" />
     <ClInclude Include="include\tofu\ecs\box2d_primitive_renderer.h" />
     <ClInclude Include="include\tofu\renderer\siv3d.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\build-win\ball-core\ball_core.vcxproj">
+      <Project>{db70fd5d-9458-310a-8bd8-6ad82a4277da}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\build-win\core\tofu_core.vcxproj">
       <Project>{288ddfde-6759-3e9a-8aa3-11549c26618e}</Project>
     </ProjectReference>

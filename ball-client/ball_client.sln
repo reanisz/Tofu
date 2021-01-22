@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "box2d", "..\libs-build\box2
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tofu_core", "..\build-win\core\tofu_core.vcxproj", "{288DDFDE-6759-3E9A-8AA3-11549C26618E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ball_core", "..\build-win\ball-core\ball_core.vcxproj", "{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{288DDFDE-6759-3E9A-8AA3-11549C26618E}.Release|x64.Build.0 = Release|x64
 		{288DDFDE-6759-3E9A-8AA3-11549C26618E}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
 		{288DDFDE-6759-3E9A-8AA3-11549C26618E}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.Debug|x64.ActiveCfg = Debug|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.Debug|x64.Build.0 = Debug|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.MinSizeRel|x64.ActiveCfg = MinSizeRel|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.MinSizeRel|x64.Build.0 = MinSizeRel|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.Release|x64.ActiveCfg = Release|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.Release|x64.Build.0 = Release|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
+		{DB70FD5D-9458-310A-8BD8-6AD82A4277DA}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
