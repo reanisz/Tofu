@@ -19,11 +19,11 @@ Tofu
 # Requirement
 ## Windows
 - CMake >= 3.16
-- Visual Studio 2019 >= 16.8.4 (for Windows)
+- Visual Studio 2019 >= 16.8.4
 - [OpenSiv3D](https://github.com/Siv3D/OpenSiv3D) >= 0.4.3
 ## Linux
 - CMake >= 3.16
-- g++ >= 10.2.0 (Linux)
+- g++ >= 10.2.0
 
 
 # Build
