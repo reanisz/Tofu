@@ -1,5 +1,7 @@
 #include <fmt/core.h>
 
+#include <thread>
+
 #include <picoquic.h>
 #include <picoquic_utils.h>
 #include <picoquic_packet_loop.h>
@@ -22,91 +24,90 @@ namespace tofu::net
 
     void QuicClient::Start()
     {
-        auto current_time = picoquic_current_time();
-        sockaddr_storage address;
-        int is_name;
+        std::atomic<bool> ready = false;
+        _thread = std::thread{ [this, &ready]() {
 
-        std::string sni = "reanisz.info";
+            auto current_time = picoquic_current_time();
+            sockaddr_storage address;
+            int is_name;
 
-        if (int ret = picoquic_get_server_address(_config._serverName.c_str(), *_config._port, &address, &is_name); ret != 0)
-        {
-            _error = TOFU_MAKE_ERROR("Cannot get the IP address for {}:{}", _config._serverName, *_config._port);
-            return;
-        }
+            std::string sni = "reanisz.info";
 
-        if (is_name)
-            sni = _config._serverName;
+            if (int ret = picoquic_get_server_address(_config._serverName.c_str(), *_config._port, &address, &is_name); ret != 0)
+            {
+                _error = TOFU_MAKE_ERROR("Cannot get the IP address for {}:{}", _config._serverName, *_config._port);
+                return;
+            }
 
-        _quic = picoquic_create(1, nullptr, nullptr, nullptr,
-            _config._alpn.c_str(), nullptr, nullptr, nullptr, nullptr, nullptr,
-            current_time, nullptr,
-            nullptr, // ticket_file_name
-            nullptr, 0);
+            if (is_name)
+                sni = _config._serverName;
 
-        if (!_quic)
-        {
-            _error = TOFU_MAKE_ERROR("Could not create quic context");
-            return;
-        }
+            _quic = picoquic_create(1, nullptr, nullptr, nullptr,
+                _config._alpn.c_str(), nullptr, nullptr, nullptr, nullptr, nullptr,
+                current_time, nullptr,
+                nullptr, // ticket_file_name
+                nullptr, 0);
 
-        // picoquic_load_retry_tokens
+            if (!_quic)
+            {
+                _error = TOFU_MAKE_ERROR("Could not create quic context");
+                return;
+            }
 
-        picoquic_set_default_congestion_algorithm(_quic, picoquic_bbr_algorithm);
+            // picoquic_load_retry_tokens
 
-        picoquic_set_key_log_file_from_env(_quic);
-        if (!_config._config._qlogDirectory.empty())
-        {
-            picoquic_set_qlog(_quic, _config._config._qlogDirectory.string().c_str());
-            picoquic_set_log_level(_quic, _config._config._qlogLevel);
-        }
+            picoquic_set_default_congestion_algorithm(_quic, picoquic_bbr_algorithm);
 
-        // ==================================
-        fmt::print("[QuicClient] Starting connection to {}:{}\n", _config._serverName, *_config._port);
+            picoquic_set_key_log_file_from_env(_quic);
+            if (!_config._config._qlogDirectory.empty())
+            {
+                picoquic_set_qlog(_quic, _config._config._qlogDirectory.string().c_str());
+                picoquic_set_log_level(_quic, _config._config._qlogLevel);
+            }
 
-        auto cnx = picoquic_create_cnx(_quic, picoquic_null_connection_id, picoquic_null_connection_id, (sockaddr*)&address, current_time, 0, sni.c_str(), _config._alpn.c_str(), 1);
+            // ==================================
+            fmt::print("[QuicClient] Starting connection to {}:{}\n", _config._serverName, *_config._port);
 
-        if (!cnx)
-        {
-            _error = TOFU_MAKE_ERROR("Could not create connection context");
-            return;
-        }
+            auto cnx = picoquic_create_cnx(_quic, picoquic_null_connection_id, picoquic_null_connection_id, (sockaddr*)&address, current_time, 0, sni.c_str(), _config._alpn.c_str(), 1);
 
-        _connection = std::make_shared<QuicConnection>(cnx, this);
+            if (!cnx)
+            {
+                _error = TOFU_MAKE_ERROR("Could not create connection context");
+                return;
+            }
 
-        picoquic_set_callback(cnx,
-            [](picoquic_cnx_t* cnx, uint64_t stream_id, uint8_t* bytes, size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* stream_ctx) -> int {
-                return ((QuicConnection*)callback_ctx)->CallbackConnection(cnx, stream_id, bytes, length, fin_or_event, callback_ctx, stream_ctx);
-            },
-            _connection.get()
-                );
+            _connection = std::make_shared<QuicConnection>(cnx, this);
 
-        if (int ret = picoquic_start_client_cnx(cnx); ret < 0)
-        {
-            _error = TOFU_MAKE_ERROR("Could not activate connection.");
-            return;
-        }
+            picoquic_set_callback(cnx,
+                [](picoquic_cnx_t* cnx, uint64_t stream_id, uint8_t* bytes, size_t length, picoquic_call_back_event_t fin_or_event, void* callback_ctx, void* stream_ctx) -> int {
+                    return ((QuicConnection*)callback_ctx)->CallbackConnection(cnx, stream_id, bytes, length, fin_or_event, callback_ctx, stream_ctx);
+                },
+                _connection.get()
+                    );
 
-        // TODO: create_stream
+            if (int ret = picoquic_start_client_cnx(cnx); ret < 0)
+            {
+                _error = TOFU_MAKE_ERROR("Could not activate connection.");
+                return;
+            }
 
-        auto icid = picoquic_get_initial_cnxid(cnx);
-        fmt::print("[QuicClient] Initial connection ID: ");
-        for (int i = 0; i < icid.id_len; i++)
-        {
-            fmt::print("{:0x}", icid.id[i]);
-        }
-        fmt::print("\n");
+            auto icid = picoquic_get_initial_cnxid(cnx);
+            fmt::print("[QuicClient] Initial connection ID: ");
+            for (int i = 0; i < icid.id_len; i++)
+            {
+                fmt::print("{:0x}", icid.id[i]);
+            }
+            fmt::print("\n");
 
-        std::atomic<int> _loopReturnCode = 0;
-
-        _thread = std::thread{ [this, quic = _quic, address, &_loopReturnCode]() {
             fmt::print("[QuicClient] loop start.\n");
+            ready = true;
             _loopReturnCode =
     #ifdef _WINDOWS
             picoquic_packet_loop_win(
     #else
             picoquic_packet_loop(
     #endif
-                quic, 0, address.ss_family, 0,
+                _quic, 0, address.ss_family, 0,
                 [](picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx) -> int
                 {
                     return ((QuicClient*)callback_ctx)->CallbackPacketLoop(quic, cb_mode, callback_ctx);
@@ -114,6 +115,11 @@ namespace tofu::net
                 );
             fmt::print("[QuicClient] loop exit.\n");
         } };
+
+        while (!ready)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds{ 20 });
+        }
 
         return;
     }
@@ -149,6 +155,9 @@ namespace tofu::net
     {
         fmt::print("[QuicClient] OnCloseConnection()\n");
         _end = true;
+
+        if (_callbackOnClose)
+            _callbackOnClose(connection);
     }
 
     int QuicClient::CallbackPacketLoop(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx)

@@ -72,12 +72,13 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MinimalRebuild>false</MinimalRebuild>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;$(SolutionDir)\..\ball-core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\libs\picoquic\picoquic;$(SolutionDir)\..\libs\fmt\include;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;$(SolutionDir)\..\ball-core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\libs\picoquic\x64\$(Configuration)\loglib.lib;$(SolutionDir)\..\libs\picoquic\x64\$(Configuration)\picohttp.lib;$(SolutionDir)\..\libs\picoquic\x64\$(Configuration)\picoquic.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-bcrypt.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-core.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-esni.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-fusion.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-minicrypto.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-minicrypto-deps.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-openssl.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotlsvs.lib;$(OPENSSL64DIR)\lib\libcrypto.lib;$(OPENSSL64DIR)\lib\libssl.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /I /D /Y "$(OutDir)$(TargetFileName)" "$(ProjectDir)App"</Command>
@@ -97,13 +98,14 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;$(SolutionDir)\..\ball-core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\..\libs\box2d\include;$(SolutionDir)\..\libs\entt\src;$(SolutionDir)\..\libs\picoquic\picoquic;$(SolutionDir)\..\libs\fmt\include;$(SolutionDir)\..\core\include;$(SolutionDir)\..\quic\include;$(SolutionDir)\..\ball-core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)\..\libs\picoquic\x64\$(Configuration)\loglib.lib;$(SolutionDir)\..\libs\picoquic\x64\$(Configuration)\picohttp.lib;$(SolutionDir)\..\libs\picoquic\x64\$(Configuration)\picoquic.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-bcrypt.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-core.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-esni.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-fusion.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-minicrypto.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-minicrypto-deps.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotls-openssl.lib;$(SolutionDir)\..\libs\picotls\picotlsvs\x64\$(Configuration)\picotlsvs.lib;$(OPENSSL64DIR)\lib\libcrypto.lib;$(OPENSSL64DIR)\lib\libssl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /I /D /Y "$(OutDir)$(TargetFileName)" "$(ProjectDir)App"</Command>
@@ -252,6 +254,9 @@
     </ProjectReference>
     <ProjectReference Include="..\build-win\core\tofu_core.vcxproj">
       <Project>{288ddfde-6759-3e9a-8aa3-11549c26618e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\build-win\libs\fmt\fmt.vcxproj">
+      <Project>{a82c0593-3fac-352c-acab-cab0b6093f4a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\libs-build\box2d-win\src\box2d.vcxproj">
       <Project>{4db25ba3-0d7a-3c36-9a11-9db274c13bd8}</Project>

@@ -17,12 +17,24 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
+## ====== box2d 
+set(BOX2D_INCLUDE "${PROJECT_SOURCE_DIR}/libs/box2d/include/")
+
+if(WIN32)
+    set(BOX2D_LIB_DIR "${PROJECT_SOURCE_DIR}/libs-build/box2d-win/bin/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/")
+
+    list(APPEND BOX2D_LIBS "${BOX2D_LIB_DIR}box2d.lib")
+else()
+    # TODO
+endif()
+
 ## ====== picoquic
 
 list(APPEND QUIC_INCLUDES "${PROJECT_SOURCE_DIR}/libs/picoquic/picoquic/")
 list(APPEND QUIC_INCLUDES "${PROJECT_SOURCE_DIR}/libs/picoquic/loglib/")
 
 if(WIN32)
+    # set(QUIC_LIB_DIR "${PROJECT_SOURCE_DIR}/libs/picoquic/x64/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/")
     set(QUIC_LIB_DIR "${PROJECT_SOURCE_DIR}/libs/picoquic/x64/Release/")
 
     list(APPEND QUIC_LIBS "${QUIC_LIB_DIR}loglib.${LIBRARY_SUFFIX}")
@@ -81,6 +93,7 @@ add_subdirectory(libs/fmt)
 add_subdirectory(core)
 add_subdirectory(core-test)
 add_subdirectory(ball-core)
+add_subdirectory(ball-server)
 add_subdirectory(quic)
 add_subdirectory(sandbox)
 

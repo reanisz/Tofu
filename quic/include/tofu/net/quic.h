@@ -32,6 +32,7 @@ namespace tofu::net
 
     using Port = StrongNumeric<class tag_Port, int>;
     using QuicReturnCode = StrongNumeric<class tag_QuicReturnCode, int>;
+    using StreamId = StrongNumeric<class tag_StreamId, std::uint64_t>;
 
     struct QuicConfig
     {
@@ -51,9 +52,9 @@ namespace tofu::net
         : public std::enable_shared_from_this<QuicStream>
     {
     public:
-        QuicStream(observer_ptr<QuicConnection> connection, std::uint64_t stream_id);
+        QuicStream(observer_ptr<QuicConnection> connection, StreamId stream_id);
 
-        std::int64_t GetId() const noexcept;
+        StreamId GetId() const noexcept;
 
         std::size_t ReceivedSize() noexcept;
         void Peek(std::byte* data, std::size_t length);
@@ -76,7 +77,7 @@ namespace tofu::net
 
     private:
         observer_ptr<QuicConnection> _connection;
-        std::uint64_t _streamId;
+        StreamId _streamId;
 
         std::mutex _recvMutex;
         std::atomic<bool> _isArrivedFinish = false;
@@ -118,8 +119,8 @@ namespace tofu::net
         }
 
         // === Stream
-        std::shared_ptr<QuicStream> OpenStream(std::uint64_t stream_id);
-        std::shared_ptr<QuicStream> GetStream(std::uint64_t stream_id);
+        std::shared_ptr<QuicStream> OpenStream(StreamId stream_id);
+        std::shared_ptr<QuicStream> GetStream(StreamId stream_id);
 
         // === DATAGRAM
         void SendUnreliable(observer_ptr<const std::byte> data, std::size_t size);
@@ -144,7 +145,7 @@ namespace tofu::net
         CircularQueueBuffer _unreliableRecvBuffer;
 
         std::mutex _streamMutex;
-        std::unordered_map<std::uint64_t, std::shared_ptr<QuicStream>> _streams;
+        std::unordered_map<StreamId, std::shared_ptr<QuicStream>> _streams;
     };
 }
 

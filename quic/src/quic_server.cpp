@@ -111,6 +111,10 @@ namespace tofu::net
     void QuicServer::OnCloseConnection(const std::shared_ptr<QuicConnection>& connection)
     {
         fmt::print("[QuicServer] OnCloseConnection()\n");
+        if (_callbackOnClose)
+        {
+            _callbackOnClose(connection);
+        }
         {
             std::lock_guard lock{ _mutexConnections };
             _connections.erase(connection);
@@ -136,6 +140,11 @@ namespace tofu::net
             connection.get()
                 );
 
+        if (_callbackOnConnect)
+        {
+            _callbackOnConnect(connection);
+        }
+
         return 0;
     }
 
@@ -143,7 +152,7 @@ namespace tofu::net
     {
         // fmt::print("[QuicServer] CallbackPacketLoop(cb_mode = {})\n", cb_mode);
         if (_end)
-            return error_code::Interrupt;
+            return PICOQUIC_NO_ERROR_TERMINATE_PACKET_LOOP;
 
         return 0;
     }

@@ -1,5 +1,12 @@
 #pragma once
 
+#include <functional>
+#include <memory>
+#include <atomic>
+#include <thread>
+
+#include <tofu/utils.h>
+
 #include "quic.h"
 
 namespace tofu::net
@@ -15,6 +22,8 @@ namespace tofu::net
     class QuicClient
     {
     public:
+        using callback_on_close_t = std::function<void(const std::shared_ptr<QuicConnection>&)>;
+
         QuicClient(const QuicClientConfig& config);
         ~QuicClient();
 
@@ -35,6 +44,11 @@ namespace tofu::net
             return _config;
         }
 
+        void SetCallbackOnClose(const callback_on_close_t& function)
+        {
+            _callbackOnClose = function;
+        }
+
     private:
         QuicClientConfig _config;
         Error _error;
@@ -45,5 +59,8 @@ namespace tofu::net
 
         std::thread _thread;
         std::atomic<bool> _end = false;
+
+        // === callbacks
+        callback_on_close_t _callbackOnClose;
     };
 }

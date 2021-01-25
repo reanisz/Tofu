@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <functional>
 
 #include "tofu/net/quic.h"
 
@@ -19,6 +20,9 @@ namespace tofu::net
     class QuicServer
     {
     public:
+        using callback_on_connect_t = std::function<void(const std::shared_ptr<QuicConnection>&)>;
+        using callback_on_close_t = std::function<void(const std::shared_ptr<QuicConnection>&)>;
+
         QuicServer(const QuicServerConfig& config);
         ~QuicServer();
 
@@ -52,6 +56,16 @@ namespace tofu::net
             return _config;
         }
 
+        // === callbacks
+        void SetCallbackOnConnect(const callback_on_connect_t& function)
+        {
+            _callbackOnConnect = function;
+        }
+        void SetCallbackOnClose(const callback_on_close_t& function)
+        {
+            _callbackOnClose = function;
+        }
+
     private:
         QuicServerConfig _config;
         Error _error;
@@ -64,5 +78,9 @@ namespace tofu::net
 
         std::mutex _mutexConnections;
         std::set<std::shared_ptr<QuicConnection>> _connections;
+
+        // === callbacks
+        callback_on_connect_t _callbackOnConnect;
+        callback_on_close_t _callbackOnClose;
     };
 }

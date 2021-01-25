@@ -3,7 +3,7 @@
 #include "tofu/net/quic_server.h"
 
 namespace tofu::net {
-    QuicStream::QuicStream(observer_ptr<QuicConnection> connection, std::uint64_t stream_id)
+    QuicStream::QuicStream(observer_ptr<QuicConnection> connection, StreamId stream_id)
         : _connection(connection)
         , _streamId(stream_id)
         // TODO: buffer_sizeはconfigからとるようにする
@@ -12,7 +12,7 @@ namespace tofu::net {
     {
     }
 
-    std::int64_t QuicStream::GetId() const noexcept
+    StreamId QuicStream::GetId() const noexcept
     {
         return _streamId;
     }
@@ -52,13 +52,13 @@ namespace tofu::net {
         std::lock_guard lock{ _sendMutex };
         _sendBuffer.Write(data, length);
 
-        picoquic_mark_active_stream(_connection->GetRaw(), _streamId, true, this);
+        picoquic_mark_active_stream(_connection->GetRaw(), *_streamId, true, this);
     }
 
     void QuicStream::FinishSend()
     {
         _isSendFinish = true;
-        picoquic_mark_active_stream(_connection->GetRaw(), _streamId, true, this);
+        picoquic_mark_active_stream(_connection->GetRaw(), *_streamId, true, this);
     }
 
     bool QuicStream::IsSendFinished() const
@@ -150,7 +150,7 @@ namespace tofu::net {
             _server->OnCloseConnection(shared_from_this());
     }
 
-    std::shared_ptr<QuicStream> QuicConnection::OpenStream(std::uint64_t stream_id)
+    std::shared_ptr<QuicStream> QuicConnection::OpenStream(StreamId stream_id)
     {
         std::lock_guard lock{ _streamMutex };
 
@@ -161,8 +161,8 @@ namespace tofu::net {
 
         auto ctx = std::make_shared<QuicStream>(this, stream_id);
 
-        picoquic_reset_stream(_cnx, stream_id, 0);
-        picoquic_set_app_stream_ctx(_cnx, stream_id, ctx.get());
+        picoquic_reset_stream(_cnx, *stream_id, 0);
+        picoquic_set_app_stream_ctx(_cnx, *stream_id, ctx.get());
 
         // auto ret = picoquic_mark_active_stream(_cnx, stream_id, true, ctx.get());
         // 
@@ -176,7 +176,7 @@ namespace tofu::net {
         return ctx;
     }
 
-    std::shared_ptr<QuicStream> QuicConnection::GetStream(std::uint64_t stream_id)
+    std::shared_ptr<QuicStream> QuicConnection::GetStream(StreamId stream_id)
     {
         std::lock_guard lock{ _streamMutex };
         if (auto it = _streams.find(stream_id); it != _streams.end())
@@ -236,10 +236,17 @@ namespace tofu::net {
             if (!stream_ctx) {
                 std::lock_guard lock{ _streamMutex };
 
-                auto ctx = std::make_shared<QuicStream>(this, stream_id);
-                stream_ctx = ctx.get();
+                if (auto it = _streams.find(stream_id); it != _streams.end())
+                {
+                    stream_ctx = it->second.get();
+                }
+                else 
+                {
+                    auto ctx = std::make_shared<QuicStream>(this, stream_id);
+                    stream_ctx = ctx.get();
 
-                _streams.insert({ stream_id, ctx });
+                    _streams.insert({ stream_id, ctx });
+                }
 
                 picoquic_set_app_stream_ctx(cnx, stream_id, stream_ctx);
             }

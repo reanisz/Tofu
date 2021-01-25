@@ -1,3 +1,7 @@
+#include <Siv3d.hpp>
+
+#include <fmt/core.h>
+
 #include "tofu/ball/game.h"
 #include "tofu/ball/renderer_registerer.h"
 
@@ -6,9 +10,29 @@
 #include "tofu/ball/player_controller.h"
 #include "tofu/ball/actions.h"
 
+#include "tofu/ball/net_client.h"
+
+#undef GetJob
+
+void not_called_function()
+{
+    clearerr(nullptr);
+}
+
+namespace tofu::ball
+{
+    void run_client()
+    {
+        Client client({});
+        client.Run();
+    }
+}
+
 void Main()
 {
     Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
+    tofu::ball::run_client();
+    return;
 
     tofu::ball::Game game;
 

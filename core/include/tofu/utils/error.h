@@ -1,7 +1,14 @@
 #pragma once
 
 #include <fmt/core.h>
+#include <string>
 #include <optional>
+
+#ifdef TOFU_ENABLE_SIV3D
+#define TOFU_FMT fmt_s3d
+#else
+#define TOFU_FMT fmt
+#endif
 
 namespace tofu
 {
@@ -16,9 +23,9 @@ namespace tofu
         void Dump() const
         {
 #if _DEBUG
-            fmt::print("message=<{}>, file={}, line={}\n", _message, _file, _line);
+            TOFU_FMT::print("message=<{}>, file={}, line={}\n", _message, _file, _line);
 #else
-            fmt::print("message=<{}>\n", _message);
+            TOFU_FMT::print("message=<{}>\n", _message);
 #endif
         }
     };
@@ -26,9 +33,9 @@ namespace tofu
     using Error = std::optional<ErrorData>;
 
 #if _DEBUG
-#define TOFU_MAKE_ERROR(...) ErrorData{fmt::format(__VA_ARGS__), __FILE__, __LINE__}
+#define TOFU_MAKE_ERROR(...) ErrorData{TOFU_FMT::format(__VA_ARGS__), __FILE__, __LINE__}
 #else
-#define TOFU_MAKE_ERROR(...) ErrorData{fmt::format(__VA_ARGS__)}
+#define TOFU_MAKE_ERROR(...) ErrorData{TOFU_FMT::format(__VA_ARGS__)}
 #endif
 }
 

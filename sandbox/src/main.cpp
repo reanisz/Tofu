@@ -79,7 +79,7 @@ void sandbox_server(CommandlineArguments args)
                     if (auto size = std::min<std::size_t>(stream->ReceivedSize(), sizeof(buf)))
                     {
                         stream->Read(buf, size);
-                        fmt::print("Receved Stream [{}]({}): {}\n", stream->GetId(), size, std::string_view{ reinterpret_cast<char*>(buf), size });
+                        fmt::print("Receved Stream [{}]({}): {}\n", *stream->GetId(), size, std::string_view{ reinterpret_cast<char*>(buf), size });
                     }
                 }
             });

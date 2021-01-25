@@ -329,12 +329,12 @@ namespace tofu
             assert(length <= _size);
 
             auto blength = std::min<std::size_t>(length, UsedBackward());
-            auto flength = length - UsedBackward();
+            auto flength = std::min<std::size_t>(length - blength, UsedForward());
 
             memcpy(write_to, _front, blength);
             if (flength)
             {
-                memcpy(write_to + blength, _buffer.get(), blength);
+                memcpy(write_to + flength, _buffer.get(), flength);
             }
         }
 

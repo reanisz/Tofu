@@ -105,3 +105,15 @@ namespace tofu {
 #undef tofu_def_binary_op
 
 }
+
+namespace std
+{
+    template<class TTag, class TNumeric>
+    struct hash<tofu::StrongNumeric<TTag, TNumeric>>
+    {
+        constexpr std::size_t operator()(const tofu::StrongNumeric<TTag, TNumeric>& value) const
+        {
+            return std::hash<TNumeric>{}(*value);
+        }
+    };
+}

@@ -7,9 +7,11 @@
 
 namespace tofu::ball
 {
+    using PlayerID = StrongNumeric<class tag_PlayerID, int>;
+
     struct Player
     {
-        int _id;
+        PlayerID _id;
 
         static std::tuple<entt::entity, Player&> Generate(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, int id, tVec2 pos);
     };
