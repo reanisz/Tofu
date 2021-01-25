@@ -4,6 +4,7 @@
 build/
 build-win/
 *.qlog
+libs-build/box2d-win/
 
 #=============================
 ## Ignore Visual Studio temporary files, build results, and
