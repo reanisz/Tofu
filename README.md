@@ -31,7 +31,7 @@ Tofu
 
 ## Build
 ### Windows
-1. patchを当てる (TODO:作る)
+1. Tofu/libs/apply_patches.sh を叩く
 2. Tofu/libs/picotls/picotlsvs/picotlsvs.sln をpicotlsのREADME.mdを参考にビルドする
 3. Tofu/libs/picoquic/picoquic.sln をpicoquicのREADME.mdを参考にビルドする
 4. Tofu/run-cmake-win.cmd を叩く
@@ -39,7 +39,7 @@ Tofu
 6. Tofu/ball-client/ball_client.sln をビルドする
 
 ### Linux
-1. patchを当てる (TODO:作る)
+1. Tofu/libs/apply_patches.sh を叩く
 2. Tofu/libs/picotls/CMakeLists.txt をpicotlsのREADME.mdを参考にビルドする
 3. Tofu/libs/picoquic/CMakeLists.txt をpicoquicのREADME.mdを参考にビルドする
 4. Tofu/build.sh を叩く
