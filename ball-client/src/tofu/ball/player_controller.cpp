@@ -49,7 +49,7 @@ namespace tofu::ball
         sync_system->SetData(*id, tick_after, sync);
         if (net_system)
         {
-            message_server_control::SyncPlayerAction message = {
+            message_client_control::SyncPlayerAction message = {
                 ._player = *id,
                 ._tick = tick_after,
                 ._obj = sync,

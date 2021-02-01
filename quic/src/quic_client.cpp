@@ -163,6 +163,7 @@ namespace tofu::net
     int QuicClient::CallbackPacketLoop(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode, void* callback_ctx)
     {
         // fmt::print("[QuicClient] CallbackPacketLoop(cb_mode = {})\n", cb_mode);
+        _connection->CheckSendable();
         if (_end)
             return PICOQUIC_NO_ERROR_TERMINATE_PACKET_LOOP;
 

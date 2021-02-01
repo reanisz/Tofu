@@ -7,8 +7,8 @@ namespace tofu::net {
         : _connection(connection)
         , _streamId(stream_id)
         // TODO: buffer_sizeはconfigからとるようにする
-        , _recvBuffer(2 * 1024 * 1024) // 2kB
-        , _sendBuffer(2 * 1024 * 1024) // 2kB
+        , _recvBuffer(1024 * 1024 * 1024) // 1kB
+        , _sendBuffer(1024 * 1024 * 1024) // 1kB
     {
     }
 
@@ -49,6 +49,7 @@ namespace tofu::net {
 
     void QuicStream::Send(const std::byte* data, std::size_t length)
     {
+        // picoquic_add_to_stream_with_ctx(_connection->GetRaw(), *_streamId, reinterpret_cast<const std::uint8_t*>(data), length, false, this);
         std::lock_guard lock{ _sendMutex };
         _sendBuffer.Write(data, length);
 
@@ -123,7 +124,7 @@ namespace tofu::net {
 
     QuicConnection::~QuicConnection()
     {
-        fmt::print("[QuicConnection] destructed.\n");
+        fmt::print("[QuicConnection] destructed.\n");\
     }
 
     void QuicConnection::Init()
@@ -131,6 +132,18 @@ namespace tofu::net {
         if (0 < _config._pingInterval.count())
         {
             picoquic_enable_keep_alive(_cnx, _config._pingInterval.count());
+        }
+    }
+
+    void QuicConnection::CheckSendable()
+    {
+        return;
+        for (auto [id, stream] : _streams)
+        {
+            if (stream->_sendBuffer.Size())
+            {
+                picoquic_mark_active_stream(_cnx, *id, true, stream.get());
+            }
         }
     }
 
@@ -292,14 +305,12 @@ namespace tofu::net {
             break;
         case picoquic_callback_ready:
         {
-            /* TODO: Check that the transport parameters are what the sample expects */
             fmt::print("[QuicConnection] Connection to the server confirmed.\n");
             _isReady = true;
             break;
         }
         default:
             fmt::print("[QuicConnection] unexpected event : {}\n", fin_or_event);
-            /* unexpected -- just ignore. */
             break;
         }
         return 0;

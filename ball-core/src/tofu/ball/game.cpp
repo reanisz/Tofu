@@ -59,7 +59,6 @@ namespace tofu::ball
 
         // === Net ===
         auto sync_system = _serviceLocator.Register(std::make_unique<CompletelySyncSystem>(&_serviceLocator, &_registry, MaxPlayerNum, ActionDelay));
-        // _serviceLocator.Register(std::make_unique<QuicControllerSystem>(&_serviceLocator, &_registry));
 
         // === Job ===
         auto job_scheduler = _serviceLocator.Register(std::make_unique<JobScheduler>());

@@ -24,6 +24,7 @@ namespace tofu::ball
             WaitConnect,
             WaitJoinRequest,
             Ready,
+            Ingame,
         };
 
         ClientConnection(observer_ptr<Server> server, const std::shared_ptr<net::QuicConnection>& quic, PlayerID player_id);
@@ -34,6 +35,7 @@ namespace tofu::ball
     private:
         void UpdateWaitConnect();
         void UpdateWaitJoinRequest();
+        void UpdateIngame();
     public:
 
         State GetState() const noexcept

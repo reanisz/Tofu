@@ -101,6 +101,7 @@ namespace tofu::net
         void Init();
     public:
 
+        void CheckSendable();
         void Close();
 
         picoquic_cnx_t* GetRaw() const

@@ -22,6 +22,9 @@ namespace tofu::ball
         case State::WaitJoinRequest:
             UpdateWaitJoinRequest();
             return;
+        case State::Ingame:
+            UpdateIngame();
+            return;
         }
     }
 
@@ -36,12 +39,15 @@ namespace tofu::ball
             message._playerNum++;
         }
         SendMessage(_streamControlSend, message);
+
+        _state = State::Ingame;
     }
 
 	void ClientConnection::UpdateWaitConnect()
 	{
-        if (_quic->IsConnected())
+        if (_quic->IsConnected()) {
             _state = State::WaitJoinRequest;
+        }
 	}
 
     void ClientConnection::UpdateWaitJoinRequest()
@@ -68,6 +74,25 @@ namespace tofu::ball
         _state = State::Ready;
     }
 
+    void ClientConnection::UpdateIngame()
+    {
+        auto header = PeekHeader(_streamControlRecv);
+        if (!header)
+            return;
+        switch (header->_messageType)
+        {
+        case message_client_control::SyncPlayerAction::message_type:
+        {
+            auto [message, error] = ReadMessage<message_client_control::SyncPlayerAction>(_streamControlRecv);
+            if (message)
+            {
+                fmt::print("recved sync obj[{}]({}): {}\n", *message->_tick, *message->_player, message->_obj._action.index());
+            }
+        }
+            break;
+        }
+    }
+
     void Server::Run()
     {
         net::QuicServerConfig config =
@@ -75,7 +100,7 @@ namespace tofu::ball
             ._config = {
                 ._qlogDirectory = "./qlog/"
             },
-            ._port = 8000,
+            ._port = 8001,
             ._certFile = { "./cert/_wildcard.reanisz.info+3.pem" },
             ._secretFile = { "./cert/_wildcard.reanisz.info+3-key.pem" },
             ._alpn = Alpn,
@@ -158,6 +183,13 @@ namespace tofu::ball
 
     void Server::UpdateAtIngame()
     {
+        for (auto& client : _connections)
+        {
+            if (!client)
+                continue;
+            client->Update();
+        }
+        
         _game.update();
     }
 

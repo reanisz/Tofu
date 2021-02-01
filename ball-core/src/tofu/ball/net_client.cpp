@@ -1,6 +1,7 @@
 #include <random>
 
 #include "tofu/ball/net_client.h"
+#include "tofu/ball/sync.h"
 
 namespace tofu::ball
 {
@@ -83,7 +84,7 @@ namespace tofu::ball
                 ._qlogDirectory = "./qlog/"
             },
             ._serverName = "127.0.0.1",
-            ._port = 8000,
+            ._port = 8001,
             ._alpn = Alpn,
         };
 
@@ -125,6 +126,10 @@ namespace tofu::ball
         if (_connection->GetState() == ServerConnection::State::InGame) 
         {
             InitGame();
+            if (auto system = _game.getServiceLocator()->Get<QuicControllerSystem>())
+            {
+                system->SetConnection(_connection->GetConnection());
+            }
             _game.start();
             _state = State::InGame;
         }

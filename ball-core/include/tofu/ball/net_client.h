@@ -49,6 +49,11 @@ namespace tofu::ball
             return _id;
         }
 
+        std::shared_ptr<net::QuicConnection> GetConnection() const
+        {
+            return _quic;
+        }
+
     private:
         std::shared_ptr<net::QuicConnection> _quic;
         PlayerID _id = -1;

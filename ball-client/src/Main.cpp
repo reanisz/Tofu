@@ -11,6 +11,7 @@
 #include "tofu/ball/actions.h"
 
 #include "tofu/ball/net_client.h"
+#include "tofu/ball/sync.h"
 
 #undef GetJob
 
@@ -70,6 +71,19 @@ namespace tofu::ball
 
             init_as_client(_game);
 
+            {
+                auto registry = _game.getRegistry();
+                auto service_locator = _game.getServiceLocator();
+
+                auto job_scheduler = service_locator->Get<JobScheduler>();
+                auto quic = service_locator->Register(std::make_unique<QuicControllerSystem>(service_locator, registry));
+
+                using namespace tofu::jobs;
+                using namespace tofu::ball::jobs;
+                job_scheduler->Register(make_job<ApplySyncObject>({ get_job_tag<StartFrame>() }, {}, quic));
+                job_scheduler->GetJob(get_job_tag<CheckStepable>())->AddDependency(get_job_tag<ApplySyncObject>());
+            }
+
             _game.initEnitites();
         }
 
@@ -116,7 +130,7 @@ namespace tofu::ball
 void Main()
 {
     Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
-    tofu::ball::run_as_standalone();
+    tofu::ball::run_as_client();
     return;
 }
 
