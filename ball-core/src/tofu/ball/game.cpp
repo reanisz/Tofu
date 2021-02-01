@@ -46,7 +46,7 @@ namespace tofu::ball
     void Game::initSystems()
     {
         // === Core ===
-        _serviceLocator.Register(std::make_unique<TickCounter>());
+        auto tick_counter = _serviceLocator.Register(std::make_unique<TickCounter>());
 
         // === Physics ===
         auto physics = _serviceLocator.Register(std::make_unique<Physics>(&_registry));
@@ -70,7 +70,8 @@ namespace tofu::ball
 
             job_scheduler->Register(make_job<StartFrame>({}, {}, update_system));
             job_scheduler->Register(make_job<CheckStepable>({ get_job_tag<StartFrame>() }, {}, sync_system));
-            job_scheduler->Register(make_job<ApplySyncBufferToActionQueue>({ get_job_tag<CheckStepable>() }, { get_condition_tag<IsStepable>() }, sync_system));
+            job_scheduler->Register(make_job<StepTick>({ get_job_tag<CheckStepable>() }, { get_condition_tag<IsStepable>() }, update_system));
+            job_scheduler->Register(make_job<ApplySyncBufferToActionQueue>({ get_job_tag<StepTick>() }, { get_condition_tag<IsStepable>() }, sync_system));
             job_scheduler->Register(make_job<StepAction>({ get_job_tag<ApplySyncBufferToActionQueue>() }, { get_condition_tag<IsStepable>() }, action_system));
             job_scheduler->Register(make_job<StepPhysics>({ get_job_tag<StepAction>() }, { get_condition_tag<IsStepable>() }, physics));
 

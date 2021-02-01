@@ -41,7 +41,7 @@ namespace tofu::net
 
         std::size_t _unreliableRecvBufferSize = 2 * 1024 * 1024;
 
-        std::chrono::microseconds _pingInterval = std::chrono::microseconds{ 10 * 1000 };
+        std::chrono::microseconds _pingInterval = std::chrono::microseconds{ 100 * 1000 };
     };
 
     class QuicConnection;
@@ -120,7 +120,7 @@ namespace tofu::net
         }
 
         // === Stream
-        std::shared_ptr<QuicStream> OpenStream(StreamId stream_id);
+        std::shared_ptr<QuicStream> OpenStream(StreamId stream_id, bool is_remote);
         std::shared_ptr<QuicStream> GetStream(StreamId stream_id);
 
         // === DATAGRAM

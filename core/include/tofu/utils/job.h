@@ -68,6 +68,11 @@ namespace tofu
             _dependency.push_back(tag);
         }
 
+        void AddCondition(condition_tag tag)
+        {
+            _conditions.push_back(tag);
+        }
+
         const std::vector<job_tag>& GetDependency() const noexcept
         {
             return _dependency;

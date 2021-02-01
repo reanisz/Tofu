@@ -12,6 +12,8 @@
 
 #include <tofu/ball/game.h>
 
+#undef SendMessage
+
 namespace tofu::ball
 {
     class Server;
@@ -30,8 +32,14 @@ namespace tofu::ball
         ClientConnection(observer_ptr<Server> server, const std::shared_ptr<net::QuicConnection>& quic, PlayerID player_id);
 
         void Update();
-
         void StartGame();
+
+        template<class T>
+        void SendAsControl(const T& msg)
+        {
+            SendMessage(_streamControlSend, msg);
+        }
+
     private:
         void UpdateWaitConnect();
         void UpdateWaitJoinRequest();
@@ -97,6 +105,8 @@ namespace tofu::ball
         {
             return _connections;
         }
+
+        void OnReceiveSyncObject(const message_client_control::SyncPlayerAction& message);
 
     private:
         void UpdateAtLobby();

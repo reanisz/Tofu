@@ -50,6 +50,12 @@ namespace tofu::net
 			return _buffer[0].HasAllPlayerData();
 		}
 
+		bool HasData(GameTick tick_after, std::size_t player_id) const noexcept
+		{
+			assert(tick_after < BufferSize);
+			return _buffer[*tick_after]._state[player_id];
+		}
+
 		const std::vector<std::optional<TSyncType>>& Top() const noexcept
 		{
 			return _buffer[0]._state;

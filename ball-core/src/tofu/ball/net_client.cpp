@@ -5,11 +5,10 @@
 
 namespace tofu::ball
 {
-    ServerConnection::ServerConnection(const std::shared_ptr<net::QuicConnection>& quic)
-        : _quic(quic)
+    ServerConnection::ServerConnection(observer_ptr<Client> client, const std::shared_ptr<net::QuicConnection>& quic)
+        : _client(client)
+        , _quic(quic)
     {
-        _streamControlSend = quic->OpenStream(ClientControlStreamId);
-        _streamControlRecv = quic->OpenStream(ServerControlStreamId);
     }
 
     void ServerConnection::Update()
@@ -25,6 +24,9 @@ namespace tofu::ball
         case State::Ready:
             UpdateReady();
             return;
+        case State::InGame:
+            UpdateIngame();
+            return;
         }
     }
 
@@ -32,6 +34,9 @@ namespace tofu::ball
     {
         if (!_quic->IsConnected())
             return;
+
+        _streamControlSend = _quic->OpenStream(ClientControlStreamId, false);
+        _streamControlRecv = _quic->OpenStream(ServerControlStreamId, true);
 
         message_client_control::RequestJoin msg;
         std::string user_name = "User";
@@ -76,6 +81,25 @@ namespace tofu::ball
         _state = State::InGame;
     }
 
+    void ServerConnection::UpdateIngame()
+    {
+        auto header = PeekHeader(_streamControlRecv);
+        if (!header)
+            return;
+        switch (header->_messageType)
+        {
+        case message_server_control::SyncPlayerAction::message_type:
+        {
+            auto [message, error] = ReadMessage<message_server_control::SyncPlayerAction>(_streamControlRecv);
+            if (message)
+            {
+                _client->OnReceiveSyncObject(*message);
+            }
+        }
+            break;
+        }
+    }
+
     void Client::Run()
     {
         net::QuicClientConfig config =
@@ -84,14 +108,12 @@ namespace tofu::ball
                 ._qlogDirectory = "./qlog/"
             },
             ._serverName = "127.0.0.1",
-            ._port = 8001,
+            ._port = 12345,
             ._alpn = Alpn,
         };
 
         _quic = std::make_unique<net::QuicClient>(config);
         _quic->Start();
-
-        _state = State::Lobby;
 
         // 接続が切れたらすぐ終了する
         _quic->SetCallbackOnClose(
@@ -101,7 +123,9 @@ namespace tofu::ball
             }
         );
 
-        _connection = std::make_shared<ServerConnection>(_quic->GetConnection());
+        _connection = std::make_shared<ServerConnection>(this, _quic->GetConnection());
+
+        _state = State::Lobby;
     }
     void Client::Stop()
     {
@@ -129,6 +153,7 @@ namespace tofu::ball
             if (auto system = _game.getServiceLocator()->Get<QuicControllerSystem>())
             {
                 system->SetConnection(_connection->GetConnection());
+                system->SetMyID(_connection->GetPlayerID());
             }
             _game.start();
             _state = State::InGame;
@@ -142,6 +167,11 @@ namespace tofu::ball
             _connection->Update();
             UpdateGame();
         }
+    }
+
+    void Client::OnReceiveSyncObject(const message_server_control::SyncPlayerAction& message)
+    {
+        _game.getServiceLocator()->Get<QuicControllerSystem>()->Receive(message);
     }
 
     void Client::InitGame()

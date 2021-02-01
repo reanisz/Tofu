@@ -8,8 +8,6 @@ namespace tofu::ball
         , _quic(quic)
         , _id(player_id)
     {
-        _streamControlSend = quic->OpenStream(ServerControlStreamId);
-        _streamControlRecv = quic->OpenStream(ClientControlStreamId);
     }
 
     void ClientConnection::Update()
@@ -45,9 +43,12 @@ namespace tofu::ball
 
 	void ClientConnection::UpdateWaitConnect()
 	{
-        if (_quic->IsConnected()) {
-            _state = State::WaitJoinRequest;
-        }
+        if (!_quic->IsConnected())
+            return;
+
+        _streamControlSend = _quic->OpenStream(ServerControlStreamId, false);
+        _streamControlRecv = _quic->OpenStream(ClientControlStreamId, true);
+        _state = State::WaitJoinRequest;
 	}
 
     void ClientConnection::UpdateWaitJoinRequest()
@@ -86,7 +87,11 @@ namespace tofu::ball
             auto [message, error] = ReadMessage<message_client_control::SyncPlayerAction>(_streamControlRecv);
             if (message)
             {
-                fmt::print("recved sync obj[{}]({}): {}\n", *message->_tick, *message->_player, message->_obj._action.index());
+                _server->OnReceiveSyncObject(*message);
+                static std::size_t total = 0;
+                total += sizeof(message);
+                auto rtt = picoquic_get_rtt(_quic->GetRaw());
+                fmt::print("recved sync obj[{}]({}): {} <{}> RTT:{} \n", *message->_tick, *message->_player, message->_obj._action.index(), total, rtt);
             }
         }
             break;
@@ -100,7 +105,7 @@ namespace tofu::ball
             ._config = {
                 ._qlogDirectory = "./qlog/"
             },
-            ._port = 8001,
+            ._port = 12345,
             ._certFile = { "./cert/_wildcard.reanisz.info+3.pem" },
             ._secretFile = { "./cert/_wildcard.reanisz.info+3-key.pem" },
             ._alpn = Alpn,
@@ -155,6 +160,23 @@ namespace tofu::ball
     void Server::Stop()
     {
         _end = true;
+    }
+    void Server::OnReceiveSyncObject(const message_client_control::SyncPlayerAction& message)
+    {
+        for (auto& connection : _connections)
+        {
+            if (connection->GetID() != message._player)
+            {
+                message_server_control::SyncPlayerAction send_msg =
+                {
+                    ._player = message._player,
+                    ._tick = message._tick,
+                    ._obj = message._obj,
+                };
+
+                connection->SendAsControl(send_msg);
+            }
+        }
     }
     void Server::UpdateAtLobby()
     {

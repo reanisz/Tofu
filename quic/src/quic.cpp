@@ -2,6 +2,9 @@
 #include "tofu/net/quic_client.h"
 #include "tofu/net/quic_server.h"
 
+// #define TOFU_QUIC_LOG(...) TOFU_QUIC_LOG(__VA_ARGS__)
+#define TOFU_QUIC_LOG(...)
+
 namespace tofu::net {
     QuicStream::QuicStream(observer_ptr<QuicConnection> connection, StreamId stream_id)
         : _connection(connection)
@@ -107,7 +110,7 @@ namespace tofu::net {
         , _config(server->GetConfig()._config)
         , _unreliableRecvBuffer(server->GetConfig()._config._unreliableRecvBufferSize)
     {
-        fmt::print("[QuicConnection] constructed as server.\n");
+        TOFU_QUIC_LOG("[QuicConnection] constructed as server.\n");
 
         Init();
     }
@@ -117,14 +120,14 @@ namespace tofu::net {
         , _config(client->GetConfig()._config)
         , _unreliableRecvBuffer(client->GetConfig()._config._unreliableRecvBufferSize)
     {
-        fmt::print("[QuicConnection] constructed as client.\n");
+        TOFU_QUIC_LOG("[QuicConnection] constructed as client.\n");
 
         Init();
     }
 
     QuicConnection::~QuicConnection()
     {
-        fmt::print("[QuicConnection] destructed.\n");\
+        TOFU_QUIC_LOG("[QuicConnection] destructed.\n");\
     }
 
     void QuicConnection::Init()
@@ -150,6 +153,7 @@ namespace tofu::net {
     void QuicConnection::Close()
     {
         if (_cnx) {
+            fmt::print("local_error: {}\nremote_error: {}\n", picoquic_get_local_error(_cnx), picoquic_get_remote_error(_cnx));
             picoquic_set_callback(_cnx, NULL, NULL);
         }
 
@@ -163,7 +167,7 @@ namespace tofu::net {
             _server->OnCloseConnection(shared_from_this());
     }
 
-    std::shared_ptr<QuicStream> QuicConnection::OpenStream(StreamId stream_id)
+    std::shared_ptr<QuicStream> QuicConnection::OpenStream(StreamId stream_id, bool is_remote)
     {
         std::lock_guard lock{ _streamMutex };
 
@@ -174,7 +178,9 @@ namespace tofu::net {
 
         auto ctx = std::make_shared<QuicStream>(this, stream_id);
 
-        picoquic_reset_stream(_cnx, *stream_id, 0);
+        if(!is_remote)
+            picoquic_reset_stream(_cnx, *stream_id, 0);
+
         picoquic_set_app_stream_ctx(_cnx, *stream_id, ctx.get());
 
         // auto ret = picoquic_mark_active_stream(_cnx, stream_id, true, ctx.get());
@@ -268,9 +274,14 @@ namespace tofu::net {
             if (fin_or_event == picoquic_callback_stream_fin)
                 stream_ctx->ArriveFinish();
             break;
+        case picoquic_callback_stream_reset:
+        {
+            assert(false);
+        }
+            break;
         case picoquic_callback_prepare_to_send:
             /* Active sending API */
-            fmt::print("[QuicConnection] prepare_to_send.\n");
+            // TOFU_QUIC_LOG("[QuicConnection] prepare_to_send.\n");
             assert(stream_ctx);
 
             return *stream_ctx->OnPrepareToSend(bytes, length);
@@ -301,16 +312,16 @@ namespace tofu::net {
             /* This callback is never used. */
             break;
         case picoquic_callback_almost_ready:
-            fmt::print("[QuicConnection] Connection to the server completed, almost ready.\n");
+            TOFU_QUIC_LOG("[QuicConnection] Connection to the server completed, almost ready.\n");
             break;
         case picoquic_callback_ready:
         {
-            fmt::print("[QuicConnection] Connection to the server confirmed.\n");
+            TOFU_QUIC_LOG("[QuicConnection] Connection to the server confirmed.\n");
             _isReady = true;
             break;
         }
         default:
-            fmt::print("[QuicConnection] unexpected event : {}\n", fin_or_event);
+            TOFU_QUIC_LOG("[QuicConnection] unexpected event : {}\n", fin_or_event);
             break;
         }
         return 0;

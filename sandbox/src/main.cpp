@@ -58,11 +58,15 @@ void sandbox_server(CommandlineArguments args)
     QuicServer quic{ config };
     quic.Start();
 
+    fmt::print("Server Started.\n");
+
     auto app = tofu::ScheduledUpdateThread{
         std::chrono::milliseconds{100},
         [&](const auto&)
         {
             quic.ForeachConnections([](tofu::net::QuicConnection& connection) {
+                connection.OpenStream(2, true);
+
                 std::byte buf[65536];
                 while (auto size = connection.ReadUnreliable(buf, sizeof(buf)))
                 {
@@ -129,6 +133,8 @@ void sandbox_client(CommandlineArguments args)
     fmt::print("\ndone.\n");
 
     std::shared_ptr<QuicStream> stream;
+    stream = connection->OpenStream(2, false);
+    stream->Send(reinterpret_cast<const std::byte*>("initinitinit"), 13);
 
     auto app = tofu::ScheduledUpdateThread{
         std::chrono::milliseconds{100},
@@ -154,7 +160,7 @@ void sandbox_client(CommandlineArguments args)
             break;
         if (line == "open")
         {
-            stream = connection->OpenStream(2);
+            stream = connection->OpenStream(2, false);
             continue;
         }
         if (line == "close")

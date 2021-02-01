@@ -84,6 +84,10 @@ namespace tofu::ball
 			tofu::ball::SendMessage(_sendStream, message);
 		}
 		
+		void SetMyID(PlayerID id)
+		{
+			_playerId = id;
+		}
 		PlayerID GetMyID() const noexcept
 		{
 			return _playerId;

@@ -14,6 +14,8 @@
 
 namespace tofu::ball
 {
+    class Client;
+
 	class ServerConnection
 	{
     public:
@@ -25,13 +27,14 @@ namespace tofu::ball
             InGame,
         };
 
-        ServerConnection(const std::shared_ptr<net::QuicConnection>& quic);
+        ServerConnection(observer_ptr<Client> client, const std::shared_ptr<net::QuicConnection>& quic);
 
         void Update();
     private:
         void UpdateWaitConnect();
         void UpdateWaitJoinApproval();
         void UpdateReady();
+        void UpdateIngame();
     public:
 
         State GetState() const noexcept
@@ -55,6 +58,7 @@ namespace tofu::ball
         }
 
     private:
+        observer_ptr<Client> _client;
         std::shared_ptr<net::QuicConnection> _quic;
         PlayerID _id = -1;
         std::string _name;
@@ -103,6 +107,8 @@ namespace tofu::ball
 
         void UpdateAtLobby();
         void UpdateIngame();
+
+        void OnReceiveSyncObject(const message_server_control::SyncPlayerAction& message);
 
     protected:
         virtual void InitGame();

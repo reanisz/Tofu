@@ -29,7 +29,7 @@ namespace tofu::ball
 
 	std::optional<MessageHeader> PeekHeader(const std::shared_ptr<net::QuicStream>& stream);
 
-	inline constexpr const int MaxPlayerNum = 1;
+	inline constexpr const int MaxPlayerNum = 2;
 	
 	template<class T> 
 	std::tuple<std::optional<T>, tofu::Error> ReadMessage(const std::shared_ptr<net::QuicStream>& stream)

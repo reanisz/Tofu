@@ -12,7 +12,7 @@ namespace tofu::ball
         auto entity = registry->create();
         registry->emplace<Transform>(entity, pos, 0.0f);
 
-        auto player = registry->emplace<Player>(entity);
+        auto& player = registry->emplace<Player>(entity);
         player._id = id;
 
         b2BodyDef body_def;

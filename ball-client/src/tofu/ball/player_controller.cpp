@@ -51,7 +51,7 @@ namespace tofu::ball
         {
             message_client_control::SyncPlayerAction message = {
                 ._player = *id,
-                ._tick = tick_after,
+                ._tick = tick_after + *clock->GetCurrent() - 1,
                 ._obj = sync,
             };
             net_system->Send(message);

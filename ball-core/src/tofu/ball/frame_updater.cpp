@@ -18,6 +18,10 @@ namespace tofu::ball
 
     void UpdateSystem::StartFrame()
     {
+    }
+
+    void UpdateSystem::StepTick()
+    {
         _serviceLocator->Get<TickCounter>()->Step();
 
         auto tick = _serviceLocator->Get<TickCounter>()->GetCurrent();

@@ -18,6 +18,7 @@ namespace tofu::ball
         void Start();
     
         void StartFrame();
+        void StepTick();
 
     private:
         void Step();
@@ -41,6 +42,22 @@ namespace tofu::ball
             void operator()() const
             {
                 _system->StartFrame();
+            }
+        private:
+            observer_ptr<UpdateSystem> _system;
+        };
+
+        class StepTick
+        {
+        public:
+            StepTick(observer_ptr<UpdateSystem> system)
+                : _system(system)
+            {
+            }
+
+            void operator()() const
+            {
+                _system->StepTick();
             }
         private:
             observer_ptr<UpdateSystem> _system;

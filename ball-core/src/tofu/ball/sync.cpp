@@ -10,7 +10,7 @@ namespace tofu::ball
     void QuicControllerSystem::SetConnection(const std::shared_ptr<tofu::net::QuicConnection>& quic)
     {
         _quic = quic;
-        _sendStream = quic->OpenStream(ClientControlStreamId);
+        _sendStream = quic->GetStream(ClientControlStreamId);
     }
     void QuicControllerSystem::Receive(const message_server_control::SyncPlayerAction& message)
     {
