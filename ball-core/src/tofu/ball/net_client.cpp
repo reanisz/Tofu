@@ -21,6 +21,9 @@ namespace tofu::ball
         case State::WaitJoinApproval:
             UpdateWaitJoinApproval();
             return;
+        case State::Ready:
+            UpdateReady();
+            return;
         }
     }
 
@@ -41,24 +44,35 @@ namespace tofu::ball
 
     void ServerConnection::UpdateWaitJoinApproval()
     {
-        auto header = PeekHeader(_streamControlRecv);
-        if (!header)
-            return;
+        auto [message, error] = ReadMessage<message_server_control::ApproveJoin>(_streamControlRecv);
 
-        if (header->_messageType != message_server_control::ApproveJoin::message_type)
+        if (error)
         {
-            _error = TOFU_MAKE_ERROR("Received invalid message. type=({})", header->_messageType);
+            _error = error;
             return;
         }
 
-        if (_streamControlRecv->ReceivedSize() < header->_messageType)
+        if (!message)
             return;
 
-        message_server_control::ApproveJoin message;
-        _streamControlRecv->Read(reinterpret_cast<std::byte*>(&message), sizeof(message));
-
-        _id = message._playerId;
+        _id = message->_playerId;
         _state = State::Ready;
+    }
+
+    void ServerConnection::UpdateReady()
+    {
+        auto [message, error] = ReadMessage<message_server_control::StartGame>(_streamControlRecv);
+
+        if (error)
+        {
+            _error = error;
+            return;
+        }
+
+        if (!message)
+            return;
+
+        _state = State::InGame;
     }
 
     void Client::Run()
@@ -87,21 +101,51 @@ namespace tofu::ball
         );
 
         _connection = std::make_shared<ServerConnection>(_quic->GetConnection());
-
-        while (!_end && _state == State::Lobby)
-        {
-            UpdateAtLobby();
-            std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
-        }
-
-        _quic->Exit();
     }
     void Client::Stop()
     {
         _end = true;
+        _state = State::Exit;
+    }
+    void Client::Exit()
+    {
+        if (_quic)
+        {
+            _connection = nullptr;
+            _quic->Exit();
+            _quic = nullptr;
+        }
     }
     void Client::UpdateAtLobby()
     {
-        _connection->Update();
+        if (!_end && _state == State::Lobby)
+        {
+            _connection->Update();
+        }
+        if (_connection->GetState() == ServerConnection::State::InGame) 
+        {
+            InitGame();
+            _game.start();
+            _state = State::InGame;
+        }
+    }
+
+    void Client::UpdateIngame()
+    {
+        if (!_end && _state == State::InGame)
+        {
+            _connection->Update();
+            UpdateGame();
+        }
+    }
+
+    void Client::InitGame()
+    {
+        _game.initBaseSystems();
+        _game.initEnitites();
+    }
+    void Client::UpdateGame()
+    {
+        _game.update();
     }
 }

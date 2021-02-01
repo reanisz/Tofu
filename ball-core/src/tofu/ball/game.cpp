@@ -9,6 +9,9 @@
 #include "tofu/ball/player.h"
 #include "tofu/ball/frame_updater.h"
 
+#include "tofu/ball/network.h"
+#include "tofu/ball/sync.h"
+
 namespace tofu::ball 
 {
     Game::Game()
@@ -54,17 +57,26 @@ namespace tofu::ball
         _serviceLocator.Register(std::make_unique<ActionQueue>());
         auto action_system = _serviceLocator.Register(std::make_unique<ActionSystem>(&_serviceLocator, &_registry));
 
+        // === Net ===
+        auto sync_system = _serviceLocator.Register(std::make_unique<CompletelySyncSystem>(&_serviceLocator, &_registry, MaxPlayerNum, ActionDelay));
+        // _serviceLocator.Register(std::make_unique<QuicControllerSystem>(&_serviceLocator, &_registry));
+
         // === Job ===
         auto job_scheduler = _serviceLocator.Register(std::make_unique<JobScheduler>());
         {
             using namespace jobs;
             using namespace tofu::jobs;
+            using namespace tofu::ball::jobs;
+            using namespace tofu::ball::job_conditions;
 
-            job_scheduler->Register(make_job<StartFrame>({}, update_system));
-            job_scheduler->Register(make_job<StepAction>({get_job_tag<StartFrame>()}, action_system));
-            job_scheduler->Register(make_job<StepPhysics>({get_job_tag<StepAction>()}, physics));
+            job_scheduler->Register(make_job<StartFrame>({}, {}, update_system));
+            job_scheduler->Register(make_job<CheckStepable>({ get_job_tag<StartFrame>() }, {}, sync_system));
+            job_scheduler->Register(make_job<ApplySyncBufferToActionQueue>({ get_job_tag<CheckStepable>() }, { get_condition_tag<IsStepable>() }, sync_system));
+            job_scheduler->Register(make_job<StepAction>({ get_job_tag<ApplySyncBufferToActionQueue>() }, { get_condition_tag<IsStepable>() }, action_system));
+            job_scheduler->Register(make_job<StepPhysics>({ get_job_tag<StepAction>() }, { get_condition_tag<IsStepable>() }, physics));
 
-            job_scheduler->Register(make_job<EndUpdate>({get_job_tag<StepAction>(), get_job_tag<StepPhysics>()}));
+            job_scheduler->Register(make_job<EndUpdate>({ get_job_tag<StepAction>(), get_job_tag<StepPhysics>() }, {}));
+            job_scheduler->Register(make_job<StepSyncBuffer>({ get_job_tag<EndUpdate>() }, { get_condition_tag<IsStepable>() }, sync_system));
         }
     }
     void Game::initStage()

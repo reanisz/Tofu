@@ -3,6 +3,71 @@
 
 namespace tofu::ball
 {
+    ClientConnection::ClientConnection(observer_ptr<Server> server, const std::shared_ptr<net::QuicConnection>& quic, PlayerID player_id)
+        : _server(server)
+        , _quic(quic)
+        , _id(player_id)
+    {
+        _streamControlSend = quic->OpenStream(ServerControlStreamId);
+        _streamControlRecv = quic->OpenStream(ClientControlStreamId);
+    }
+
+    void ClientConnection::Update()
+    {
+        switch (_state)
+        {
+        case State::WaitConnect:
+            UpdateWaitConnect();
+            return;
+        case State::WaitJoinRequest:
+            UpdateWaitJoinRequest();
+            return;
+        }
+    }
+
+    void ClientConnection::StartGame()
+    {
+        message_server_control::StartGame message;
+        message._playerNum = 0;
+        auto connections = _server->GetConnections();
+        for (int i = 0; i < MaxPlayerNum; i++) 
+        {
+            strncpy(message._members[i]._name, connections[i]->GetName().c_str(), sizeof(message._members[i]._name));
+            message._playerNum++;
+        }
+        SendMessage(_streamControlSend, message);
+    }
+
+	void ClientConnection::UpdateWaitConnect()
+	{
+        if (_quic->IsConnected())
+            _state = State::WaitJoinRequest;
+	}
+
+    void ClientConnection::UpdateWaitJoinRequest()
+    {
+        auto [message, error] = ReadMessage<message_client_control::RequestJoin>(_streamControlRecv);
+
+        if (error)
+        {
+            _error = error;
+            return;
+        }
+
+        if (!message)
+            return;
+
+        _name = message->_userName;
+
+        message_server_control::ApproveJoin approve;
+        approve._playerId = *_id;
+        _streamControlSend->Send(reinterpret_cast<std::byte*>(&approve), sizeof(approve));
+
+        fmt::print("Joined Client: {} ({})\n", _name, *_id);
+
+        _state = State::Ready;
+    }
+
     void Server::Run()
     {
         net::QuicServerConfig config =
@@ -32,7 +97,7 @@ namespace tofu::ball
         _quic->SetCallbackOnConnect(
             [this](const std::shared_ptr<net::QuicConnection>& connection)
             {
-                if (ClientMax <= _clientNum)
+                if (MaxPlayerNum <= _clientNum)
                 {
                     connection->Close();
                     return;
@@ -40,7 +105,7 @@ namespace tofu::ball
                 {
                     std::lock_guard lock{ _mutexConnection };
                     int id = _clientNum++;
-                    _connections[id] = std::make_shared<ClientConnection>(connection, id);
+                    _connections[id] = std::make_shared<ClientConnection>(this, connection, id);
                 }
             }
         );
@@ -49,6 +114,15 @@ namespace tofu::ball
         {
             UpdateAtLobby();
             std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
+        }
+
+        InitGame();
+        _game.start();
+
+        while (!_end && _state == State::InGame)
+        {
+            UpdateAtIngame();
+            std::this_thread::sleep_for(std::chrono::milliseconds{ 10 });
         }
 
         _quic->Exit();
@@ -69,68 +143,28 @@ namespace tofu::ball
             if (client->GetState() != ClientConnection::State::Ready)
                 ready = false;
         }
-        if (_clientNum < ClientMax)
+        if (_clientNum < MaxPlayerNum || !ready)
             return;
+
+        for (auto& client : _connections)
+        {
+            if (!client)
+                continue;
+            client->StartGame();
+        }
+
+        _state = State::InGame;
+    }
+
+    void Server::UpdateAtIngame()
+    {
+        _game.update();
     }
 
     void Server::InitGame()
     {
         _game.initBaseSystems();
         _game.initEnitites();
-    }
-
-    ClientConnection::ClientConnection(const std::shared_ptr<net::QuicConnection>& quic, PlayerID player_id)
-        : _quic(quic)
-        , _id(player_id)
-    {
-        _streamControlSend = quic->OpenStream(ServerControlStreamId);
-        _streamControlRecv = quic->OpenStream(ClientControlStreamId);
-    }
-
-    void ClientConnection::Update()
-    {
-        switch (_state)
-        {
-        case State::WaitConnect:
-            UpdateWaitConnect();
-            return;
-        case State::WaitJoinRequest:
-            UpdateWaitJoinRequest();
-            return;
-        }
-    }
-
-	void ClientConnection::UpdateWaitConnect()
-	{
-        if (_quic->IsConnected())
-            _state = State::WaitJoinRequest;
-	}
-
-    void ClientConnection::UpdateWaitJoinRequest()
-    {
-        auto header = PeekHeader(_streamControlRecv);
-        if (!header)
-            return;
-
-        if (header->_messageType != message_client_control::RequestJoin::message_type)
-        {
-            _error = TOFU_MAKE_ERROR("Received invalid message. type=({})", header->_messageType);
-            return;
-        }
-
-        if (_streamControlRecv->ReceivedSize() < header->_packetSize)
-            return;
-
-        message_client_control::RequestJoin message;
-        _streamControlRecv->Read(reinterpret_cast<std::byte*>(&message), sizeof(message));
-
-        _name = message._userName;
-
-        message_server_control::ApproveJoin approve;
-        approve._playerId = *_id;
-        _streamControlSend->Send(reinterpret_cast<std::byte*>(&approve), sizeof(approve));
-
-        _state = State::Ready;
     }
 }
 

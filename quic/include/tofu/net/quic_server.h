@@ -37,7 +37,7 @@ namespace tofu::net
                 std::lock_guard lock{ _mutexConnections };
                 connections = _connections;
             }
-            for (auto& cnx : _connections)
+            for (auto& cnx : connections)
             {
                 func(*cnx);
             }

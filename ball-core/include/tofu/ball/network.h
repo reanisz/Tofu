@@ -1,11 +1,21 @@
 #pragma once
 
+#include <type_traits>
 #include <optional>
 
 #include <tofu/net/quic.h>
+#undef SendMessage
+
+#include <tofu/ball/player.h>
+#include <tofu/ball/actions.h>
 
 namespace tofu::ball
 {
+	struct SyncObject
+	{
+        actions::Variant _action;
+	};
+
 	inline constexpr const char* Alpn = "tofu_ball";
 
 	using PacketSize = std::uint8_t;
@@ -18,6 +28,41 @@ namespace tofu::ball
 	};
 
 	std::optional<MessageHeader> PeekHeader(const std::shared_ptr<net::QuicStream>& stream);
+
+	inline constexpr const int MaxPlayerNum = 1;
+	
+	template<class T> 
+	std::tuple<std::optional<T>, tofu::Error> ReadMessage(const std::shared_ptr<net::QuicStream>& stream)
+	{
+		// シリアライズせずバイト列をそのまま通信してるので、トリビアルコピー可能な型でなければ安全に送受信できない
+		static_assert(std::is_trivially_copyable_v<T>);
+
+        auto header = PeekHeader(stream);
+        if (!header)
+			return { std::nullopt, std::nullopt };
+
+        if (header->_messageType != T::message_type)
+        {
+			return { std::nullopt, TOFU_MAKE_ERROR("Received invalid message. type=({})", header->_messageType) };
+        }
+
+        if (stream->ReceivedSize() < header->_packetSize)
+			return { std::nullopt, std::nullopt };
+
+        T message;
+        stream->Read(reinterpret_cast<std::byte*>(&message), sizeof(message));
+
+		return { message, std::nullopt };
+	}
+
+	template<class T> 
+	void SendMessage(const std::shared_ptr<net::QuicStream>& stream, const T& message)
+	{
+		// シリアライズせずバイト列をそのまま通信してるので、トリビアルコピー可能な型でなければ安全に送受信できない
+		static_assert(std::is_trivially_copyable_v<T>);
+		
+        stream->Send(reinterpret_cast<const std::byte*>(&message), sizeof(message));
+	}
 
 	// サーバーがクライアントに投げる操作メッセージ (Reliable)
 	inline constexpr net::StreamId ServerControlStreamId = 1;
@@ -60,8 +105,27 @@ namespace tofu::ball
 		struct StartGame
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x04;
+			struct MemberInfo
+			{
+				PlayerID::value_type _id;
+				char _name[30];
+			};
 
 			const MessageHeader _header = { sizeof(StartGame), message_type };
+
+			std::uint8_t _playerNum;
+			MemberInfo _members[MaxPlayerNum];
+		};
+
+		// プレイヤーアクション情報をクライアントに伝える
+		struct SyncPlayerAction
+		{
+			static constexpr MessageType message_type = MessageTypeBase | 0x05;
+			const MessageHeader _header = { sizeof(SyncPlayerAction), message_type };
+
+			PlayerID _player;
+			GameTick _tick;
+			SyncObject _obj;
 		};
 	}
 
@@ -82,6 +146,16 @@ namespace tofu::ball
 		// 32byteになってるか不安
 		static_assert(sizeof(RequestJoin) == 32);
 
+		// 自分のアクション情報をサーバーに伝える
+		struct SyncPlayerAction
+		{
+			static constexpr MessageType message_type = MessageTypeBase | 0x02;
+			const MessageHeader _header = { sizeof(SyncPlayerAction), message_type };
+
+			PlayerID _player;
+			GameTick _tick;
+			SyncObject _obj;
+		};
 
 	}
 

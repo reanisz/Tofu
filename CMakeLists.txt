@@ -86,6 +86,10 @@ else()
     list(APPEND QUIC_LIBS pthread)
 endif()
 
+## ====== entt
+
+add_compile_definitions(ENTT_USE_ATOMIC)
+
 ## ======
 
 add_subdirectory(libs/fmt)

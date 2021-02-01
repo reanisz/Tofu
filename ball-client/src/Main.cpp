@@ -21,29 +21,10 @@ void not_called_function()
 
 namespace tofu::ball
 {
-    void run_client()
+    void init_as_client(Game& game)
     {
-        Client client({});
-        client.Run();
-    }
-}
-
-void Main()
-{
-    Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
-    tofu::ball::run_client();
-    return;
-
-    tofu::ball::Game game;
-
-    game.initBaseSystems();
-
-    auto registry = game.getRegistry();
-    auto service_locator = game.getServiceLocator();
-
-    {
-        using namespace tofu;
-        using namespace tofu::ball;
+        auto registry = game.getRegistry();
+        auto service_locator = game.getServiceLocator();
 
         auto job_scheduler = service_locator->Get<JobScheduler>();
 
@@ -55,8 +36,8 @@ void Main()
             auto input_system = service_locator->Register(std::make_unique<InputSystem>());
             auto player_controller = service_locator->Register(std::make_unique<PlayerController>(service_locator, registry));
 
-            job_scheduler->Register(make_job<StepInput>({get_job_tag<StartFrame>()}, input_system));
-            job_scheduler->Register(make_job<ProcessPlayerControl>({get_job_tag<StepInput>()}, player_controller));
+            job_scheduler->Register(make_job<StepInput>({ get_job_tag<StartFrame>() }, {}, input_system));
+            job_scheduler->Register(make_job<ProcessPlayerControl>({ get_job_tag<StepInput>() }, {}, player_controller));
             job_scheduler->GetJob(get_job_tag<StepAction>())->AddDependency(get_job_tag<ProcessPlayerControl>());
         }
 
@@ -64,11 +45,9 @@ void Main()
         tofu::ball::RendererRegisterer::Attach(game);
     }
 
-    game.initEnitites();
-    game.start();
-
-    while (System::Update())
+    void update_as_client(Game& game)
     {
+        auto service_locator = game.getServiceLocator();
         service_locator->Get<tofu::ball::InputSystem>()->Update();
         game.update();
 
@@ -77,7 +56,67 @@ void Main()
         if (service_locator->Get<tofu::S3DRenderSystem>()->HasData()) {
             service_locator->Get<tofu::S3DRenderSystem>()->Render();
         }
-
     }
+
+    class Siv3DClient : public Client
+    {
+    public:
+        using Client::Client;
+    protected:
+
+        virtual void InitGame() override
+        {
+            _game.initBaseSystems();
+
+            init_as_client(_game);
+
+            _game.initEnitites();
+        }
+
+        virtual void UpdateGame() override
+        {
+            update_as_client(_game);
+        }
+    };
+
+    void run_as_client()
+    {
+        Siv3DClient client(Siv3DClient::Config{});
+        client.Run();
+
+        while (client.GetState() == Client::State::Lobby && System::Update())
+        {
+            client.UpdateAtLobby();
+        }
+
+        while (client.GetState() == Client::State::InGame && System::Update())
+        {
+            client.UpdateIngame();
+        }
+    }
+
+    void run_as_standalone()
+    {
+        Game _game;
+        _game.initBaseSystems();
+
+        init_as_client(_game);
+
+        _game.initEnitites();
+
+        _game.start();
+
+        while (System::Update())
+        {
+            update_as_client(_game);
+        }
+    }
+}
+
+void Main()
+{
+    Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
+    tofu::ball::run_as_standalone();
+    return;
 }
 

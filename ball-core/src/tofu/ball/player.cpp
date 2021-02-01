@@ -32,4 +32,14 @@ namespace tofu::ball
         return { entity, player };
     }
 
+    std::optional<std::tuple<entt::entity, Player&>> Player::Find(observer_ptr<entt::registry> registry, PlayerID id)
+    {
+        for (auto&& [entity, player] : registry->view<Player>().proxy())
+        {
+            if (player._id == id)
+                return std::tuple<entt::entity, Player&>{ entity, player };
+        }
+        return std::nullopt;
+    }
+
 }

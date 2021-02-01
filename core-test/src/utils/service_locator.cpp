@@ -11,5 +11,6 @@ TEST(Util_ServiceLocator, RegisterしてGetできる)
     
     EXPECT_EQ(10, *sl.Get<int>());
     EXPECT_EQ(std::string{"hoge"}, *sl.Get<std::string>());
+    EXPECT_EQ(nullptr, sl.Get<float>());
 }
 

@@ -22,7 +22,14 @@ namespace tofu {
         template<class T>
         observer_ptr<T> Get() const
         {
-            return reinterpret_cast<T*>(_container.at(get_id<T>()).get());
+            if (auto it = _container.find(get_id<T>()); it != _container.end())
+            {
+                return reinterpret_cast<T*>(it->second.get());
+            }
+            else
+            {
+                return nullptr;
+            }
         }
 
         void clear() {

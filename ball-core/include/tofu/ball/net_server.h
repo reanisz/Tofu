@@ -14,6 +14,8 @@
 
 namespace tofu::ball
 {
+    class Server;
+
     class ClientConnection
     {
     public:
@@ -24,9 +26,11 @@ namespace tofu::ball
             Ready,
         };
 
-        ClientConnection(const std::shared_ptr<net::QuicConnection>& quic, PlayerID player_id);
+        ClientConnection(observer_ptr<Server> server, const std::shared_ptr<net::QuicConnection>& quic, PlayerID player_id);
 
         void Update();
+
+        void StartGame();
     private:
         void UpdateWaitConnect();
         void UpdateWaitJoinRequest();
@@ -41,8 +45,21 @@ namespace tofu::ball
         {
             return _error;
         }
+
+        PlayerID GetID() const noexcept
+        {
+            return _id;
+        }
+
+        const std::string& GetName() const noexcept
+        {
+            return _name;
+        }
+
     private:
         std::shared_ptr<net::QuicConnection> _quic;
+        observer_ptr<Server> _server;
+
         PlayerID _id;
         std::string _name;
 
@@ -67,13 +84,24 @@ namespace tofu::ball
         {
         }
 
+        virtual ~Server()
+        {
+        }
+
         void Run();
         void Stop();
 
+        const std::array<std::shared_ptr<ClientConnection>, MaxPlayerNum> GetConnections() const noexcept
+        {
+            return _connections;
+        }
+
     private:
         void UpdateAtLobby();
+        void UpdateAtIngame();
 
-        void InitGame();
+    protected:
+        virtual void InitGame();
 
     private:
         std::unique_ptr<net::QuicServer> _quic;
@@ -82,8 +110,7 @@ namespace tofu::ball
         State _state = State::Init;
         std::atomic<int> _clientNum = 0;
 
-        static constexpr int ClientMax = 2;
-        std::array<std::shared_ptr<ClientConnection>, ClientMax> _connections;
+        std::array<std::shared_ptr<ClientConnection>, MaxPlayerNum> _connections;
         std::mutex _mutexConnection;
 
         Game _game;

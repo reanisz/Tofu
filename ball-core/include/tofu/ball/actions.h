@@ -16,8 +16,13 @@
 
 namespace tofu::ball
 {
+    inline constexpr std::uint32_t ActionDelay = 4;
+
     namespace actions 
     {
+        struct Null
+        {
+        };
         struct Move
         {
             tVec2 _target;
@@ -26,7 +31,7 @@ namespace tofu::ball
         {
             tVec2 _target;
         };
-        using Variant = std::variant<Move, Dash>;
+        using Variant = std::variant<Null, Move, Dash>;
     }
 
     struct ActionCommand 
@@ -97,6 +102,9 @@ namespace tofu::ball
         void Step();
 
     private:
+        void apply(entt::entity entity, const actions::Null& action) const noexcept
+        {
+        }
         void apply(entt::entity entity, const actions::Move& action);
         void apply(entt::entity entity, const actions::Dash& action);
 
@@ -123,5 +131,5 @@ namespace tofu::ball
             observer_ptr<ActionSystem> _system;
         };
     }
-
 }
+

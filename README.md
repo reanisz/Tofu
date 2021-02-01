@@ -1,7 +1,12 @@
 Tofu
 ===
-バスケットボールをモチーフにした、ネットワークマルチプレイアクションゲームです。
+バスケットボールをモチーフにしたネットワークマルチプレイアクションゲームの小規模な実装です。
 <ここにGIF動画を貼る>
+
+## 実装の目的
+- QUICをネットワークゲームの通信に使ってみる
+- ネットワークゲームの同期システムを自分で書いてみる
+- C++20でアプリケーションを書いてみる
 
 ## ディレクトリ構成
 - ball-client: バスケットボールゲーム(以下ball game)の入力・レンダラ及びクライアントアプリケーション本体が記述されています
@@ -23,7 +28,6 @@ Tofu
 - CMake >= 3.16
 - g++ >= 10.2.0
 
-
 ## Build
 ### Windows
 1. patchを当てる (TODO:作る)
@@ -38,5 +42,9 @@ Tofu
 2. Tofu/libs/picotls/CMakeLists.txt をpicotlsのREADME.mdを参考にビルドする
 3. Tofu/libs/picoquic/CMakeLists.txt をpicoquicのREADME.mdを参考にビルドする
 4. Tofu/build.sh を叩く
+
+## 今後の課題
+- std::mutexだと大振りすぎる部分をspinlockに置き換える
+- 非完全同期方式の採用
 
 

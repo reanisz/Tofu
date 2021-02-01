@@ -65,12 +65,12 @@ namespace tofu::ball
             using namespace tofu::ball::jobs;
 
             auto job_scheduler = service_locator->Get<JobScheduler>();
-            job_scheduler->Register(make_job<S3DStartRender>({ get_job_tag<EndUpdate>() }, renderer));
+            job_scheduler->Register(make_job<S3DStartRender>({ get_job_tag<EndUpdate>() }, {}, renderer));
 
-            job_scheduler->Register(make_job<RenderBox2DPrimitives>({ get_job_tag<S3DStartRender>() }, box2d_primitive_renderer));
-            job_scheduler->Register(make_job<RenderMousePosition>({ get_job_tag<S3DStartRender>() }, service_locator->Get<InputSystem>(), renderer));
+            job_scheduler->Register(make_job<RenderBox2DPrimitives>({ get_job_tag<S3DStartRender>() }, {}, box2d_primitive_renderer));
+            job_scheduler->Register(make_job<RenderMousePosition>({ get_job_tag<S3DStartRender>() }, {}, service_locator->Get<InputSystem>(), renderer));
 
-            job_scheduler->Register(make_job<S3DEndRender>({ get_job_tag<RenderBox2DPrimitives>(), get_job_tag<RenderMousePosition>() }, renderer));
+            job_scheduler->Register(make_job<S3DEndRender>({ get_job_tag<RenderBox2DPrimitives>(), get_job_tag<RenderMousePosition>() }, {}, renderer));
         }
     }
 }

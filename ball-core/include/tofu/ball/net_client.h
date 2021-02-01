@@ -22,6 +22,7 @@ namespace tofu::ball
             WaitConnect,
             WaitJoinApproval,
             Ready,
+            InGame,
         };
 
         ServerConnection(const std::shared_ptr<net::QuicConnection>& quic);
@@ -30,6 +31,7 @@ namespace tofu::ball
     private:
         void UpdateWaitConnect();
         void UpdateWaitJoinApproval();
+        void UpdateReady();
     public:
 
         State GetState() const noexcept
@@ -78,14 +80,30 @@ namespace tofu::ball
 			: _config(config)
 		{
 		}
+
+        ~Client()
+        {
+            Exit();
+        }
         
         void Run();
         void Stop();
 
-    private:
-        void UpdateAtLobby();
+        void Exit();
 
-	private:
+        State GetState() const noexcept
+        {
+            return _state;
+        }
+
+        void UpdateAtLobby();
+        void UpdateIngame();
+
+    protected:
+        virtual void InitGame();
+        virtual void UpdateGame();
+
+    protected:
 		Config _config;
 
 		std::unique_ptr<net::QuicClient> _quic;
