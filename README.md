@@ -44,8 +44,9 @@ Tofu
 3. Tofu/libs/picoquic/CMakeLists.txt をpicoquicのREADME.mdを参考にビルドする
 4. Tofu/build.sh を叩く
 
-## 今後の課題
+## 課題
 - std::mutexだと大振りすぎる部分をspinlockに置き換える
-- 非完全同期方式の採用
+- 短時間にパケットを投げすぎなのでまとめる
+- 非完全同期方式の実装
 
 
