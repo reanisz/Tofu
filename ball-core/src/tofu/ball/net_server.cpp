@@ -103,7 +103,8 @@ namespace tofu::ball
         net::QuicServerConfig config =
         {
             ._config = {
-                ._qlogDirectory = "./qlog/"
+                ._qlogDirectory = "./qlog/",
+                ._pingInterval = std::chrono::milliseconds{10}
             },
             ._port = 12345,
             ._certFile = { "./cert/_wildcard.reanisz.info+3.pem" },

@@ -1,5 +1,5 @@
 diff --git a/PerfAndStressTest/PerfAndStressTest.vcxproj b/PerfAndStressTest/PerfAndStressTest.vcxproj
-index adcafe96..3be6ed59 100644
+index adcafe96..eac54497 100644
 --- a/PerfAndStressTest/PerfAndStressTest.vcxproj
 +++ b/PerfAndStressTest/PerfAndStressTest.vcxproj
 @@ -1,168 +1,170 @@
@@ -195,21 +195,21 @@ index adcafe96..3be6ed59 100644
 +    <ProjectGuid>{436B580F-B0E8-4EB8-A987-08218D863316}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>PerfAndStressTest</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +    <ProjectSubType>NativeUnitTestProject</ProjectSubType>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
@@ -217,14 +217,14 @@ index adcafe96..3be6ed59 100644
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
@@ -342,7 +342,7 @@ index adcafe96..3be6ed59 100644
  </Project>
 \ No newline at end of file
 diff --git a/UnitTest1/UnitTest1.vcxproj b/UnitTest1/UnitTest1.vcxproj
-index eb88a340..44b803b2 100644
+index eb88a340..c8bd8a28 100644
 --- a/UnitTest1/UnitTest1.vcxproj
 +++ b/UnitTest1/UnitTest1.vcxproj
 @@ -1,175 +1,177 @@
@@ -545,21 +545,21 @@ index eb88a340..44b803b2 100644
 +    <ProjectGuid>{454244B2-B174-41B4-B7AC-41962FE95941}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>UnitTest1</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +    <ProjectSubType>NativeUnitTestProject</ProjectSubType>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
@@ -567,14 +567,14 @@ index eb88a340..44b803b2 100644
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +    <UseOfMfc>false</UseOfMfc>
@@ -699,7 +699,7 @@ index eb88a340..44b803b2 100644
  </Project>
 \ No newline at end of file
 diff --git a/loglib/loglib.vcxproj b/loglib/loglib.vcxproj
-index 08672ac4..ec53194a 100644
+index 08672ac4..a2b6a41a 100644
 --- a/loglib/loglib.vcxproj
 +++ b/loglib/loglib.vcxproj
 @@ -1,160 +1,162 @@
@@ -887,32 +887,32 @@ index 08672ac4..ec53194a 100644
 +    <ProjectGuid>{998765ee-64df-49c1-8471-a79e2da7cd21}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>loglib</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -1026,7 +1026,7 @@ index 08672ac4..ec53194a 100644
  </Project>
 \ No newline at end of file
 diff --git a/picohttp/picohttp.vcxproj b/picohttp/picohttp.vcxproj
-index ebb98834..399a71b3 100644
+index ebb98834..f2bfc146 100644
 --- a/picohttp/picohttp.vcxproj
 +++ b/picohttp/picohttp.vcxproj
 @@ -1,155 +1,157 @@
@@ -1209,32 +1209,32 @@ index ebb98834..399a71b3 100644
 +    <ProjectGuid>{c8f3740e-56fb-4be7-9d8c-30a954846146}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>picoquic</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -1343,7 +1343,7 @@ index ebb98834..399a71b3 100644
  </Project>
 \ No newline at end of file
 diff --git a/picohttp_t/picohttp_t.vcxproj b/picohttp_t/picohttp_t.vcxproj
-index 8627634c..3c87ddfd 100644
+index 8627634c..873eb98b 100644
 --- a/picohttp_t/picohttp_t.vcxproj
 +++ b/picohttp_t/picohttp_t.vcxproj
 @@ -1,164 +1,166 @@
@@ -1535,32 +1535,32 @@ index 8627634c..3c87ddfd 100644
 +    <ProjectGuid>{c9138a46-c3d0-491b-bacf-c7c65592d1f7}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>picoquic_t</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -1678,7 +1678,7 @@ index 8627634c..3c87ddfd 100644
  </Project>
 \ No newline at end of file
 diff --git a/picolog/picolog.vcxproj b/picolog/picolog.vcxproj
-index 50bcb061..f5804e5e 100644
+index 50bcb061..e84576bc 100644
 --- a/picolog/picolog.vcxproj
 +++ b/picolog/picolog.vcxproj
 @@ -1,176 +1,178 @@
@@ -1882,32 +1882,32 @@ index 50bcb061..f5804e5e 100644
 +    <ProjectGuid>{b3ddd196-3d03-4396-97bd-e5de733e9d24}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>picolog</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -2037,7 +2037,7 @@ index 50bcb061..f5804e5e 100644
  </Project>
 \ No newline at end of file
 diff --git a/picoquic/picoquic.vcxproj b/picoquic/picoquic.vcxproj
-index 0a73b58d..68f28a65 100644
+index 0a73b58d..7ed8f755 100644
 --- a/picoquic/picoquic.vcxproj
 +++ b/picoquic/picoquic.vcxproj
 @@ -1,201 +1,203 @@
@@ -2266,32 +2266,32 @@ index 0a73b58d..68f28a65 100644
 +    <ProjectGuid>{63E1E6B7-DB5F-4EDC-8AC8-7E9F5990D11F}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>picoquic</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -2458,7 +2458,7 @@ index 2b025acd..36529ae5 100644
      picoquic_recvmsg_async_ctx_t* sock_ctx[PICOQUIC_PACKET_LOOP_SOCKETS_MAX];
      int sock_af[PICOQUIC_PACKET_LOOP_SOCKETS_MAX];
 diff --git a/picoquic_t/picoquic_t.vcxproj b/picoquic_t/picoquic_t.vcxproj
-index f7966d40..f67f6978 100644
+index f7966d40..2fbc3585 100644
 --- a/picoquic_t/picoquic_t.vcxproj
 +++ b/picoquic_t/picoquic_t.vcxproj
 @@ -1,170 +1,172 @@
@@ -2656,32 +2656,32 @@ index f7966d40..f67f6978 100644
 +    <ProjectGuid>{4898D6E0-6FC5-4375-99F5-4C69BB20CE94}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>picoquic_t</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -2805,7 +2805,7 @@ index f7966d40..f67f6978 100644
  </Project>
 \ No newline at end of file
 diff --git a/picoquicfirst/picoquicfirst.vcxproj b/picoquicfirst/picoquicfirst.vcxproj
-index 9782cf3e..6c9329ab 100644
+index 9782cf3e..38e547eb 100644
 --- a/picoquicfirst/picoquicfirst.vcxproj
 +++ b/picoquicfirst/picoquicfirst.vcxproj
 @@ -1,170 +1,172 @@
@@ -3003,33 +3003,33 @@ index 9782cf3e..6c9329ab 100644
 +    <ProjectGuid>{995745F2-E8BA-48C1-AF6D-BA554B869D47}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>picoquicfirst</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +    <ProjectName>picoquicdemo</ProjectName>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -3152,7 +3152,7 @@ index 9782cf3e..6c9329ab 100644
  </Project>
 \ No newline at end of file
 diff --git a/picoquictest/picoquictest.vcxproj b/picoquictest/picoquictest.vcxproj
-index 4c48a812..4d468699 100644
+index 4c48a812..bda150bf 100644
 --- a/picoquictest/picoquictest.vcxproj
 +++ b/picoquictest/picoquictest.vcxproj
 @@ -1,182 +1,184 @@
@@ -3362,32 +3362,32 @@ index 4c48a812..4d468699 100644
 +    <ProjectGuid>{B04168BD-4D56-4DE9-B1E3-CF4C16FE21C7}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>picoquictest</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -3523,7 +3523,7 @@ index 4c48a812..4d468699 100644
  </Project>
 \ No newline at end of file
 diff --git a/quicwind/quicwind.vcxproj b/quicwind/quicwind.vcxproj
-index 10045903..011cabd9 100644
+index 10045903..952812b2 100644
 --- a/quicwind/quicwind.vcxproj
 +++ b/quicwind/quicwind.vcxproj
 @@ -1,184 +1,186 @@
@@ -3735,32 +3735,32 @@ index 10045903..011cabd9 100644
 +    <ProjectGuid>{7C931959-3DBA-4440-A215-B085036F3EE1}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>quicwind</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
@@ -3898,7 +3898,7 @@ index 10045903..011cabd9 100644
  </Project>
 \ No newline at end of file
 diff --git a/sample/sample.vcxproj b/sample/sample.vcxproj
-index 8ac29d23..64e18f62 100644
+index 8ac29d23..48898a86 100644
 --- a/sample/sample.vcxproj
 +++ b/sample/sample.vcxproj
 @@ -1,177 +1,179 @@
@@ -4103,32 +4103,32 @@ index 8ac29d23..64e18f62 100644
 +    <ProjectGuid>{F395E460-C042-4FA9-B00D-6EC14856182D}</ProjectGuid>
 +    <Keyword>Win32Proj</Keyword>
 +    <RootNamespace>sample</RootNamespace>
-+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
 +  </PropertyGroup>
 +  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>true</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>
 +  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
 +    <ConfigurationType>Application</ConfigurationType>
 +    <UseDebugLibraries>false</UseDebugLibraries>
-+    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
 +    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <CharacterSet>Unicode</CharacterSet>
 +  </PropertyGroup>

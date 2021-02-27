@@ -258,6 +258,9 @@
     <ProjectReference Include="..\build-win\libs\fmt\fmt.vcxproj">
       <Project>{a82c0593-3fac-352c-acab-cab0b6093f4a}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\build-win\quic\tofu_quic.vcxproj">
+      <Project>{74d36ff5-8d57-3f4f-be96-505d5d4947a2}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\libs-build\box2d-win\src\box2d.vcxproj">
       <Project>{4db25ba3-0d7a-3c36-9a11-9db274c13bd8}</Project>
     </ProjectReference>
