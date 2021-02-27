@@ -14,13 +14,13 @@ namespace tofu::ball
 	// シリアライズせずバイト列をそのまま通信してるので、トリビアルコピー可能な型でなければ安全に送受信できない
 	static_assert(std::is_trivially_copyable_v<SyncObject>);
 
-	inline constexpr std::uint32_t SyncWindowSize = 16;
+	inline constexpr std::uint32_t SyncBufferSize = 8;
 
-	class CompletelySyncSystem : public tofu::net::CompletelySyncSystem<SyncObject, SyncWindowSize>
+	class CompletelySyncSystem : public tofu::net::CompletelySyncSystem<SyncObject, SyncBufferSize>
 	{
 	public:
 		CompletelySyncSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, std::size_t player_num, std::uint32_t default_delay)
-			: tofu::net::CompletelySyncSystem<SyncObject, SyncWindowSize>(player_num, default_delay)
+			: tofu::net::CompletelySyncSystem<SyncObject, SyncBufferSize>(player_num, default_delay)
 			, _serviceLocator(service_locator)
 			, _registry(registry)
 		{
@@ -71,7 +71,7 @@ namespace tofu::ball
 
 			PlayerID _player;
 			GameTick _tick;
-			SyncObject _obj;
+			std::array<SyncObject, SyncWindowSize> _obj;
 		};
 	public:
         QuicControllerSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry);

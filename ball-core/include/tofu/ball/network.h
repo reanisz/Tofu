@@ -30,6 +30,7 @@ namespace tofu::ball
 	std::optional<MessageHeader> PeekHeader(const std::shared_ptr<net::QuicStream>& stream);
 
 	inline constexpr const int MaxPlayerNum = 2;
+	inline constexpr const int SyncWindowSize = 2;
 	
 	template<class T> 
 	std::tuple<std::optional<T>, tofu::Error> ReadMessage(const std::shared_ptr<net::QuicStream>& stream)
@@ -125,7 +126,7 @@ namespace tofu::ball
 
 			PlayerID _player;
 			GameTick _tick;
-			SyncObject _obj;
+			std::array<SyncObject, SyncWindowSize> _obj;
 		};
 	}
 
@@ -154,7 +155,7 @@ namespace tofu::ball
 
 			PlayerID _player;
 			GameTick _tick;
-			SyncObject _obj;
+			std::array<SyncObject, SyncWindowSize> _obj;
 		};
 
 	}

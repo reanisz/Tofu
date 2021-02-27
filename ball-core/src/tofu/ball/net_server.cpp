@@ -91,7 +91,7 @@ namespace tofu::ball
                 static std::size_t total = 0;
                 total += sizeof(message);
                 auto rtt = picoquic_get_rtt(_quic->GetRaw());
-                fmt::print("recved sync obj[{}]({}): {} <{}> RTT:{} \n", *message->_tick, *message->_player, message->_obj._action.index(), total, rtt);
+                fmt::print("recved sync obj[{}]({}): {}, {} <{}> RTT:{} \n", *message->_tick, *message->_player, message->_obj[0]._action.index(), message->_obj[1]._action.index(), total, rtt);
             }
         }
             break;

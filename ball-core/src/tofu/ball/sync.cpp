@@ -31,7 +31,10 @@ namespace tofu::ball
         for (auto& obj : _syncObjectBuffer) 
         {
             auto tick_after = obj._tick - current_tick;
-            sync->SetData(*(obj._player), tick_after, obj._obj);
+            for (std::uint32_t i = 0; i < SyncWindowSize; i++)
+            {
+                sync->SetData(*(obj._player), tick_after + GameTick{ i }, obj._obj[i]);
+            }
         }
         _syncObjectBuffer.clear();
     }

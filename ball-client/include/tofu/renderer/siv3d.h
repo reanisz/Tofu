@@ -82,16 +82,16 @@ namespace tofu
         std::variant<
               render_command::S3DShapeFill<Circle>
             , render_command::S3DShapeFrame<Circle>
-            , render_command::S3DShapeFill<Polygon>
-            , render_command::S3DShapeFrame<Polygon>
+            , render_command::S3DShapeFill<s3d::Polygon>
+            , render_command::S3DShapeFrame<s3d::Polygon>
             , render_command::S3DShapeFill<Line>
         >;
 
     class S3DRenderer
         : public renderer::S3DShapeFill<Circle>
         , public renderer::S3DShapeFrame<Circle>
-        , public renderer::S3DShapeFill<Polygon>
-        , public renderer::S3DShapeFrame<Polygon>
+        , public renderer::S3DShapeFill<s3d::Polygon>
+        , public renderer::S3DShapeFrame<s3d::Polygon>
         , public renderer::S3DShapeFill<Line>
     {
     };

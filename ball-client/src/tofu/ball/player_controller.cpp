@@ -19,42 +19,55 @@ namespace tofu::ball
 
     void PlayerController::Step()
     {
-        auto& input = _serviceLocator->Get<InputSystem>()->GetCurrent();
-
-        SyncObject sync;
         auto clock = _serviceLocator->Get<TickCounter>();
         auto tick_after = ActionDelay;
-
-        for (auto&& [entity, player] : _registry->view<Player>().proxy()) 
         {
-            auto queue = _serviceLocator->Get<ActionQueue>();
-            auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
-            auto target = (1 / scale) * input._cursor.get();
-            if (input._leftClick.is_down()) {
-                sync._action = actions::Dash{ target };
+            auto& input = _serviceLocator->Get<InputSystem>()->GetCurrent();
+
+            SyncObject sync;
+
+            for (auto&& [entity, player] : _registry->view<Player>().proxy())
+            {
+                auto queue = _serviceLocator->Get<ActionQueue>();
+                auto scale = _serviceLocator->Get<Box2DPrimitiveRenderSystem>()->GetScale();
+                auto target = (1 / scale) * input._cursor.get();
+                if (input._leftClick.is_down()) {
+                    sync._action = actions::Dash{ target };
+                }
+                if (input._rightClick.is_pressed()) {
+                    sync._action = actions::Move{ target };
+                }
             }
-            if (input._rightClick.is_pressed()) {
-                sync._action = actions::Move{ target };
-            }
+
+            _syncBuffer[_objCount++] = sync;
         }
 
-        PlayerID id = 0;
-        auto net_system = _serviceLocator->Get<QuicControllerSystem>();
-        if (net_system)
-        {
-            id = net_system->GetMyID();
-        }
-        auto sync_system = _serviceLocator->Get<CompletelySyncSystem>();
+        if (_objCount < SyncWindowSize)
+            return;
 
-        sync_system->SetData(*id, tick_after, sync);
-        if (net_system)
         {
-            message_client_control::SyncPlayerAction message = {
-                ._player = *id,
-                ._tick = tick_after + *clock->GetCurrent() - 1,
-                ._obj = sync,
-            };
-            net_system->Send(message);
+            PlayerID id = 0;
+            auto net_system = _serviceLocator->Get<QuicControllerSystem>();
+            if (net_system)
+            {
+                id = net_system->GetMyID();
+            }
+            auto sync_system = _serviceLocator->Get<CompletelySyncSystem>();
+
+            for (int i = 0; i < SyncWindowSize; i++)
+            {
+                sync_system->SetData(*id, tick_after - SyncWindowSize + 1 + i, _syncBuffer[i]);
+            }
+            if (net_system)
+            {
+                message_client_control::SyncPlayerAction message = {
+                    ._player = *id,
+                    ._tick = tick_after + *clock->GetCurrent() - SyncWindowSize,
+                    ._obj = _syncBuffer,
+                };
+                net_system->Send(message);
+            }
+            _objCount = 0;
         }
         
     }

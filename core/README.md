@@ -24,6 +24,9 @@ tofu.core
 ### tofu/ecs/physics.h / cpp
 box2dを使った物理シュミレーションを管理するクラスなどが実装されています。
 
+### tofu/net/completely_sync.h
+完全同期のために各プレイヤーのデータを貯めて揃えるコンテナ実装です。
+
 ### tofu/utils/circular_queue_allocator.h
 循環バッファー3種が実装されています。
 #### CircularBufferAllocator
@@ -36,7 +39,7 @@ CircularBufferAllocatorをキュー的に利用するためのクラスです。
 ### tofu/utils/error.h
 実行時エラーを便利に表現するためのクラスです。
 ### tofu/utils/job.h
-簡易ジョブシステムです。
+超簡易な、依存関係を解決するシングルスレッドジョブスケジューラです。
 ### tofu/utils/observer_ptr.h
 所有権を得ないポインタです。将来のC++に提案されているライブラリの部分的な実装です。
 ### tofu/utils/scheduled_update_thread.h

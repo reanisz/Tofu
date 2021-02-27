@@ -7,8 +7,7 @@
 #include <set>
 #include <cassert>
 
-// 超簡易的な依存関係を解決するシングルスレッドジョブスケジューラ
-
+// 超簡易な、依存関係を解決するシングルスレッドジョブスケジューラ
 namespace tofu
 {
     using job_tag = std::type_index;

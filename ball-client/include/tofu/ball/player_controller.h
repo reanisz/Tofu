@@ -3,6 +3,8 @@
 #include <entt/entt.hpp>
 #include <tofu/utils.h>
 
+#include <tofu/ball/network.h>
+
 namespace tofu::ball
 {
     class PlayerController
@@ -13,6 +15,9 @@ namespace tofu::ball
     private:
         observer_ptr<ServiceLocator> _serviceLocator;
         observer_ptr<entt::registry> _registry;
+
+        std::array<SyncObject, SyncWindowSize> _syncBuffer;
+        int _objCount = 0;
     };
 
     namespace jobs

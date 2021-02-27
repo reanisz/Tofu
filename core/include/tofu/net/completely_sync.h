@@ -33,6 +33,7 @@ namespace tofu::net
 		};
 
 	public:
+		// default_delay: “ü—Í‚Ì’x‰„ƒtƒŒ[ƒ€
 		CompletelySyncSystem(std::size_t player_num, std::uint32_t default_delay)
 			: _playerNum(player_num)
 		{
