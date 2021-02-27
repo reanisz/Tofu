@@ -33,7 +33,7 @@ namespace tofu {
     }
 
     template<class T, std::size_t Capacity, template<class, class, class> class TOrigin = ring_buffer::HeadOrigin>
-    class RingBuffer : public TOrigin<RingBuffer<T, Capacity, TOrigin>, T, std::size_t>
+    class RingBuffer : public TOrigin<RingBuffer<T, Capacity, TOrigin>, T, std::ptrdiff_t>
     {
     public:
         using reference = T&;

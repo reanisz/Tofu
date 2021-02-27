@@ -33,7 +33,7 @@ namespace tofu::ball
 			auto tick = _serviceLocator->Get<TickCounter>()->GetCurrent();
 			auto action_queue = _serviceLocator->Get<ActionQueue>();
 			auto data = Top();
-			for (int i = 0; i < MaxPlayerNum; i++)
+			for (PlayerID::value_type i = 0; i < MaxPlayerNum; i++)
 			{
 				auto res_find = Player::Find(_registry, i);
 				assert(res_find);

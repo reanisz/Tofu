@@ -100,7 +100,8 @@ namespace tofu::ball
 
         for (int i = 0; i < 100; i++)
         {
-            System::Update();
+            if (!System::Update())
+                return;
         }
 
         while (client.GetState() == Client::State::Lobby && System::Update())

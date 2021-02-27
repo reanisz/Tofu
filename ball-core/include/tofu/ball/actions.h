@@ -55,7 +55,7 @@ namespace tofu::ball
         {
             auto tick = command._tick;
             auto d = tick - _current;
-            if (d < _queues.size()) {
+            if (d.data() < _queues.size()) {
                 _queues[*d].push_back(std::move(command));
             }
             else {
@@ -102,7 +102,7 @@ namespace tofu::ball
         void Step();
 
     private:
-        void apply(entt::entity entity, const actions::Null& action) const noexcept
+        void apply(entt::entity, const actions::Null&) const noexcept
         {
         }
         void apply(entt::entity entity, const actions::Move& action);

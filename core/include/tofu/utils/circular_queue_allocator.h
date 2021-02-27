@@ -120,7 +120,7 @@ namespace tofu
         bool CanAllocateHead(std::size_t size)
         {
             std::intptr_t space = reinterpret_cast<std::intptr_t>(_front) - reinterpret_cast<std::intptr_t>(_buffer.get());
-            return size <= space;
+            return size <= static_cast<std::size_t>(space);
         }
 
     protected:

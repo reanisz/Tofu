@@ -7,7 +7,7 @@
 
 namespace tofu::ball
 {
-    using PlayerID = StrongNumeric<class tag_PlayerID, std::uint8_t>;
+    using PlayerID = StrongNumeric<class tag_PlayerID, std::int8_t>;
 
     struct Player
     {

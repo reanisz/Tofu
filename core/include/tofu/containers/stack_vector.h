@@ -203,7 +203,7 @@ namespace tofu {
                 return first;
             
             assert(!empty());
-            int d = std::distance(first, last);
+            auto d = std::distance(first, last);
 
             if (last == end()) {
                 _size -= d;

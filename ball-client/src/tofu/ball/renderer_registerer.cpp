@@ -1,4 +1,4 @@
-﻿#include "tofu/ball/renderer_registerer.h"
+#include "tofu/ball/renderer_registerer.h"
 
 #include <Siv3D.hpp>
 #include <tofu/utils.h>
@@ -42,7 +42,7 @@ namespace tofu::ball
         auto registry = game.getRegistry();
 
         auto renderer = service_locator->Register(std::make_unique<S3DRenderSystem>());
-        auto box2d_primitive_renderer = service_locator->Register(std::make_unique<Box2DPrimitiveRenderSystem>(service_locator, registry, 100));
+        auto box2d_primitive_renderer = service_locator->Register(std::make_unique<Box2DPrimitiveRenderSystem>(service_locator, registry, 100.0f));
 
         auto camera = service_locator->Register(std::make_unique<s3d::Camera2D>());
         camera->setCenter({ 400,300 });
