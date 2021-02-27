@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <type_traits>
 #include <optional>
@@ -35,7 +35,7 @@ namespace tofu::ball
 	template<class T> 
 	std::tuple<std::optional<T>, tofu::Error> ReadMessage(const std::shared_ptr<net::QuicStream>& stream)
 	{
-		// ƒVƒŠƒAƒ‰ƒCƒY‚¹‚¸ƒoƒCƒg—ñ‚ğ‚»‚Ì‚Ü‚Ü’ÊM‚µ‚Ä‚é‚Ì‚ÅAƒgƒŠƒrƒAƒ‹ƒRƒs[‰Â”\‚ÈŒ^‚Å‚È‚¯‚ê‚ÎˆÀ‘S‚É‘—óM‚Å‚«‚È‚¢
+		// ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã›ãšãƒã‚¤ãƒˆåˆ—ã‚’ãã®ã¾ã¾é€šä¿¡ã—ã¦ã‚‹ã®ã§ã€ãƒˆãƒªãƒ“ã‚¢ãƒ«ã‚³ãƒ”ãƒ¼å¯èƒ½ãªå‹ã§ãªã‘ã‚Œã°å®‰å…¨ã«é€å—ä¿¡ã§ããªã„
 		static_assert(std::is_trivially_copyable_v<T>);
 
         auto header = PeekHeader(stream);
@@ -59,28 +59,28 @@ namespace tofu::ball
 	template<class T> 
 	void SendMessage(const std::shared_ptr<net::QuicStream>& stream, const T& message)
 	{
-		// ƒVƒŠƒAƒ‰ƒCƒY‚¹‚¸ƒoƒCƒg—ñ‚ğ‚»‚Ì‚Ü‚Ü’ÊM‚µ‚Ä‚é‚Ì‚ÅAƒgƒŠƒrƒAƒ‹ƒRƒs[‰Â”\‚ÈŒ^‚Å‚È‚¯‚ê‚ÎˆÀ‘S‚É‘—óM‚Å‚«‚È‚¢
+		// ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã›ãšãƒã‚¤ãƒˆåˆ—ã‚’ãã®ã¾ã¾é€šä¿¡ã—ã¦ã‚‹ã®ã§ã€ãƒˆãƒªãƒ“ã‚¢ãƒ«ã‚³ãƒ”ãƒ¼å¯èƒ½ãªå‹ã§ãªã‘ã‚Œã°å®‰å…¨ã«é€å—ä¿¡ã§ããªã„
 		static_assert(std::is_trivially_copyable_v<T>);
 		
         stream->Send(reinterpret_cast<const std::byte*>(&message), sizeof(message));
 	}
 
-	// ƒT[ƒo[‚ªƒNƒ‰ƒCƒAƒ“ƒg‚É“Š‚°‚é‘€ìƒƒbƒZ[ƒW (Reliable)
+	// ã‚µãƒ¼ãƒãƒ¼ãŒã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«æŠ•ã’ã‚‹æ“ä½œãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ (Reliable)
 	inline constexpr net::StreamId ServerControlStreamId = 1;
 	namespace message_server_control
 	{
 		inline constexpr const MessageType MessageTypeBase = 0b00'0000000;
-		// Q‰Á‚ğ‹–‰Â
+		// å‚åŠ ã‚’è¨±å¯
 		struct ApproveJoin
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x01;
 
 			const MessageHeader _header = { sizeof(ApproveJoin), message_type };
 			const std::uint8_t _messageType = MessageTypeBase | 0x01;
-			std::uint8_t _playerId; // ƒvƒŒƒCƒ„[ID‚ğ’Ê’m
+			std::uint8_t _playerId; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼IDã‚’é€šçŸ¥
 		};
 
-		// Q‰Á‚ğ‹‘âB‚±‚ê‚ğ“Š‚°‚½‚ç or ó‚¯æ‚Á‚½‚çØ’f‚·‚é
+		// å‚åŠ ã‚’æ‹’çµ¶ã€‚ã“ã‚Œã‚’æŠ•ã’ãŸã‚‰ or å—ã‘å–ã£ãŸã‚‰åˆ‡æ–­ã™ã‚‹
 		struct RejectJoin
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x02;
@@ -88,7 +88,7 @@ namespace tofu::ball
 			const MessageHeader _header = { sizeof(RejectJoin), message_type };
 		};
 
-		// ƒQ[ƒ€I—¹
+		// ã‚²ãƒ¼ãƒ çµ‚äº†
 		struct CloseServer
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x03;
@@ -102,7 +102,7 @@ namespace tofu::ball
 			Reason _reason;
 		};
 
-		// ƒQ[ƒ€‚ğ‚Í‚¶‚ß‚é
+		// ã‚²ãƒ¼ãƒ ã‚’ã¯ã˜ã‚ã‚‹
 		struct StartGame
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x04;
@@ -118,7 +118,7 @@ namespace tofu::ball
 			MemberInfo _members[MaxPlayerNum];
 		};
 
-		// ƒvƒŒƒCƒ„[ƒAƒNƒVƒ‡ƒ“î•ñ‚ğƒNƒ‰ƒCƒAƒ“ƒg‚É“`‚¦‚é
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¢ã‚¯ã‚·ãƒ§ãƒ³æƒ…å ±ã‚’ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«ä¼ãˆã‚‹
 		struct SyncPlayerAction
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x05;
@@ -130,13 +130,13 @@ namespace tofu::ball
 		};
 	}
 
-	// ƒNƒ‰ƒCƒAƒ“ƒg‚ªƒT[ƒo[‚É“Š‚°‚é‘€ìƒƒbƒZ[ƒW (Reliable)
+	// ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãŒã‚µãƒ¼ãƒãƒ¼ã«æŠ•ã’ã‚‹æ“ä½œãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ (Reliable)
 	inline constexpr net::StreamId ClientControlStreamId = 2;
 	namespace message_client_control
 	{
 		inline constexpr const MessageType MessageTypeBase = 0b01'0000000;
 
-		// •”‰®‚ÉQ‰Á‚·‚é‚±‚Æ‚ğ—v¿‚·‚éB Ú‘±‚µ‚½‚ç‚Ü‚¸‚±‚ê‚ğ“Š‚°‚é
+		// éƒ¨å±‹ã«å‚åŠ ã™ã‚‹ã“ã¨ã‚’è¦è«‹ã™ã‚‹ã€‚ æ¥ç¶šã—ãŸã‚‰ã¾ãšã“ã‚Œã‚’æŠ•ã’ã‚‹
 		struct RequestJoin
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x01;
@@ -144,10 +144,10 @@ namespace tofu::ball
 			const MessageHeader _header = { sizeof(RequestJoin), message_type };
 			char _userName[30];
 		};
-		// 32byte‚É‚È‚Á‚Ä‚é‚©•sˆÀ
+		// 32byteã«ãªã£ã¦ã‚‹ã‹ä¸å®‰
 		static_assert(sizeof(RequestJoin) == 32);
 
-		// ©•ª‚ÌƒAƒNƒVƒ‡ƒ“î•ñ‚ğƒT[ƒo[‚É“`‚¦‚é
+		// è‡ªåˆ†ã®ã‚¢ã‚¯ã‚·ãƒ§ãƒ³æƒ…å ±ã‚’ã‚µãƒ¼ãƒãƒ¼ã«ä¼ãˆã‚‹
 		struct SyncPlayerAction
 		{
 			static constexpr MessageType message_type = MessageTypeBase | 0x02;

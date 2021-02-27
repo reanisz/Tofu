@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <optional>
 #include <vector>
@@ -7,8 +7,8 @@
 
 namespace tofu::net
 {
-	// Š®‘S“¯Šú•û®‚ÅƒQ[ƒ€‚ğStep‚·‚éƒVƒXƒeƒ€
-	//  TODO: ƒeƒXƒg‚ğ‘‚­
+	// å®Œå…¨åŒæœŸæ–¹å¼ã§ã‚²ãƒ¼ãƒ ã‚’Stepã™ã‚‹ã‚·ã‚¹ãƒ†ãƒ 
+	//  TODO: ãƒ†ã‚¹ãƒˆã‚’æ›¸ã
 	template<class TSyncType, std::uint32_t BufferSize>
 	class CompletelySyncSystem
 	{
@@ -33,7 +33,7 @@ namespace tofu::net
 		};
 
 	public:
-		// default_delay: “ü—Í‚Ì’x‰„ƒtƒŒ[ƒ€
+		// default_delay: å…¥åŠ›ã®é…å»¶ãƒ•ãƒ¬ãƒ¼ãƒ 
 		CompletelySyncSystem(std::size_t player_num, std::uint32_t default_delay)
 			: _playerNum(player_num)
 		{

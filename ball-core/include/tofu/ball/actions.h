@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <variant>
 #include <cstdint>
@@ -80,17 +80,17 @@ namespace tofu::ball
             }
             std::erase_if(_futureActions, [t](const ActionCommand& v) { return v._tick == t; });
 
-            // NRVO(Named Return Value Optimization)‚ğŠú‘Ò
+            // NRVO(Named Return Value Optimization)ã‚’æœŸå¾…
             return ret;
         }
 
     private:
         GameTick _current;
 
-        // _queues[x] : x Tickæ‚Éˆ—‚·‚éAction
+        // _queues[x] : x Tickå…ˆã«å‡¦ç†ã™ã‚‹Action
         std::array<std::vector<ActionCommand>, QueueCount> _queues;
 
-        // queues‚Éˆì‚ê‚é‚­‚ç‚¢–¢—ˆ‚Ìaction
+        // queuesã«æº¢ã‚Œã‚‹ãã‚‰ã„æœªæ¥ã®action
         std::vector<ActionCommand> _futureActions;
     };
 

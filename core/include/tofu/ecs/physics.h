@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <box2d/box2d.h>
 
@@ -15,12 +15,12 @@ namespace tofu
     public:
         Physics(observer_ptr<entt::registry> registry);
 
-        // Transform‚Ébox2d¢ŠE‚ğ‡‚í‚¹‚é
+        // Transformã«box2dä¸–ç•Œã‚’åˆã‚ã›ã‚‹
         void FollowTransform();
 
         void Step(float time_step);
 
-        // box2d¢ŠE‚ÉTransform‚ğ‡‚í‚¹‚é
+        // box2dä¸–ç•Œã«Transformã‚’åˆã‚ã›ã‚‹
         void WriteBackToTransform();
 
         RigidBody& GenerateBody(entt::entity entity);

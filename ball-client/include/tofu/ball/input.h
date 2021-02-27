@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <variant>
 #include <cstdint>
@@ -16,7 +16,7 @@
 
 namespace tofu::ball 
 {
-    // 1ƒtƒŒ[ƒ€‚Ìƒ†[ƒU[“ü—Íƒf[ƒ^
+    // 1ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼å…¥åŠ›ãƒ‡ãƒ¼ã‚¿
     struct InputState
     {
         constexpr void NewFrame() noexcept
@@ -58,7 +58,7 @@ namespace tofu::ball
         bool _deployed = false;
     };
 
-    // ƒ†[ƒU[“ü—Í‚ğŠÇ—‚µƒQ[ƒ€‚Éˆø‚«“n‚·‚Ğ‚Æ
+    // ãƒ¦ãƒ¼ã‚¶ãƒ¼å…¥åŠ›ã‚’ç®¡ç†ã—ã‚²ãƒ¼ãƒ ã«å¼•ãæ¸¡ã™ã²ã¨
     class InputSystem
     {
     public:
@@ -66,15 +66,15 @@ namespace tofu::ball
         {
         }
 
-        // NOTE: Step()‚ÆƒXƒŒƒbƒhƒZ[ƒt‚È‘€ì‚Å‚Í‚È‚¢‚±‚Æ‚É’ˆÓ
+        // NOTE: Step()ã¨ã‚¹ãƒ¬ãƒƒãƒ‰ã‚»ãƒ¼ãƒ•ãªæ“ä½œã§ã¯ãªã„ã“ã¨ã«æ³¨æ„
         constexpr const InputState& GetCurrent() const noexcept
         {
             return _currentState;
         }
 
-        // ¡ƒtƒŒ[ƒ€‚Ì“ü—Í‚ğŠm’è‚µAŸƒtƒŒ[ƒ€‚Ì€”õ‚ğ‚·‚é
-        // UpdateThread‘¤‚ÅŒÄ‚Ño‚·‚±‚Æ‚ª‘z’è‚³‚ê‚Ä‚¢‚é
-        //   NOTE: GetCurrent()‚ÆƒXƒŒƒbƒhƒZ[ƒt‚È‘€ì‚Å‚Í‚È‚¢‚±‚Æ‚É’ˆÓ
+        // ä»Šãƒ•ãƒ¬ãƒ¼ãƒ ã®å…¥åŠ›ã‚’ç¢ºå®šã—ã€æ¬¡ãƒ•ãƒ¬ãƒ¼ãƒ ã®æº–å‚™ã‚’ã™ã‚‹
+        // UpdateThreadå´ã§å‘¼ã³å‡ºã™ã“ã¨ãŒæƒ³å®šã•ã‚Œã¦ã„ã‚‹
+        //   NOTE: GetCurrent()ã¨ã‚¹ãƒ¬ãƒƒãƒ‰ã‚»ãƒ¼ãƒ•ãªæ“ä½œã§ã¯ãªã„ã“ã¨ã«æ³¨æ„
         void Step()
         {
             std::lock_guard lock{ _mutex };
@@ -82,8 +82,8 @@ namespace tofu::ball
             _state.NewFrame();
         }
 
-        // ¡ƒtƒŒ[ƒ€‚Ì“ü—Í‚ğˆ—‚·‚éB
-        // MainThread‘¤‚ÅŒÄ‚Ño‚·‚±‚Æ‚ª‘z’è‚³‚ê‚Ä‚¢‚é
+        // ä»Šãƒ•ãƒ¬ãƒ¼ãƒ ã®å…¥åŠ›ã‚’å‡¦ç†ã™ã‚‹ã€‚
+        // MainThreadå´ã§å‘¼ã³å‡ºã™ã“ã¨ãŒæƒ³å®šã•ã‚Œã¦ã„ã‚‹
         void Update()
         {
             std::lock_guard lock{ _mutex };

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <tofu/utils.h>
 #include <tofu/containers.h>
@@ -9,7 +9,7 @@ namespace tofu
     struct RenderCommand
     {
         TRenderVariant _command;
-        float _priority; // —Dæ“x(¬‚³‚¢•û‚ªæ)
+        float _priority; // å„ªå…ˆåº¦(å°ã•ã„æ–¹ãŒå…ˆ)
     };
 
     template<class TRenderVariant>
@@ -31,7 +31,7 @@ namespace tofu
         template<class TRenderer>
         void Render(TRenderer& renderer)
         {
-            // std::ranges::stable_sort‚ªMSVC‚Å‚Ü‚¾À‘•‚³‚ê‚Ä‚È‚©‚Á‚½BBB
+            // std::ranges::stable_sortãŒMSVCã§ã¾ã å®Ÿè£…ã•ã‚Œã¦ãªã‹ã£ãŸã€‚ã€‚ã€‚
             std::stable_sort(_commands.begin(), _commands.end(), [](const command_type& lhs, const command_type& rhs) { return lhs._priority < rhs._priority; });
             for (auto& command : _commands)
             {

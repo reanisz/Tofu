@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <functional>
 #include <typeindex>
@@ -7,7 +7,7 @@
 #include <set>
 #include <cassert>
 
-// ’´ŠÈˆÕ‚ÈAˆË‘¶ŠÖŒW‚ğ‰ğŒˆ‚·‚éƒVƒ“ƒOƒ‹ƒXƒŒƒbƒhƒWƒ‡ƒuƒXƒPƒWƒ…[ƒ‰
+// è¶…ç°¡æ˜“ãªã€ä¾å­˜é–¢ä¿‚ã‚’è§£æ±ºã™ã‚‹ã‚·ãƒ³ã‚°ãƒ«ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¸ãƒ§ãƒ–ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒ©
 namespace tofu
 {
     using job_tag = std::type_index;
@@ -168,7 +168,7 @@ namespace tofu
                     break;
                 }
 
-                // 1‚Â‚àƒ^ƒXƒN‚ğÀs‚Å‚«‚È‚©‚Á‚½‚Ì‚Í‚¨‚©‚µ‚¢
+                // 1ã¤ã‚‚ã‚¿ã‚¹ã‚¯ã‚’å®Ÿè¡Œã§ããªã‹ã£ãŸã®ã¯ãŠã‹ã—ã„
                 assert(executed);
                 if (!executed)
                 {

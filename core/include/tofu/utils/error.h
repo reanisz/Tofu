@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <fmt/core.h>
 #include <string>

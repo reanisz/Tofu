@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <type_traits>
 #include <tofu/net/quic.h>
@@ -11,7 +11,7 @@
 
 namespace tofu::ball
 {
-	// ƒVƒŠƒAƒ‰ƒCƒY‚¹‚¸ƒoƒCƒg—ñ‚ğ‚»‚Ì‚Ü‚Ü’ÊM‚µ‚Ä‚é‚Ì‚ÅAƒgƒŠƒrƒAƒ‹ƒRƒs[‰Â”\‚ÈŒ^‚Å‚È‚¯‚ê‚ÎˆÀ‘S‚É‘—óM‚Å‚«‚È‚¢
+	// ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã›ãšãƒã‚¤ãƒˆåˆ—ã‚’ãã®ã¾ã¾é€šä¿¡ã—ã¦ã‚‹ã®ã§ã€ãƒˆãƒªãƒ“ã‚¢ãƒ«ã‚³ãƒ”ãƒ¼å¯èƒ½ãªå‹ã§ãªã‘ã‚Œã°å®‰å…¨ã«é€å—ä¿¡ã§ããªã„
 	static_assert(std::is_trivially_copyable_v<SyncObject>);
 
 	inline constexpr std::uint32_t SyncBufferSize = 8;
@@ -93,11 +93,11 @@ namespace tofu::ball
 			return _playerId;
 		}
 
-		// ƒf[ƒ^‚ğóM‚µ‚Äˆê’Uƒoƒbƒtƒ@‚É’™‚ß‚é
+		// ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ã¦ä¸€æ—¦ãƒãƒƒãƒ•ã‚¡ã«è²¯ã‚ã‚‹
 		void Receive(const message_server_control::SyncPlayerAction& message);
 		void Receive(const message_client_control::SyncPlayerAction& message);
 
-		// ƒoƒbƒtƒ@‚É—­‚Ü‚Á‚Ä‚¢‚éƒf[ƒ^‚ğSyncSystem‚É‹l‚ß‚é. 1ƒtƒŒ[ƒ€‚É1“xs‚¤
+		// ãƒãƒƒãƒ•ã‚¡ã«æºœã¾ã£ã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿ã‚’SyncSystemã«è©°ã‚ã‚‹. 1ãƒ•ãƒ¬ãƒ¼ãƒ ã«1åº¦è¡Œã†
 		void ApplySyncObject();
 	private:
 		std::shared_ptr<tofu::net::QuicConnection> _quic;
@@ -107,7 +107,7 @@ namespace tofu::ball
         observer_ptr<ServiceLocator> _serviceLocator;
         observer_ptr<entt::registry> _registry;
 
-		// ŸƒtƒŒ[ƒ€‚Å“K—p‚·‚é—\’è‚ÌSyncObject
+		// æ¬¡ãƒ•ãƒ¬ãƒ¼ãƒ ã§é©ç”¨ã™ã‚‹äºˆå®šã®SyncObject
 		std::mutex _syncObjectMutex;
 		std::vector<SyncMessage> _syncObjectBuffer;
 	};

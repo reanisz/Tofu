@@ -1,4 +1,4 @@
-#include <tofu/ecs/box2d_primitive_renderer.h>
+﻿#include <tofu/ecs/box2d_primitive_renderer.h>
 
 namespace tofu {
     Box2DPrimitiveRenderSystem::Box2DPrimitiveRenderSystem(observer_ptr<ServiceLocator> service_locator, observer_ptr<entt::registry> registry, float scale)
