@@ -83,6 +83,7 @@ namespace tofu::ball
 
 		struct Config
 		{
+            std::string _ip;
 		};
 
 		Client(const Config& config)

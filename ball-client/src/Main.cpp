@@ -1,4 +1,4 @@
-﻿#include <Siv3d.hpp>
+#include <Siv3d.hpp>
 
 #include <fmt/core.h>
 
@@ -93,9 +93,13 @@ namespace tofu::ball
         }
     };
 
-    void run_as_client()
+    void run_as_client(const std::string& ip)
     {
-        Siv3DClient client(Siv3DClient::Config{});
+        Siv3DClient::Config config =
+        {
+            ._ip = ip,
+        };
+        Siv3DClient client(config);
         client.Run();
 
         for (int i = 0; i < 100; i++)
@@ -133,10 +137,31 @@ namespace tofu::ball
     }
 }
 
+void Menu()
+{
+    TextEditState textedit_ip{ U"127.0.0.1" };
+    const Font font(24);
+
+    while (System::Update())
+    {
+        auto pos = Point{ 100, 100 };
+        auto font_area = font(U"IP Address:").draw(s3d::Arg::topLeft = pos, Palette::Black);
+        if (SimpleGUI::TextBox(textedit_ip, pos + Point{ static_cast<int>(font_area.w), 0 }))
+        {
+        }
+        pos.y += font_area.h;
+        if (SimpleGUI::Button(U"Connect", pos))
+        {
+            tofu::ball::run_as_client(textedit_ip.text.toUTF8().c_str());
+            return;
+        }
+    }
+}
+
 void Main()
 {
     Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
-    tofu::ball::run_as_client();
+    Menu();
     return;
 }
 

@@ -1,4 +1,4 @@
-﻿#include <random>
+#include <random>
 
 #include "tofu/ball/net_client.h"
 #include "tofu/ball/sync.h"
@@ -107,7 +107,7 @@ namespace tofu::ball
             ._config = {
                 ._qlogDirectory = "./qlog/"
             },
-            ._serverName = "127.0.0.1",
+            ._serverName = _config._ip.c_str(),
             ._port = 12345,
             ._alpn = Alpn,
         };
