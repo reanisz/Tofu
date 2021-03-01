@@ -25,7 +25,8 @@ if(WIN32)
 
     list(APPEND BOX2D_LIBS "${BOX2D_LIB_DIR}box2d.lib")
 else()
-    # TODO
+    set(BOX2D_LIB_DIR "${PROJECT_SOURCE_DIR}/libs/box2d/build/bin/")
+    list(APPEND BOX2D_LIBS "${BOX2D_LIB_DIR}libbox2d.a")
 endif()
 
 ## ====== picoquic

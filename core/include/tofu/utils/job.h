@@ -125,7 +125,7 @@ namespace tofu
 
         std::shared_ptr<Job> GetJob(job_tag tag)
         {
-            if (auto it = std::ranges::find_if(_jobs, [tag](std::shared_ptr<Job>& job) { return job->GetTag() == tag; }); it != _jobs.end())
+            if (auto it = std::find_if(_jobs.begin(), _jobs.end(), [tag](std::shared_ptr<Job>& job) { return job->GetTag() == tag; }); it != _jobs.end())
                 return (*it);
             return nullptr;
         }

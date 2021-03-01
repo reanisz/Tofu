@@ -42,11 +42,11 @@ Tofu
 1. Tofu/libs/apply_patches.sh を叩く
 2. Tofu/libs/picotls/CMakeLists.txt をpicotlsのREADME.mdを参考にビルドする
 3. Tofu/libs/picoquic/CMakeLists.txt をpicoquicのREADME.mdを参考にビルドする
-4. Tofu/build.sh を叩く
+4. Tofu/libs/box2d/build.sh を叩いてビルドする
+5. Tofu/build.sh を叩く
 
 ## 課題
 - std::mutexだと大振りすぎる部分をspinlockに置き換える
-- 短時間にパケットを投げすぎなのでまとめる
 - 非完全同期方式の実装
 
 
