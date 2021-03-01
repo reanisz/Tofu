@@ -113,9 +113,12 @@ namespace tofu::ball
             client.UpdateAtLobby();
         }
 
+        const Font font(24);
+
         while (client.GetState() == Client::State::InGame && System::Update())
         {
             client.UpdateIngame();
+            font(U"Left Click: Shoot, Right Click: add force").draw(Point{ 0, 0 }, Palette::Black);
         }
     }
 
